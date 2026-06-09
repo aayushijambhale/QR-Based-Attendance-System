@@ -2,14 +2,58 @@ import express from 'express';
 import path from 'path';
 import jwt from 'jsonwebtoken';
 import { createServer as createViteServer } from 'vite';
+import http from 'http';
+import { Server as SocketIOServer } from 'socket.io';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { JSONDB } from './src/server/db.js';
+import { initializeAttendanceSocket, SocketNotifier } from './src/server/socket/attendanceSocket.js';
+import { generateSessionPDF } from './src/server/services/pdfService.js';
+import { generateSessionExcel } from './src/server/services/excelService.js';
+import { Notification } from './src/types.js';
 
 const db = JSONDB.getInstance();
 const app = express();
 const PORT = 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'university-attendance-secret-2026';
 
-app.use(express.json());
+// Create a combined HTTP server for REST and Socket.io operations
+const httpServer = http.createServer(app);
+const io = new SocketIOServer(httpServer, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE']
+  }
+});
+
+// Configure Socket.io listeners
+initializeAttendanceSocket(io);
+
+// SECURITY ENHANCEMENTS: Helmet, CORS, and JSON parser
+app.use(helmet({
+  contentSecurityPolicy: false, // Turn off CSP for dev in-iframe visualization
+  crossOriginEmbedderPolicy: false
+}));
+app.use(cors());
+app.use(express.json({ limit: '10mb' })); // Support larger base64 face snapshots
+
+// Rate Limiter Rules for endpoints
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 mins
+  max: 100, // max logins
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many authentication attempts. Please try again after 15 minutes.' }
+});
+
+const scanLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 mins
+  max: 60, // max scans
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Scan speed limit reached. Please retry in some minutes.' }
+});
 
 // Log incoming API requests for debugging
 app.use((req, res, next) => {
@@ -444,6 +488,49 @@ app.post('/api/qr-sessions', authenticateJWT, (req, res) => {
   res.status(201).json(newSession);
 });
 
+// Create the dedicated /api/attendance/create-session route
+app.post('/api/attendance/create-session', authenticateJWT, (req: any, res) => {
+  const { subjectId, durationMinutes } = req.body;
+  if (!subjectId || !durationMinutes) {
+    return res.status(400).json({ error: 'subjectId and durationMinutes are required' });
+  }
+
+  const subject = db.getSubjects().find(s => s.id === subjectId);
+  if (!subject) return res.status(404).json({ error: 'Subject not found' });
+
+  // Get active teacher details
+  const teacher = db.getTeachers().find(t => t.id === subject.teacherId) || db.getTeacherByEmail(req.user.email);
+  if (!teacher) return res.status(404).json({ error: 'Teacher registration not found' });
+
+  const generatedTime = new Date();
+  const expiryTime = new Date(generatedTime.getTime() + durationMinutes * 60 * 1000);
+  const sessionCode = `QR_ATT_${subject.code}_${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+  const newSession = db.createQRSession({
+    subjectId,
+    subjectName: subject.name,
+    teacherId: teacher.id,
+    teacherName: teacher.fullName,
+    generatedTime: generatedTime.toISOString(),
+    expiryTime: expiryTime.toISOString(),
+    status: 'Active',
+    sessionCode
+  });
+
+  // Post systemic broadcast notification to notify all students
+  db.createNotification({
+    userId: 'all', // global notification
+    title: 'Attendance Gate Opened',
+    message: `${teacher.fullName} started check-ins for "${subject.name}". Scan to verify attendance before timeout.`,
+    type: 'info'
+  });
+
+  // Broadcast through Socket.io
+  SocketNotifier.notifySessionStarted(newSession);
+
+  res.status(201).json(newSession);
+});
+
 app.put('/api/qr-sessions/:id/expire', authenticateJWT, (req, res) => {
   try {
     const session = db.expireQRSession(req.params.id);
@@ -739,6 +826,17 @@ app.post('/api/teacher/attendance/session', authenticateJWT, (req: any, res) => 
     sessionCode
   });
 
+  // Post systemic broadcast notification to notify all students
+  db.createNotification({
+    userId: 'all', // global notification
+    title: 'Attendance Gate Opened',
+    message: `${teacher.fullName} started check-ins for "${subject.name}". Scan to verify attendance before timeout.`,
+    type: 'info'
+  });
+
+  // Broadcast through Socket.io
+  SocketNotifier.notifySessionStarted(newSession);
+
   res.status(201).json(newSession);
 });
 
@@ -756,6 +854,8 @@ app.put('/api/teacher/attendance/session/end', authenticateJWT, (req: any, res) 
 
   try {
     const expired = db.expireQRSession(sessionId);
+    // Broadcast end session websocket event
+    SocketNotifier.notifySessionEnded(sessionId);
     res.json(expired);
   } catch (err: any) {
     res.status(404).json({ error: err.message });
@@ -1001,20 +1101,84 @@ app.get('/api/student/subjects/:id', authenticateJWT, (req: any, res) => {
   });
 });
 
+// Auxiliary helper for biometric vector verification (Euclidean Distance calculation)
+function calculateEuclideanDistance(v1: number[], v2: number[]): number {
+  if (!v1 || !v2 || v1.length !== v2.length) return 1.0;
+  let sum = 0;
+  for (let i = 0; i < v1.length; i++) {
+    sum += Math.pow(v1[i] - v2[i], 2);
+  }
+  return Math.sqrt(sum);
+}
+
+// Haversine formula helper for geodesic campus coordinates distance
+function calculateDistanceInMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371e3; // Earth's radius in meters
+  const phi1 = (lat1 * Math.PI) / 180;
+  const phi2 = (lat2 * Math.PI) / 180;
+  const deltaPhi = ((lat2 - lat1) * Math.PI) / 180;
+  const deltaLambda = ((lon2 - lon1) * Math.PI) / 180;
+
+  const a =
+    Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
+    Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c; // Distance in meters
+}
+
+// Campus center benchmark and verification threshold radius
+const CAMPUS_LAT = 18.5204;
+const CAMPUS_LNG = 73.8567;
+const MAX_RADIUS_METERS = 200; // 200 meters geo boundary fence
+
+// Geofencing Middleware: Verify student is on campus using Haversine formula
+const verifyCampusLocation = (req: any, res: any, next: any) => {
+  const { latitude, longitude } = req.body;
+  
+  if (latitude === undefined || longitude === undefined) {
+    return res.status(400).json({ error: 'GPS verification required. Please enable Geolocation on your device.' });
+  }
+
+  // Calculate geodesic distance from benchmark campus coordinates
+  const distance = calculateDistanceInMeters(
+    Number(latitude), 
+    Number(longitude), 
+    CAMPUS_LAT, 
+    CAMPUS_LNG
+  );
+
+  if (distance > MAX_RADIUS_METERS) {
+    return res.status(400).json({ 
+      error: `GPS Bounds Mismatch. Campus presence not confirmed. Distance: ${Math.round(distance)}m from campus centre. (Fence: ${MAX_RADIUS_METERS}m)` 
+    });
+  }
+
+  // Inject computed distance into req object for downstream use
+  req.campusDistance = distance;
+  next();
+};
+
 // Scan and record attendance using live QR code session validation
-app.post('/api/student/scan-attendance', authenticateJWT, (req: any, res) => {
+app.post('/api/student/scan-attendance', authenticateJWT, scanLimiter, verifyCampusLocation, (req: any, res) => {
   if (req.user.role !== 'student') {
     return res.status(403).json({ error: 'Access denied. Students only.' });
   }
-  const { sessionCode } = req.body;
+  
+  const { sessionCode, latitude, longitude, faceDescriptor, selfieImage } = req.body;
   if (!sessionCode) {
-    return res.status(400).json({ error: 'sessionCode is required' });
+    return res.status(400).json({ error: 'sessionCode has not been fetched.' });
   }
 
-  // Find active session
-  const session = db.getQRSessions().find(s => s.sessionCode === sessionCode);
+  // Support splitting complex token formatted qr code: "sessionId|qrToken"
+  const scanParts = sessionCode.split('|');
+  const targetSessionId = scanParts[0];
+  const targetQrToken = scanParts[1];
+
+  // Find active session by id or code
+  const session = db.getQRSessions().find(s => s.id === targetSessionId || s.sessionCode === targetSessionId);
   if (!session) {
-    return res.status(404).json({ error: 'Invalid attendance session code or expired QR code' });
+    return res.status(404).json({ error: 'Invalid attendance session code or expired QR code.' });
   }
 
   const now = new Date();
@@ -1022,12 +1186,35 @@ app.post('/api/student/scan-attendance', authenticateJWT, (req: any, res) => {
     return res.status(400).json({ error: 'This QR Code Session has expired' });
   }
 
+  // Validate ROTATING TOKEN if provided
+  if (targetQrToken && session.qrToken && session.qrToken !== targetQrToken) {
+    return res.status(400).json({ 
+      error: 'Expired dynamic token. Point your camera at the updated live QR code on the teacher screen.' 
+    });
+  }
+
   const student = db.getStudents().find(s => s.id === req.user.id);
   if (!student) {
     return res.status(404).json({ error: 'Student registration not found' });
   }
 
-  // Double check enrollment integrity
+  // 1. GEOLOCATION GPS VERIFICATION (ALREADY VERIFIED VIA MIDDLEWARE)
+
+  // 2. FACE BIOMETRICS VERIFICATION
+  if (student.faceDescriptor && student.faceDescriptor.length > 0) {
+    if (!faceDescriptor || !Array.isArray(faceDescriptor)) {
+      return res.status(400).json({ error: 'Facial Biometric mapping is required for validation.' });
+    }
+
+    const biometricDist = calculateEuclideanDistance(student.faceDescriptor, faceDescriptor);
+    if (biometricDist > 0.6) {
+      return res.status(400).json({ 
+        error: `Biometric matching criteria failed (distance: ${biometricDist.toFixed(3)}). Proxy protection blocked other checkout.` 
+      });
+    }
+  }
+
+  // Check enrollment integrity
   const subject = db.getSubjects().find(sub => sub.id === session.subjectId);
   if (subject && subject.department.toLowerCase() !== student.department.toLowerCase()) {
     return res.status(400).json({ error: 'You are not enrolled in this department/course' });
@@ -1052,6 +1239,7 @@ app.post('/api/student/scan-attendance', authenticateJWT, (req: any, res) => {
   const status = (minsDiff > 5) ? 'Late' : 'Present';
   const timeStr = now.toTimeString().split(' ')[0]; // HH:MM:SS
 
+  // Record Attendance with GPS Coordinates 
   const record = db.addAttendance({
     studentId: student.id,
     studentName: student.fullName,
@@ -1062,7 +1250,30 @@ app.post('/api/student/scan-attendance', authenticateJWT, (req: any, res) => {
     time: timeStr,
     status,
     teacherId: session.teacherId,
-    teacherName: session.teacherName
+    teacherName: session.teacherName,
+    latitude,
+    longitude,
+    attendanceTime: now.toISOString(),
+    selfieImage: selfieImage || ''
+  });
+
+  // Create Student Notification pushing immediately
+  db.createNotification({
+    userId: student.id,
+    title: 'Attendance Checked-In',
+    message: `Your presence has been successfully filed for "${session.subjectName}" as "${status}" with verified GPS & biometrics!`,
+    type: 'success'
+  });
+
+  // Emit websocket update so the teacher panel updates automatically in real-time
+  SocketNotifier.notifyAttendanceMarked(session.id, {
+    studentId: student.id,
+    studentName: student.fullName,
+    rollNumber: student.rollNumber,
+    status,
+    time: timeStr,
+    latitude,
+    longitude
   });
 
   res.status(201).json({
@@ -1176,15 +1387,49 @@ app.get('/api/student/reports', authenticateJWT, (req: any, res) => {
   });
 });
 
-// PDF / Excel simulation export pathways
-app.get('/api/student/reports/export/pdf', authenticateJWT, (req: any, res) => {
-  res.setHeader('Content-Type', 'text/plain');
-  res.send('Simulated PDF Reports generated and queued for download.');
+// REAL PDF / Excel and SYSTEM NOTIFICATIONS API ENDPOINTS
+app.get('/api/notifications', authenticateJWT, (req: any, res) => {
+  try {
+    const list = db.getNotifications(req.user.id);
+    res.json(list);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-app.get('/api/student/reports/export/excel', authenticateJWT, (req: any, res) => {
-  res.setHeader('Content-Type', 'text/plain');
-  res.send('Simulated Excel Reports file generated and queued for download.');
+app.put('/api/notifications/:id/read', authenticateJWT, (req: any, res) => {
+  try {
+    const updated = db.markNotificationAsRead(req.params.id);
+    res.json(updated);
+  } catch (err: any) {
+    res.status(404).json({ error: err.message });
+  }
+});
+
+app.get('/api/reports/pdf/:sessionId', authenticateJWT, async (req: any, res) => {
+  const { sessionId } = req.params;
+  try {
+    const pdfBuffer = await generateSessionPDF(sessionId);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=attendance_session_${sessionId}.pdf`);
+    res.send(pdfBuffer);
+  } catch (err: any) {
+    console.error('PDF compilation failure:', err);
+    res.status(500).send(`Failed to build PDF report: ${err.message}`);
+  }
+});
+
+app.get('/api/reports/excel/:sessionId', authenticateJWT, async (req: any, res) => {
+  const { sessionId } = req.params;
+  try {
+    const excelBuffer = await generateSessionExcel(sessionId);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename=attendance_session_${sessionId}.xlsx`);
+    res.send(excelBuffer);
+  } catch (err: any) {
+    console.error('Excel compilation failure:', err);
+    res.status(500).send(`Failed to compile Excel sheet: ${err.message}`);
+  }
 });
 
 
@@ -1210,8 +1455,9 @@ async function startViteServer() {
     console.log('[PRODUCTION] Static build server mounting to port 3000');
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[ERP ATTENDANCE SERVER] Active and listening on port ${PORT}`);
+  // Bind Combined httpServer supporting Express Routes and WebSockets to Port 3000
+  httpServer.listen(PORT, '0.0.0.0', () => {
+    console.log(`[ERP ATTENDANCE SERVER WITH SOCKETS] Full-stack hub listening on port ${PORT}`);
   });
 }
 

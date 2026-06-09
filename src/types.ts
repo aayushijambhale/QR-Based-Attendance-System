@@ -11,6 +11,7 @@ export interface Student {
   year: string; // e.g. "FE", "SE", "TE", "BE" or "1st Year", etc.
   division: string; // e.g. "A", "B", "C"
   profilePhoto: string; // URL or base64
+  faceDescriptor?: number[]; // 128-dimensional biometric float array
   createdAt: string;
   updatedAt: string;
 }
@@ -50,6 +51,10 @@ export interface Attendance {
   status: 'Present' | 'Absent' | 'Late';
   teacherId: string;
   teacherName: string;
+  latitude?: number; // Geo GPS latitude
+  longitude?: number; // Geo GPS longitude
+  attendanceTime?: string; // Verification timestamp
+  selfieImage?: string; // Face snapshot verified
   createdAt: string;
 }
 
@@ -62,7 +67,19 @@ export interface QRSession {
   generatedTime: string; // ISO string
   expiryTime: string; // ISO string
   status: 'Active' | 'Expired';
-  sessionCode: string; // Code encoded in QR
+  sessionCode: string; // Unique URL or code base
+  qrToken: string; // Rotating 30s secure token
+  lastRegeneratedAt: string; // Timestamp of token rotation
+  createdAt: string;
+}
+
+export interface Notification {
+  id: string;
+  userId: string; // Recipient user ID (or 'all' / 'admin' / 'teacher' / 'student')
+  title: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'alert';
+  isRead: boolean;
   createdAt: string;
 }
 
