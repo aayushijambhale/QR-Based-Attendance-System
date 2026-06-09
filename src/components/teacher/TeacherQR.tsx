@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../../utils/api.js';
 import { useAuth } from '../../context/AuthContext.js';
 import { QRSession, Subject } from '../../types.js';
+import QRCode from 'qrcode';
+import { io } from 'socket.io-client';
 import { 
   Plus, 
   QrCode, 
@@ -15,16 +17,89 @@ import {
 } from 'lucide-react';
 
 export const TeacherQR: React.FC = () => {
-  const { teacher } = useAuth();
+  const { teacher, token } = useAuth();
   const [sessions, setSessions] = useState<QRSession[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
   const [duration, setDuration] = useState('10'); // Standard 10 minutes default
   const [activeQRModal, setActiveQRModal] = useState<QRSession | null>(null);
+  const [qrUrl, setQrUrl] = useState<string>('');
 
   // Remaining tick timer state for inspected QR
   const [inspectedTimeLeft, setInspectedTimeLeft] = useState<string>('');
+  const [tokenSecsLeft, setTokenSecsLeft] = useState<number>(30);
+
+  // Compute Anti-Proxy Token Rotation Countdown Live
+  useEffect(() => {
+    if (!activeQRModal || activeQRModal.status !== 'Active') return;
+    
+    const updateCountdown = () => {
+      const msElapsed = Date.now() - new Date(activeQRModal.lastRegeneratedAt || activeQRModal.generatedTime).getTime();
+      const secs = 30 - Math.floor(msElapsed / 1000);
+      setTokenSecsLeft(secs > 0 ? (secs % 31) : 30);
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [activeQRModal]);
+
+  // Handle client-side qrcode library generation
+  useEffect(() => {
+    if (!activeQRModal) {
+      setQrUrl('');
+      return;
+    }
+
+    const qrData = activeQRModal.id + '|' + (activeQRModal.qrToken || activeQRModal.sessionCode);
+    
+    QRCode.toDataURL(qrData, {
+      width: 280,
+      margin: 1.5,
+      color: {
+        dark: '#0f172a', // slate-900 heading colors
+        light: '#ffffff'
+      }
+    })
+      .then(url => {
+        setQrUrl(url);
+      })
+      .catch(err => {
+        console.error('[CLIENT QR ERROR]: Failed to generate code locally', err);
+      });
+  }, [activeQRModal?.id, activeQRModal?.qrToken, activeQRModal?.sessionCode]);
+
+  // Setup active QR real-time socket updates for rotating token
+  useEffect(() => {
+    if (!token || !activeQRModal) return;
+
+    const socket = io(window.location.origin, {
+      auth: { token }
+    });
+
+    socket.on('connect', () => {
+      console.log('[SOCKET CLIENT] Listening for token rotations on QR modal');
+    });
+
+    socket.on('sessionTokenUpdated', (data: { sessionId: string; qrToken: string; lastRegeneratedAt: string }) => {
+      if (activeQRModal.id === data.sessionId) {
+        console.log('[SOCKET EVENT] Synchronizing rotating token dynamically on QR client:', data.qrToken);
+        setActiveQRModal(prev => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            qrToken: data.qrToken,
+            lastRegeneratedAt: data.lastRegeneratedAt
+          };
+        });
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [token, activeQRModal?.id]);
 
   const loadSessionsData = async () => {
     if (!teacher) return;
@@ -325,14 +400,19 @@ export const TeacherQR: React.FC = () => {
                 <p className="text-[11px] text-slate-400 mt-1 uppercase font-semibold">Broadcaster: {activeQRModal.teacherName}</p>
               </div>
 
-              {/* QR Image calling standard server */}
+              {/* QR Image containing compound sessionID and rotating token */}
               <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-md ring-4 ring-slate-50 relative shrink-0">
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(activeQRModal.sessionCode)}`}
-                  alt="Dynamic Session Attendance Check-in QR Code"
-                  referrerPolicy="no-referrer"
-                  className="h-48 w-48 object-contain select-none"
-                />
+                {qrUrl ? (
+                  <img
+                    src={qrUrl}
+                    alt="Dynamic Session Attendance Check-in QR Code"
+                    className="h-48 w-48 object-contain select-none"
+                  />
+                ) : (
+                  <div className="h-48 w-48 flex items-center justify-center">
+                    <RefreshCw className="h-6 w-6 animate-spin text-slate-400" />
+                  </div>
+                )}
 
                 {/* Expiry overlay screen */}
                 {(!(activeQRModal.status === 'Active' && new Date(activeQRModal.expiryTime) > new Date()) || inspectedTimeLeft === 'Expired') && (
@@ -343,6 +423,18 @@ export const TeacherQR: React.FC = () => {
                   </div>
                 )}
               </div>
+
+              {activeQRModal.status === 'Active' && inspectedTimeLeft !== 'Expired' && (
+                <div className="text-center select-none shrink-0">
+                  <span className="text-[9px] font-mono font-extrabold text-indigo-500 bg-indigo-50/75 border border-indigo-100 px-2.5 py-1 rounded-full uppercase tracking-wider block mb-1">
+                    Signature: {activeQRModal.qrToken ? activeQRModal.qrToken.split('_')[1] || activeQRModal.qrToken.slice(0, 10) : 'PENDING'}
+                  </span>
+                  <p className="text-[10px] text-emerald-600 mt-1.5 font-mono flex items-center justify-center gap-1">
+                    <RefreshCw className="h-3 w-3 animate-spin shrink-0 text-emerald-500" />
+                    Anti-Proxy Token rotates in: <b className="font-extrabold text-xs">{tokenSecsLeft}s</b>
+                  </p>
+                </div>
+              )}
 
               {/* Countdown clock segment */}
               <div className="w-full bg-slate-50 p-4 rounded-2xl border border-slate-100/60 shrink-0">
@@ -362,7 +454,7 @@ export const TeacherQR: React.FC = () => {
 
               {/* Simulative scan guidance */}
               <span className="text-[10px] text-slate-430 leading-normal block max-w-xs">
-                Ask students to focus their device cameras at this canvas. To simulator scans check <b>Control Console</b> in Admin.
+                Students must scan this code using their camera in Student Dashboard. Code rotates automatically to block static screenshots.
               </span>
 
               {/* Force Deactivate */}

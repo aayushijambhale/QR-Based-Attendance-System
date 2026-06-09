@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext.js';
 import { Subject, Attendance, QRSession, Student } from '../../types.js';
 import { TeacherPastSessions } from './TeacherPastSessions.js';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { io } from 'socket.io-client';
 import { 
   GraduationCap, 
   Users, 
@@ -24,7 +25,7 @@ interface Props {
 }
 
 export const TeacherDashboard: React.FC<Props> = ({ setActiveTab }) => {
-  const { teacher } = useAuth();
+  const { teacher, token } = useAuth();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [attendance, setAttendance] = useState<Attendance[]>([]);
   const [activeSession, setActiveSession] = useState<QRSession | null>(null);
@@ -71,6 +72,103 @@ export const TeacherDashboard: React.FC<Props> = ({ setActiveTab }) => {
     const interval = setInterval(loadData, 10000); // refresh every 10s
     return () => clearInterval(interval);
   }, [teacher?.id]);
+
+  // Establish live Socket.io attendance tracking subscription
+  useEffect(() => {
+    if (!token || !teacher) return;
+
+    // Connect to Backend Socket Gateway
+    const socket = io(window.location.origin, {
+      auth: { token }
+    });
+
+    socket.on('connect', () => {
+      console.log('[SOCKET CLIENT] Connected to websocket server');
+      // If we have an active QR, join its specific room
+      if (activeSession) {
+        socket.emit('joinSessionRoom', activeSession.id);
+      }
+    });
+
+    // Real-time student check-in event handler
+    socket.on('attendanceMarked', (data: any) => {
+      console.log('[SOCKET EVENT] attendanceMarked received:', data);
+      
+      const isMySubject = (activeSession && (activeSession.id === data.sessionId || activeSession.sessionCode === data.sessionCode)) || 
+                          subjects.some(s => s.id === data.subjectId) || 
+                          data.teacherId === teacher.id;
+
+      if (isMySubject) {
+        setAttendance(prev => {
+          const isDup = prev.some(a => 
+            a.id === data.id || 
+            (a.studentId === data.studentId && a.subjectId === (data.subjectId || activeSession?.subjectId) && a.date === (data.date || new Date().toISOString().split('T')[0]))
+          );
+          if (isDup) return prev;
+
+          const freshRecord: Attendance = data.attendanceRecord || {
+            id: data.id || `att_socket_${Date.now()}`,
+            studentId: data.studentId,
+            studentName: data.studentName,
+            rollNumber: data.rollNumber,
+            subjectId: data.subjectId || (activeSession ? activeSession.subjectId : ''),
+            subjectName: data.subjectName || (activeSession ? activeSession.subjectName : ''),
+            date: data.date || new Date().toISOString().split('T')[0],
+            time: data.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+            status: data.status || 'Present',
+            teacherId: teacher.id,
+            teacherName: teacher.fullName,
+            latitude: data.latitude,
+            longitude: data.longitude,
+            attendanceTime: new Date().toISOString(),
+            createdAt: new Date().toISOString()
+          };
+          return [freshRecord, ...prev];
+        });
+      }
+    });
+
+    // Universal updates
+    socket.on('attendanceUpdated', (data: any) => {
+      console.log('[SOCKET EVENT] attendanceUpdated received:', data);
+      const isMySubject = (activeSession && (activeSession.id === data.sessionId)) || 
+                          subjects.some(s => s.id === data.subjectId) || 
+                          data.teacherId === teacher.id;
+
+      if (isMySubject) {
+        setAttendance(prev => {
+          const isDup = prev.some(a => 
+            a.id === data.id || 
+            (a.studentId === data.studentId && a.subjectId === data.subjectId && a.date === data.date)
+          );
+          if (isDup) return prev;
+
+          const freshRecord: Attendance = {
+            id: data.id || `att_socket_${Date.now()}`,
+            studentId: data.studentId,
+            studentName: data.studentName,
+            rollNumber: data.rollNumber,
+            subjectId: data.subjectId,
+            subjectName: data.subjectName || (activeSession ? activeSession.subjectName : ''),
+            date: data.date || new Date().toISOString().split('T')[0],
+            time: data.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+            status: data.status || 'Present',
+            teacherId: teacher.id,
+            teacherName: teacher.fullName,
+            latitude: data.latitude,
+            longitude: data.longitude,
+            attendanceTime: new Date().toISOString(),
+            createdAt: new Date().toISOString()
+          };
+          return [freshRecord, ...prev];
+        });
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [token, teacher?.id, activeSession?.id, subjects.length]);
 
   // Handle active session ticker
   useEffect(() => {

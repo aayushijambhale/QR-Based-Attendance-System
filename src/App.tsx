@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext.js';
 import { Login } from './components/Login.js';
 import { Sidebar } from './components/Sidebar.js';
+import { NotificationBell } from './components/NotificationBell.js';
 import { Dashboard } from './components/Dashboard.js';
 import { Students } from './components/Students.js';
 import { Teachers } from './components/Teachers.js';
@@ -90,13 +91,16 @@ const AdminLayout: React.FC = () => {
 
           {/* Admin Identity segment */}
           {admin && (
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <span className="text-xs font-semibold text-slate-800 block">Logged: {admin.fullName}</span>
-                <span className="text-[10px] text-slate-400 font-medium font-mono block">System Admin</span>
-              </div>
-              <div className="h-9 w-9 bg-slate-100 border border-slate-200/50 rounded-xl flex items-center justify-center text-xs font-bold text-slate-600">
-                AD
+            <div className="flex items-center gap-4">
+              <NotificationBell />
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <span className="text-xs font-semibold text-slate-800 block">Logged: {admin.fullName}</span>
+                  <span className="text-[10px] text-slate-400 font-medium font-mono block">System Admin</span>
+                </div>
+                <div className="h-9 w-9 bg-slate-100 border border-slate-200/50 rounded-xl flex items-center justify-center text-xs font-bold text-slate-600">
+                  AD
+                </div>
               </div>
             </div>
           )}
@@ -167,16 +171,19 @@ const TeacherLayout: React.FC = () => {
 
           {/* Teacher Identity segment */}
           {teacher && (
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <span className="text-xs font-semibold text-slate-800 block">{teacher.fullName}</span>
-                <span className="text-[10px] text-slate-400 font-medium font-mono block">Dept Lecturer</span>
+            <div className="flex items-center gap-4">
+              <NotificationBell />
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <span className="text-xs font-semibold text-slate-800 block">{teacher.fullName}</span>
+                  <span className="text-[10px] text-slate-400 font-medium font-mono block">Dept Lecturer</span>
+                </div>
+                <img 
+                  src={teacher.profilePhoto || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100"} 
+                  alt="Teacher Av" 
+                  className="h-9 w-9 bg-slate-100 border border-slate-200 rounded-xl object-cover shrink-0"
+                />
               </div>
-              <img 
-                src={teacher.profilePhoto || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100"} 
-                alt="Teacher Av" 
-                className="h-9 w-9 bg-slate-100 border border-slate-200 rounded-xl object-cover shrink-0"
-              />
             </div>
           )}
         </header>
@@ -246,16 +253,19 @@ const StudentLayout: React.FC = () => {
 
           {/* Student Identity segment */}
           {student && (
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <span className="text-xs font-bold text-slate-205 block">{student.fullName}</span>
-                <span className="text-[10px] text-slate-500 font-mono block">Roll: {student.rollNumber}</span>
+            <div className="flex items-center gap-4">
+              <NotificationBell />
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <span className="text-xs font-bold text-slate-205 block">{student.fullName}</span>
+                  <span className="text-[10px] text-slate-500 font-mono block">Roll: {student.rollNumber}</span>
+                </div>
+                <img 
+                  src={student.profilePhoto || "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100"} 
+                  alt="Student Av" 
+                  className="h-9 w-9 bg-slate-900 border border-slate-800 rounded-xl object-cover shrink-0"
+                />
               </div>
-              <img 
-                src={student.profilePhoto || "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100"} 
-                alt="Student Av" 
-                className="h-9 w-9 bg-slate-900 border border-slate-800 rounded-xl object-cover shrink-0"
-              />
             </div>
           )}
         </header>

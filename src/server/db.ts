@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
-import { Student, Teacher, Subject, Attendance, QRSession, Admin, DashboardStats } from '../types.js';
+import { Student, Teacher, Subject, Attendance, QRSession, Admin, DashboardStats, Notification } from '../types.js';
 
 const DB_DIR = path.join(process.cwd(), 'data');
 const DB_FILE = path.join(DB_DIR, 'db.json');
@@ -17,6 +17,7 @@ interface Schema {
   subjects: Subject[];
   attendance: Attendance[];
   qrSessions: QRSession[];
+  notifications: Notification[];
   systemSettings: {
     collegeName: string;
     academicYear: string;
@@ -360,6 +361,15 @@ const createInitialState = (): Schema => {
   const pastSessionTime = new Date(now.getTime() - 3600 * 1000).toISOString();
   const futureSessionTime = new Date(now.getTime() + 15 * 60 * 1000).toISOString();
 
+  const seededStudents = students.map((s, idx) => {
+    // Generate a deterministically distinct biometric vector for each default student
+    const descriptorVal = 0.1 + (idx * 0.05);
+    return {
+      ...s,
+      faceDescriptor: Array(128).fill(descriptorVal)
+    };
+  });
+
   const qrSessions: QRSession[] = [
     {
       id: 'q1',
@@ -371,6 +381,8 @@ const createInitialState = (): Schema => {
       expiryTime: new Date(now.getTime() - 7200 * 1000 + 10 * 60 * 1000).toISOString(),
       status: 'Expired',
       sessionCode: 'SESSION_VAL_94812_EXPIRED',
+      qrToken: 'EXPIRED_TOKEN_94812',
+      lastRegeneratedAt: new Date(now.getTime() - 7200 * 1000).toISOString(),
       createdAt: new Date(now.getTime() - 7200 * 1000).toISOString()
     },
     {
@@ -383,6 +395,8 @@ const createInitialState = (): Schema => {
       expiryTime: futureSessionTime, // 10 mins from now
       status: 'Active',
       sessionCode: 'SESSION_VAL_23910_ACTIVE',
+      qrToken: 'ACTIVE_TOKEN_23910',
+      lastRegeneratedAt: new Date(now.getTime() - 100 * 1000).toISOString(),
       createdAt: new Date(now.getTime() - 1000 * 60 * 5).toISOString()
     }
   ];
@@ -409,20 +423,33 @@ const createInitialState = (): Schema => {
   };
 
   const studentCredentials: Record<string, string> = {};
-  students.forEach(st => {
+  seededStudents.forEach(st => {
     studentCredentials[st.rollNumber.toLowerCase()] = hashedDefaultPassword;
   });
+
+  const notifications: Notification[] = [
+    {
+      id: 'n1',
+      userId: 's1', // Aiden Mitchell
+      title: 'Welcome to ERP Check-In',
+      message: 'Your biometric profiles are successfully configured.',
+      type: 'success',
+      isRead: false,
+      createdAt: new Date().toISOString()
+    }
+  ];
 
   return {
     admins,
     adminCredentials,
     teacherCredentials,
     studentCredentials,
-    students,
+    students: seededStudents,
     teachers,
     subjects,
     attendance,
     qrSessions,
+    notifications,
     systemSettings: {
       collegeName: 'Apex Institute of Technology',
       academicYear: '2026-2027',
@@ -463,6 +490,7 @@ export class JSONDB {
         if (!this.data.subjects) this.data.subjects = [];
         if (!this.data.attendance) this.data.attendance = [];
         if (!this.data.qrSessions) this.data.qrSessions = [];
+        if (!this.data.notifications) this.data.notifications = [];
         if (!this.data.teacherCredentials) {
           this.data.teacherCredentials = {};
           const salt = bcrypt.genSaltSync(10);
@@ -752,25 +780,46 @@ export class JSONDB {
 
   // QR Session Operations
   public getQRSessions(): QRSession[] {
-    // Check and update expired status automatically
+    // Check and update expired status and rotate token automatically
     const now = new Date();
     let updated = false;
     this.data.qrSessions = this.data.qrSessions.map(s => {
+      // 1. Check expiration
       if (s.status === 'Active' && new Date(s.expiryTime) < now) {
         updated = true;
         return { ...s, status: 'Expired' };
       }
+      
+      // 2. Dynamic token rotation after 30 seconds
+      if (s.status === 'Active') {
+        const lastRegen = s.lastRegeneratedAt ? new Date(s.lastRegeneratedAt).getTime() : 0;
+        const diffMs = now.getTime() - lastRegen;
+        if (diffMs > 30 * 1000) {
+          updated = true;
+          const newToken = 'TOKEN_' + Math.random().toString(36).substring(2, 9).toUpperCase() + '_' + Math.floor(now.getTime() / 1000);
+          return {
+            ...s,
+            qrToken: newToken,
+            lastRegeneratedAt: now.toISOString()
+          };
+        }
+      }
+      
       return s;
     });
     if (updated) this.writeToDisk();
     return this.data.qrSessions;
   }
 
-  public createQRSession(session: Omit<QRSession, 'id' | 'createdAt'>): QRSession {
+  public createQRSession(session: Omit<QRSession, 'id' | 'createdAt' | 'qrToken' | 'lastRegeneratedAt'>): QRSession {
+    const nowIso = new Date().toISOString();
+    const initToken = 'TOKEN_' + Math.random().toString(36).substring(2, 9).toUpperCase() + '_' + Math.floor(Date.now() / 1000);
     const newSession: QRSession = {
       ...session,
       id: 'session_' + Math.random().toString(36).substr(2, 9),
-      createdAt: new Date().toISOString()
+      qrToken: initToken,
+      lastRegeneratedAt: nowIso,
+      createdAt: nowIso
     };
     this.data.qrSessions.push(newSession);
     this.writeToDisk();
@@ -785,6 +834,34 @@ export class JSONDB {
     session.expiryTime = new Date().toISOString();
     this.writeToDisk();
     return session;
+  }
+
+  // Notification Operations
+  public getNotifications(userId: string): Notification[] {
+    // Return all notifications matching the target userId or broadcast alerts
+    return this.data.notifications
+      .filter(n => n.userId === userId || n.userId === 'all')
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  public createNotification(n: Omit<Notification, 'id' | 'isRead' | 'createdAt'>): Notification {
+    const newNotification: Notification = {
+      ...n,
+      id: 'notif_' + Math.random().toString(36).substr(2, 9),
+      isRead: false,
+      createdAt: new Date().toISOString()
+    };
+    this.data.notifications.push(newNotification);
+    this.writeToDisk();
+    return newNotification;
+  }
+
+  public markNotificationAsRead(id: string): Notification {
+    const notif = this.data.notifications.find(n => n.id === id);
+    if (!notif) throw new Error('Notification not found');
+    notif.isRead = true;
+    this.writeToDisk();
+    return notif;
   }
 
   // General Dashboard Statistics
