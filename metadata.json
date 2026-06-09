@@ -1,0 +1,6 @@
+{
+  "name": "QR Attendance System Admin",
+  "description": "A production-grade college ERP-style management system for a QR-based attendance tracking system with student, teacher, academic subject CRUDs, dynamic QR code sessions, and complete faculty and scholar portals.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
