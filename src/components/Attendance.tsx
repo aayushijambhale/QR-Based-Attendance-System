@@ -113,13 +113,13 @@ export const AttendanceLogs: React.FC = () => {
       {/* Header and Manual Logging Action */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Attendance Ledger</h1>
-          <p className="text-slate-500 text-xs mt-1">Review live check-ins, apply filters, and manually balance historical roll-calls.</p>
+          <h1 className="text-2xl font-bold text-[#134E4A] tracking-tight">Attendance Ledger</h1>
+          <p className="text-[#64748B] text-xs mt-1">Review live check-ins, apply filters, and manually balance historical roll-calls.</p>
         </div>
         <button
           onClick={() => setShowLogModal(true)}
           id="manual-log-btn"
-          className="bg-indigo-600 hover:bg-indigo-700 hover:scale-[1.02] text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-md shadow-indigo-600/10 inline-flex items-center gap-2 cursor-pointer"
+          className="saas-button-primary inline-flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
           <span>Manual Entry Override</span>
@@ -127,33 +127,33 @@ export const AttendanceLogs: React.FC = () => {
       </div>
 
       {/* Robust Advanced Filter Board */}
-      <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-5 space-y-4">
-        <div className="flex items-center gap-2 pb-2.5 border-b border-slate-50 select-none">
-          <Filter className="h-3.5 w-3.5 text-indigo-505" />
-          <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Advanced Filter Suite</span>
+      <div className="saas-card p-5 space-y-4">
+        <div className="flex items-center gap-2 pb-2.5 border-b border-[#E2E8F0] select-none">
+          <Filter className="h-3.5 w-3.5 text-[#0F766E]" />
+          <span className="text-xs font-bold text-[#134E4A] uppercase tracking-wider">Advanced Filter Suite</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           {/* Text Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#64748B]" />
             <input
               type="text"
               placeholder="Search roll number or subject..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 focus:border-indigo-505 text-[11px] rounded-xl pl-9 pr-3 py-2.5 outline-none font-medium"
+              className="saas-input pl-9"
             />
           </div>
 
           {/* Date Picker */}
           <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#64748B] pointer-events-none" />
             <input
               type="date"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 focus:border-indigo-505 text-[11px] rounded-xl pl-9 pr-3 py-1.5 outline-none font-medium"
+              className="saas-input pl-9"
             />
           </div>
 
@@ -161,7 +161,7 @@ export const AttendanceLogs: React.FC = () => {
           <select
             value={subjectFilter}
             onChange={(e) => setSubjectFilter(e.target.value)}
-            className="bg-slate-50 border border-slate-200 text-[11px] font-medium rounded-xl p-2.5 outline-none focus:border-indigo-505"
+            className="saas-input"
           >
             <option value="All">All Course Subjects</option>
             {subjects.map(s => (
@@ -173,7 +173,7 @@ export const AttendanceLogs: React.FC = () => {
           <select
             value={studentFilter}
             onChange={(e) => setStudentFilter(e.target.value)}
-            className="bg-slate-50 border border-slate-200 text-[11px] font-medium rounded-xl p-2.5 outline-none focus:border-indigo-505"
+            className="saas-input"
           >
             <option value="All">All Students</option>
             {students.map(s => (
@@ -185,7 +185,7 @@ export const AttendanceLogs: React.FC = () => {
           <select
             value={teacherFilter}
             onChange={(e) => setTeacherFilter(e.target.value)}
-            className="bg-slate-50 border border-slate-200 text-[11px] font-medium rounded-xl p-2.5 outline-none focus:border-indigo-505"
+            className="saas-input"
           >
             <option value="All">All Instructors</option>
             {teachers.map(t => (
@@ -208,24 +208,24 @@ export const AttendanceLogs: React.FC = () => {
 
       {/* Table grid listing */}
       {loading ? (
-        <div className="text-center py-20 bg-white border border-slate-100 rounded-3xl shadow-sm">
-          <CalendarCheck className="h-10 w-10 text-indigo-505 animate-pulse mx-auto mb-3" />
-          <p className="text-xs text-slate-400">Loading ledger registry...</p>
+        <div className="text-center py-20 saas-card">
+          <CalendarCheck className="h-10 w-10 text-[#0F766E] animate-pulse mx-auto mb-3" />
+          <p className="text-xs text-[#64748B]">Loading ledger registry...</p>
         </div>
       ) : filteredLogs.length === 0 ? (
-        <div className="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm">
-          <CalendarCheck className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-          <h3 className="text-sm font-bold text-slate-700">No Logs Listed</h3>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1 mb-4">
+        <div className="saas-card p-12 text-center">
+          <CalendarCheck className="h-12 w-12 text-[#64748B] mx-auto mb-3" />
+          <h3 className="text-sm font-bold text-[#134E4A]">No Logs Listed</h3>
+          <p className="text-xs text-[#64748B] max-w-sm mx-auto mt-1 mb-4">
             No active attendance roll-calls found matching your filters/query.
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden" id="attendance-table-card">
+        <div className="saas-card overflow-hidden" id="attendance-table-card">
           <div className="overflow-x-auto">
             <table className="w-full text-left" id="attendance-table">
               <thead>
-                <tr className="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 select-none">
+                <tr className="bg-transparent text-[10px] font-bold text-[#64748B] uppercase tracking-wider border-b border-[#F1F5F9] select-none">
                   <th className="px-6 py-4">Student Name</th>
                   <th className="px-6 py-4">Roll Designator</th>
                   <th className="px-6 py-4">Academic Subject</th>
@@ -234,46 +234,46 @@ export const AttendanceLogs: React.FC = () => {
                   <th className="px-6 py-4">Lecturer Assigned</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100/80 text-xs text-slate-700">
+              <tbody className="divide-y divide-[#F1F5F9] text-sm text-[#134E4A]">
                 {filteredLogs.map((log) => {
-                  const statusColors = {
-                    Present: 'bg-emerald-50 border-emerald-100 text-emerald-800',
-                    Late: 'bg-amber-50 border-amber-100 text-amber-800',
-                    Absent: 'bg-red-50 border-red-100 text-red-800'
+                  const statusColors: any = {
+                    Present: 'saas-pill-success',
+                    Late: 'saas-pill-warning',
+                    Absent: 'saas-pill-error'
                   };
 
                   return (
-                    <tr key={log.id} className="hover:bg-slate-50/50 transition-colors" id={`attendance-row-${log.id}`}>
+                    <tr key={log.id} className="hover:bg-[#F8FAFC] transition-colors" id={`attendance-row-${log.id}`}>
                       {/* Name */}
-                      <td className="px-6 py-4 font-semibold text-slate-900">
+                      <td className="px-6 py-4 font-semibold text-[#134E4A]">
                         {log.studentName}
                       </td>
 
                       {/* Roll */}
-                      <td className="px-6 py-4 font-mono font-medium text-slate-500">
+                      <td className="px-6 py-4 font-mono font-medium text-[#64748B]">
                         {log.rollNumber}
                       </td>
 
                       {/* Course */}
-                      <td className="px-6 py-4 font-semibold text-slate-700">
+                      <td className="px-6 py-4 font-semibold text-[#134E4A]">
                         {log.subjectName}
                       </td>
 
                       {/* Date details */}
-                      <td className="px-6 py-4 font-mono text-slate-600">
+                      <td className="px-6 py-4 font-mono text-[#64748B]">
                         <span>{log.date}</span>
-                        <span className="text-[10px] text-slate-400 block mt-0.5">{log.time}</span>
+                        <span className="text-[10px] text-[#64748B] block mt-0.5">{log.time}</span>
                       </td>
 
                       {/* Status */}
                       <td className="px-6 py-4">
-                        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${statusColors[log.status] || 'bg-slate-100'}`}>
+                        <span className={`${statusColors[log.status] || 'saas-pill-warning'}`}>
                           {log.status}
                         </span>
                       </td>
 
                       {/* Teacher name */}
-                      <td className="px-6 py-4 text-slate-500">
+                      <td className="px-6 py-4 text-[#64748B]">
                         {log.teacherName}
                       </td>
                     </tr>
@@ -288,14 +288,14 @@ export const AttendanceLogs: React.FC = () => {
       {/* Manual log modal */}
       {showLogModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl border border-slate-100 overflow-hidden text-left animate-zoom-in">
+          <div className="bg-white rounded-lg w-full max-w-sm shadow-2xl border border-[#E2E8F0] overflow-hidden text-left animate-zoom-in">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E8F0] bg-[#FFFBF5]">
               <div className="flex items-center gap-2">
-                <UserCheck className="h-5 w-5 text-indigo-505" />
-                <h3 className="font-bold text-slate-800 text-sm tracking-tight">Manual Attendance Override</h3>
+                <UserCheck className="h-5 w-5 text-[#0F766E]" />
+                <h3 className="font-semibold text-[#134E4A] text-base tracking-tight">Manual Attendance Override</h3>
               </div>
-              <button onClick={() => setShowLogModal(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+              <button onClick={() => setShowLogModal(false)} className="text-[#64748B] hover:text-[#134E4A] transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -303,11 +303,11 @@ export const AttendanceLogs: React.FC = () => {
             {/* Form */}
             <form onSubmit={handleManualSubmit} className="p-6 space-y-4 text-xs">
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">1. Choose Student</label>
+                <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-2">1. Choose Student</label>
                 <select
                   value={manStudentId}
                   onChange={(e) => setManStudentId(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl p-3 outline-none focus:border-indigo-505"
+                  className="saas-input"
                 >
                   {students.map(s => (
                     <option key={s.id} value={s.id}>{s.fullName} ({s.rollNumber})</option>
@@ -316,11 +316,11 @@ export const AttendanceLogs: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">2. Academic Subject Course</label>
+                <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-2">2. Academic Subject Course</label>
                 <select
                   value={manSubjectId}
                   onChange={(e) => setManSubjectId(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl p-3 outline-none focus:border-indigo-505"
+                  className="saas-input"
                 >
                   {subjects.map(s => (
                     <option key={s.id} value={s.id}>{s.name} ({s.code})</option>
@@ -330,11 +330,11 @@ export const AttendanceLogs: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Check-in Status</label>
+                  <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-2">Check-in Status</label>
                   <select
                     value={manStatus}
                     onChange={(e) => setManStatus(e.target.value as any)}
-                    className="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl p-3 outline-none focus:border-indigo-505"
+                    className="saas-input"
                   >
                     <option value="Present">Present (Early)</option>
                     <option value="Late">Late Entry</option>
@@ -343,40 +343,40 @@ export const AttendanceLogs: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Execution Date</label>
+                  <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-2">Execution Date</label>
                   <input
                     type="date"
                     required
                     value={manDate}
                     onChange={(e) => setManDate(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl p-3 outline-none focus:border-indigo-505"
+                    className="saas-input"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Timestamp Time</label>
+                <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-2">Timestamp Time</label>
                 <input
                   type="text"
                   required
                   value={manTime}
                   onChange={(e) => setManTime(e.target.value)}
                   placeholder="09:15:00"
-                  className="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl p-3 outline-none focus:border-indigo-505"
+                  className="saas-input"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E2E8F0]">
                 <button
                   type="button"
                   onClick={() => setShowLogModal(false)}
-                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl cursor-pointer"
+                  className="saas-button-secondary"
                 >
                   Abort
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl shadow-md cursor-pointer"
+                  className="saas-button-primary"
                 >
                   Write Override
                 </button>

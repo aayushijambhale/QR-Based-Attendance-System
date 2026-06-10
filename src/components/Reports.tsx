@@ -201,7 +201,7 @@ export const Reports: React.FC = () => {
               onClick={() => setReportType('student')}
               id="report-tab-student"
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                reportType === 'student' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-550 hover:bg-slate-200/50'
+                reportType === 'student' ? 'bg-[#0F766E] text-white shadow-md shadow-[#0F766E]/20' : 'text-slate-550 hover:bg-slate-200/50'
               }`}
             >
               Student Cumulative
@@ -210,7 +210,7 @@ export const Reports: React.FC = () => {
               onClick={() => setReportType('subject')}
               id="report-tab-subject"
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                reportType === 'subject' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-550 hover:bg-slate-200/50'
+                reportType === 'subject' ? 'bg-[#0F766E] text-white shadow-md shadow-[#0F766E]/20' : 'text-slate-550 hover:bg-slate-200/50'
               }`}
             >
               Subject Summary
@@ -219,7 +219,7 @@ export const Reports: React.FC = () => {
               onClick={() => setReportType('daily')}
               id="report-tab-daily"
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                reportType === 'daily' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-550 hover:bg-slate-200/50'
+                reportType === 'daily' ? 'bg-[#0F766E] text-white shadow-md shadow-[#0F766E]/20' : 'text-slate-550 hover:bg-slate-200/50'
               }`}
             >
               Daily Headcount
@@ -228,7 +228,7 @@ export const Reports: React.FC = () => {
               onClick={() => setReportType('monthly')}
               id="report-tab-monthly"
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                reportType === 'monthly' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-550 hover:bg-slate-200/50'
+                reportType === 'monthly' ? 'bg-[#0F766E] text-white shadow-md shadow-[#0F766E]/20' : 'text-slate-550 hover:bg-slate-200/50'
               }`}
             >
               Academic Monthly (ERP)

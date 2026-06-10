@@ -228,13 +228,13 @@ export const Students: React.FC = () => {
       {/* Header and Add Student Action */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Student Enrollment Registry</h1>
-          <p className="text-slate-500 text-xs mt-1">Register, configure, and inspect all student roster parameters.</p>
+          <h1 className="text-2xl font-bold text-[#134E4A] tracking-tight">Student Enrollment Registry</h1>
+          <p className="text-[#64748B] text-xs mt-1">Register, configure, and inspect all student roster parameters.</p>
         </div>
         <button
           onClick={handleOpenAdd}
           id="add-student-trigger"
-          className="bg-indigo-600 hover:bg-indigo-700 hover:scale-[1.02] text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-md shadow-indigo-600/10 inline-flex items-center gap-2 cursor-pointer"
+          className="saas-button-primary inline-flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
           <span>Add New Student</span>
@@ -242,27 +242,27 @@ export const Students: React.FC = () => {
       </div>
 
       {/* Roster Controls Tool Belt */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+      <div className="saas-card p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
         {/* Search Searchbar */}
         <div className="relative w-full md:w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#64748B]" />
           <input
             type="text"
             placeholder="Search roster by name, roll, email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 text-xs rounded-xl pl-9 pr-4 py-2.5 outline-none transition-all placeholder:text-slate-400"
+            className="saas-input pl-9 py-2.5"
           />
         </div>
 
         {/* Dropdown Filters */}
         <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-slate-400 select-none">Dept:</span>
+            <span className="text-xs font-medium text-[#64748B] select-none">Dept:</span>
             <select
               value={deptFilter}
               onChange={(e) => setDeptFilter(e.target.value)}
-              className="bg-slate-50 border border-slate-200 text-xs font-medium rounded-xl p-2 outline-none cursor-pointer focus:border-indigo-500"
+              className="saas-input py-2"
             >
               <option value="All">All Departments</option>
               {departmentsList.map(d => (
@@ -272,11 +272,11 @@ export const Students: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-slate-400 select-none">Year:</span>
+            <span className="text-xs font-medium text-[#64748B] select-none">Year:</span>
             <select
               value={yearFilter}
               onChange={(e) => setYearFilter(e.target.value)}
-              className="bg-slate-50 border border-slate-200 text-xs font-medium rounded-xl p-2 outline-none cursor-pointer focus:border-indigo-500"
+              className="saas-input py-2"
             >
               <option value="All">All Years</option>
               {yearsList.map(y => (
@@ -289,22 +289,22 @@ export const Students: React.FC = () => {
 
       {/* Bulk action selection bar */}
       {selectedIds.length > 0 && (
-        <div className="bg-indigo-50 border border-indigo-150 rounded-2xl p-4 flex items-center justify-between animate-fade-in" id="students-bulk-actions-bar">
-          <div className="flex items-center gap-2 text-indigo-900 text-xs font-semibold">
-            <CheckSquare className="h-4 w-4 text-indigo-600" />
+        <div className="bg-[#EAF5F5] border border-[#14B8A6] rounded-lg p-4 flex items-center justify-between animate-fade-in" id="students-bulk-actions-bar">
+          <div className="flex items-center gap-2 text-[#0F766E] text-xs font-semibold">
+            <CheckSquare className="h-4 w-4 text-[#14B8A6]" />
             <span>Selected {selectedIds.length} students</span>
           </div>
           <div className="flex items-center gap-2.5">
             <button
               onClick={handleBulkExport}
-              className="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-[11px] font-bold px-3.5 py-2 rounded-xl transition-all cursor-pointer inline-flex items-center gap-1.5"
+              className="saas-button-secondary text-xs py-1.5 px-3 inline-flex items-center gap-1.5"
             >
-              <Download className="h-3.5 w-3.5 text-slate-500" />
+              <Download className="h-3.5 w-3.5 text-[#64748B]" />
               <span>Bulk Export (CSV)</span>
             </button>
             <button
               onClick={handleBulkDelete}
-              className="bg-red-650 hover:bg-red-700 text-white text-[11px] font-bold px-3.5 py-2 rounded-xl transition-all shadow-md shadow-red-600/10 cursor-pointer inline-flex items-center gap-1.5"
+              className="bg-[#EF4444] hover:bg-[#DC2626] text-white text-[11px] font-bold px-3.5 py-1.5 rounded-md transition-all shadow-sm cursor-pointer inline-flex items-center gap-1.5"
             >
               <Trash2 className="h-3.5 w-3.5" />
               <span>Bulk Delete Selected</span>
@@ -315,24 +315,24 @@ export const Students: React.FC = () => {
 
       {/* Main Table View */}
       {loading ? (
-        <div className="text-center py-20 bg-white border border-slate-100 rounded-3xl shadow-sm">
-          <GraduationCap className="h-10 w-10 text-indigo-500 animate-pulse mx-auto mb-3" />
-          <p className="text-xs text-slate-400">Filtering student registrations...</p>
+        <div className="text-center py-20 saas-card">
+          <GraduationCap className="h-10 w-10 text-[#0F766E] animate-pulse mx-auto mb-3" />
+          <p className="text-xs text-[#64748B]">Filtering student registrations...</p>
         </div>
       ) : students.length === 0 ? (
-        <div className="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm">
-          <GraduationCap className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-          <h3 className="text-sm font-bold text-slate-700">No Roster Entries Match</h3>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1 mb-4">
+        <div className="saas-card p-12 text-center">
+          <GraduationCap className="h-12 w-12 text-[#64748B] mx-auto mb-3" />
+          <h3 className="text-sm font-bold text-[#134E4A]">No Roster Entries Match</h3>
+          <p className="text-xs text-[#64748B] max-w-sm mx-auto mt-1 mb-4">
             No registrations exist for the current filter settings. Click "Add New Student" to enroll.
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden" id="students-table-card">
+        <div className="saas-card overflow-hidden" id="students-table-card">
           <div className="overflow-x-auto">
             <table className="w-full text-left" id="students-table">
               <thead>
-                <tr className="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 select-none">
+                <tr className="bg-transparent text-[10px] font-bold text-[#64748B] uppercase tracking-wider border-b border-[#F1F5F9] select-none">
                   <th className="px-6 py-4 w-12 text-center">
                     <input
                       type="checkbox"
@@ -347,13 +347,13 @@ export const Students: React.FC = () => {
                           setSelectedIds(prev => prev.filter(id => !pageIds.includes(id)));
                         }
                       }}
-                      className="accent-indigo-600 h-4 w-4 rounded border-slate-300"
+                      className="accent-[#0F766E] h-4 w-4 rounded border-[#E2E8F0]"
                     />
                   </th>
-                  <th className="px-6 py-4 cursor-pointer hover:text-indigo-600 transition-colors" onClick={() => triggerSort('fullName')}>
+                  <th className="px-6 py-4 cursor-pointer hover:text-[#0F766E] transition-colors" onClick={() => triggerSort('fullName')}>
                     Full Name {sortField === 'fullName' && (sortOrder === 'asc' ? '↑' : '↓')}
                   </th>
-                  <th className="px-6 py-4 cursor-pointer hover:text-indigo-600 transition-colors" onClick={() => triggerSort('rollNumber')}>
+                  <th className="px-6 py-4 cursor-pointer hover:text-[#0F766E] transition-colors" onClick={() => triggerSort('rollNumber')}>
                     Roll Number {sortField === 'rollNumber' && (sortOrder === 'asc' ? '↑' : '↓')}
                   </th>
                   <th className="px-6 py-4">Department / Division</th>
@@ -361,9 +361,9 @@ export const Students: React.FC = () => {
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100/80 text-xs text-slate-700">
+              <tbody className="divide-y divide-[#F1F5F9] text-sm text-[#134E4A]">
                 {paginatedStudents.map((std) => (
-                  <tr key={std.id} className={`hover:bg-slate-50/50 transition-colors ${selectedIds.includes(std.id) ? 'bg-indigo-50/25' : ''}`} id={`student-row-${std.id}`}>
+                  <tr key={std.id} className={`hover:bg-[#F8FAFC] transition-colors ${selectedIds.includes(std.id) ? 'bg-[#EAF5F5]' : ''}`} id={`student-row-${std.id}`}>
                     {/* Checkbox column */}
                     <td className="px-6 py-4 w-12 text-center">
                       <input
@@ -377,7 +377,7 @@ export const Students: React.FC = () => {
                             setSelectedIds(prev => prev.filter(id => id !== std.id));
                           }
                         }}
-                        className="accent-indigo-600 h-4 w-4 rounded border-slate-305 cursor-pointer"
+                        className="accent-[#0F766E] h-4 w-4 rounded border-[#E2E8F0] cursor-pointer"
                       />
                     </td>
                     {/* Name */}
@@ -387,29 +387,29 @@ export const Students: React.FC = () => {
                           src={std.profilePhoto}
                           alt={std.fullName}
                           referrerPolicy="no-referrer"
-                          className="h-10 w-10 rounded-xl object-cover ring-2 ring-slate-100 shrink-0"
+                          className="h-10 w-10 rounded-md object-cover ring-1 ring-[#E2E8F0] shrink-0"
                         />
                         <div>
-                          <p className="font-semibold text-slate-900 leading-tight">{std.fullName}</p>
-                          <p className="text-[10px] text-slate-400 truncate mt-0.5">{std.email}</p>
+                          <p className="font-semibold text-[#134E4A] leading-tight">{std.fullName}</p>
+                          <p className="text-xs text-[#64748B] truncate mt-0.5">{std.email}</p>
                         </div>
                       </div>
                     </td>
 
                     {/* Roll */}
-                    <td className="px-6 py-4 font-mono font-medium text-slate-600">
+                    <td className="px-6 py-4 font-mono font-medium text-[#64748B]">
                       {std.rollNumber}
                     </td>
 
                     {/* Dept */}
                     <td className="px-6 py-4">
-                      <span className="font-semibold text-slate-800 block text-[11px]">{std.department}</span>
-                      <span className="text-[10px] text-slate-400 block mt-0.5">Division: {std.division}</span>
+                      <span className="font-medium text-[#134E4A] block text-sm">{std.department}</span>
+                      <span className="text-xs text-[#64748B] block mt-0.5">Division: {std.division}</span>
                     </td>
 
                     {/* Year level badges */}
                     <td className="px-6 py-4">
-                      <span className="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-700 uppercase">
+                      <span className="saas-pill-success">
                         {std.year}
                       </span>
                     </td>
@@ -421,7 +421,7 @@ export const Students: React.FC = () => {
                           onClick={() => handleOpenView(std)}
                           id={`student-view-${std.id}`}
                           title="View student card"
-                          className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition-all cursor-pointer"
+                          className="p-1.5 text-[#64748B] hover:text-[#0F766E] hover:bg-[#EAF5F5] rounded-md transition-all cursor-pointer"
                         >
                           <Eye className="h-4 w-4" />
                         </button>
@@ -429,7 +429,7 @@ export const Students: React.FC = () => {
                           onClick={() => handleOpenEdit(std)}
                           id={`student-edit-${std.id}`}
                           title="Edit student particulars"
-                          className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-slate-100 rounded-lg transition-all cursor-pointer"
+                          className="p-1.5 text-[#64748B] hover:text-[#F59E0B] hover:bg-[#FEF3C7] rounded-md transition-all cursor-pointer"
                         >
                           <Edit className="h-4 w-4" />
                         </button>
@@ -437,7 +437,7 @@ export const Students: React.FC = () => {
                           onClick={() => handleDelete(std.id, std.fullName)}
                           id={`student-delete-${std.id}`}
                           title="Deregister student"
-                          className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-slate-100 rounded-lg transition-all cursor-pointer"
+                          className="p-1.5 text-[#64748B] hover:text-[#EF4444] hover:bg-[#FEE2E2] rounded-md transition-all cursor-pointer"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -451,23 +451,23 @@ export const Students: React.FC = () => {
 
           {/* Pagination bar */}
           {totalPages > 1 && (
-            <div className="bg-slate-50 border-t border-slate-100 px-6 py-4 flex items-center justify-between" id="students-pagination">
-              <span className="text-xs text-slate-500">
+            <div className="bg-white border-t border-[#F1F5F9] px-6 py-4 flex items-center justify-between" id="students-pagination">
+              <span className="text-sm text-[#64748B]">
                 Displaying <b>{startIndex + 1} - {Math.min(startIndex + itemsPerPage, students.length)}</b> of <b>{students.length}</b> enrolled
               </span>
               <div className="flex items-center gap-1.5">
                 <button
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(currentPage - 1)}
-                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 disabled:opacity-40 select-none cursor-pointer"
+                  className="p-1.5 rounded-md border border-[#E2E8F0] bg-white hover:bg-[#FFFBF5] text-[#64748B] disabled:opacity-40 select-none cursor-pointer"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
-                <span className="mx-2 text-xs font-semibold text-slate-700">Page {currentPage} of {totalPages}</span>
+                <span className="mx-2 text-sm font-medium text-[#134E4A]">Page {currentPage} of {totalPages}</span>
                 <button
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage(currentPage + 1)}
-                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 disabled:opacity-40 select-none cursor-pointer"
+                  className="p-1.5 rounded-md border border-[#E2E8F0] bg-white hover:bg-[#FFFBF5] text-[#64748B] disabled:opacity-40 select-none cursor-pointer"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
@@ -480,18 +480,18 @@ export const Students: React.FC = () => {
       {/* Roster form dialog / Popups */}
       {showModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl border border-slate-100 overflow-hidden text-left animate-zoom-in">
+          <div className="bg-white rounded-lg w-full max-w-lg shadow-2xl border border-[#E2E8F0] overflow-hidden text-left animate-zoom-in">
             {/* Title segment */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E8F0] bg-[#FFFBF5]">
               <div className="flex items-center gap-2">
-                <UserCheck className="h-5 w-5 text-indigo-500" />
-                <h3 className="font-bold text-slate-800 text-sm tracking-tight">
+                <UserCheck className="h-5 w-5 text-[#0F766E]" />
+                <h3 className="font-semibold text-[#134E4A] text-base tracking-tight">
                   {modalMode === 'add' && 'Enroll New Student'}
                   {modalMode === 'edit' && 'Edit Student Record'}
                   {modalMode === 'view' && 'Inspection Profile Card'}
                 </h3>
               </div>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+              <button onClick={() => setShowModal(false)} className="text-[#64748B] hover:text-[#134E4A] transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -499,45 +499,45 @@ export const Students: React.FC = () => {
             {modalMode === 'view' && selectedStudent ? (
               // Display Detail card
               <div className="p-6 space-y-6">
-                <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left border-b border-slate-100 pb-5">
+                <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left border-b border-[#E2E8F0] pb-5">
                   <img
                     src={selectedStudent.profilePhoto}
                     alt={selectedStudent.fullName}
                     referrerPolicy="no-referrer"
-                    className="h-24 w-24 rounded-2xl object-cover ring-4 ring-indigo-50 shadow-md"
+                    className="h-24 w-24 rounded-md object-cover ring-1 ring-[#E2E8F0]"
                   />
                   <div>
-                    <h4 className="text-xl font-bold text-slate-900">{selectedStudent.fullName}</h4>
-                    <span className="text-xs bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-lg px-2.5 py-1 inline-block mt-2 font-bold uppercase">
+                    <h4 className="text-xl font-bold text-[#134E4A]">{selectedStudent.fullName}</h4>
+                    <span className="text-xs bg-[#EAF5F5] text-[#0F766E] border border-[#14B8A6] rounded-md px-2.5 py-1 inline-block mt-2 font-medium uppercase">
                       {selectedStudent.year}
                     </span>
-                    <span className="text-xs text-slate-400 block mt-2">Registration ID: {selectedStudent.id}</span>
+                    <span className="text-xs text-[#64748B] block mt-2">Registration ID: {selectedStudent.id}</span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 text-xs">
-                  <div className="bg-slate-50/70 p-3.5 rounded-2xl border border-slate-100">
-                    <span className="block text-slate-400 mb-1 font-semibold uppercase tracking-wider text-[9px]">Class Roll Number</span>
-                    <span className="font-mono font-bold text-sm text-slate-800">{selectedStudent.rollNumber}</span>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="bg-[#FFFBF5] p-3.5 rounded-md border border-[#E2E8F0]">
+                    <span className="block text-[#64748B] mb-1 font-semibold uppercase tracking-wider text-[10px]">Class Roll Number</span>
+                    <span className="font-mono font-medium text-[#134E4A]">{selectedStudent.rollNumber}</span>
                   </div>
-                  <div className="bg-slate-50/70 p-3.5 rounded-2xl border border-slate-100">
-                    <span className="block text-slate-400 mb-1 font-semibold uppercase tracking-wider text-[9px]">Enrolled Department</span>
-                    <span className="font-bold text-slate-800">{selectedStudent.department}</span>
+                  <div className="bg-[#FFFBF5] p-3.5 rounded-md border border-[#E2E8F0]">
+                    <span className="block text-[#64748B] mb-1 font-semibold uppercase tracking-wider text-[10px]">Enrolled Department</span>
+                    <span className="font-medium text-[#134E4A]">{selectedStudent.department}</span>
                   </div>
-                  <div className="bg-slate-50/70 p-3.5 rounded-2xl border border-slate-100">
-                    <span className="block text-slate-400 mb-1 font-semibold uppercase tracking-wider text-[9px]">Class Division</span>
-                    <span className="font-mono font-bold text-sm text-slate-800">Division {selectedStudent.division}</span>
+                  <div className="bg-[#FFFBF5] p-3.5 rounded-md border border-[#E2E8F0]">
+                    <span className="block text-[#64748B] mb-1 font-semibold uppercase tracking-wider text-[10px]">Class Division</span>
+                    <span className="font-mono font-medium text-[#134E4A]">Division {selectedStudent.division}</span>
                   </div>
-                  <div className="bg-slate-50/70 p-3.5 rounded-2xl border border-slate-100">
-                    <span className="block text-slate-400 mb-1 font-semibold uppercase tracking-wider text-[9px]">Email Coordinates</span>
-                    <span className="font-bold text-slate-800 truncate block">{selectedStudent.email}</span>
+                  <div className="bg-[#FFFBF5] p-3.5 rounded-md border border-[#E2E8F0]">
+                    <span className="block text-[#64748B] mb-1 font-semibold uppercase tracking-wider text-[10px]">Email Coordinates</span>
+                    <span className="font-medium text-[#134E4A] truncate block">{selectedStudent.email}</span>
                   </div>
                 </div>
 
                 <div className="text-right pt-4">
                   <button
                     onClick={() => setShowModal(false)}
-                    className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white min-w-[100px] text-xs font-semibold rounded-xl cursor-pointer"
+                    className="saas-button-secondary"
                   >
                     Close Sheet
                   </button>
@@ -548,47 +548,47 @@ export const Students: React.FC = () => {
               <form onSubmit={handleFormSubmit} className="p-6 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2">
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Student Full Name *</label>
+                    <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-2">Student Full Name *</label>
                     <input
                       type="text"
                       required
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="Aayushi Jambhale"
-                      className="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl p-3 outline-none focus:border-indigo-505 focus:bg-white"
+                      className="saas-input"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Class Roll Number *</label>
+                    <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-2">Class Roll Number *</label>
                     <input
                       type="text"
                       required
                       value={rollNumber}
                       onChange={(e) => setRollNumber(e.target.value)}
                       placeholder="CS-2023-45"
-                      className="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl p-3 outline-none focus:border-indigo-505 focus:bg-white"
+                      className="saas-input"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Email Identity *</label>
+                    <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-2">Email Identity *</label>
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="name@student.edu"
-                      className="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl p-3 outline-none focus:border-indigo-505 focus:bg-white"
+                      className="saas-input"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Roster Department *</label>
+                    <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-2">Roster Department *</label>
                     <select
                       value={department}
                       onChange={(e) => setDepartment(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl p-3 outline-none focus:border-indigo-505"
+                      className="saas-input"
                     >
                       {departmentsList.map(d => (
                         <option key={d} value={d}>{d}</option>
@@ -597,11 +597,11 @@ export const Students: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Division Identity *</label>
+                    <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-2">Division Identity *</label>
                     <select
                       value={division}
                       onChange={(e) => setDivision(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl p-3 outline-none focus:border-indigo-505"
+                      className="saas-input"
                     >
                       <option value="A">A</option>
                       <option value="B">B</option>
@@ -610,11 +610,11 @@ export const Students: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Academics Year Level *</label>
+                    <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-2">Academics Year Level *</label>
                     <select
                       value={year}
                       onChange={(e) => setYear(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl p-3 outline-none focus:border-indigo-505"
+                      className="saas-input"
                     >
                       <option value="FE">FE (First Year)</option>
                       <option value="SE">SE (Second Year)</option>
@@ -624,28 +624,28 @@ export const Students: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Profile Photo URL (Optional)</label>
+                    <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-2">Profile Photo URL (Optional)</label>
                     <input
                       type="url"
                       value={profilePhoto}
                       onChange={(e) => setProfilePhoto(e.target.value)}
                       placeholder="https://..."
-                      className="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl p-3 outline-none focus:border-indigo-505 focus:bg-white"
+                      className="saas-input"
                     />
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-100">
+                <div className="flex items-center justify-end gap-3 pt-6 border-t border-[#E2E8F0]">
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl cursor-pointer"
+                    className="saas-button-secondary"
                   >
                     Cancel Action
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl shadow-md cursor-pointer"
+                    className="saas-button-primary"
                   >
                     {modalMode === 'add' ? 'Confirm Registry' : 'Save Changes'}
                   </button>
