@@ -113,20 +113,28 @@ const AttendanceSchema: Schema = new Schema({
 // ==========================================
 export interface IAttendanceSession extends Document {
   subjectId: string;
+  subjectName: string;
   teacherId: string;
-  qrToken: string;
-  generatedAt: Date;
-  expiresAt: Date;
+  teacherName: string;
+  generatedTime: string;
+  expiryTime: string;
   status: 'Active' | 'Expired';
+  sessionCode: string;
+  qrToken: string;
+  lastRegeneratedAt: string;
 }
 
 const AttendanceSessionSchema: Schema = new Schema({
   subjectId: { type: String, required: true, index: true },
+  subjectName: { type: String, default: '' },
   teacherId: { type: String, required: true },
-  qrToken: { type: String, required: true, unique: true },
-  generatedAt: { type: Date, default: Date.now },
-  expiresAt: { type: Date, required: true },
-  status: { type: String, enum: ['Active', 'Expired'], default: 'Active' }
+  teacherName: { type: String, default: '' },
+  generatedTime: { type: String, required: true },
+  expiryTime: { type: String, required: true },
+  status: { type: String, enum: ['Active', 'Expired'], default: 'Active' },
+  sessionCode: { type: String, required: true, unique: true },
+  qrToken: { type: String, required: true },
+  lastRegeneratedAt: { type: String, required: true }
 }, { timestamps: true });
 
 // ==========================================

@@ -14,17 +14,87 @@
 
 /* Glassmorphism custom components */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 .glass-panel-dark {
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Premium Gradient Borders */
+.gradient-border {
+  position: relative;
+  background: linear-gradient(to right, #3B82F6, #8B5CF6);
+  padding: 1px;
+  border-radius: 28px;
+}
+.gradient-border-content {
+  background: #ffffff;
+  border-radius: 27px;
+}
+
+.gradient-border-dark {
+  position: relative;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(139, 92, 246, 0.3));
+  padding: 1px;
+  border-radius: 28px;
+}
+.gradient-border-dark-content {
+  background: #0F172A;
+  border-radius: 27px;
+}
+
+/* Floating Elevation Shadows */
+.shadow-premium-light {
+  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.04),
+              0 1px 3px -1px rgba(15, 23, 42, 0.05),
+              0 0 0 1px rgba(15, 23, 42, 0.02);
+}
+
+.shadow-premium-dark {
+  box-shadow: 0 20px 40px -15px rgba(2, 6, 23, 0.6),
+              0 1px 3px -1px rgba(255, 255, 255, 0.05);
+}
+
+.glow-indigo {
+  box-shadow: 0 0 30px 0 rgba(99, 102, 241, 0.15);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 30px 0 rgba(16, 185, 129, 0.15);
+}
+
+/* Radar Scan Keyframes for Scanner UI */
+@keyframes scan-line {
+  0% { top: 0%; opacity: 0.1; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 100%; opacity: 0.1; }
+}
+
+.scanner-laser {
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(to right, transparent, #22C55E, transparent);
+  box-shadow: 0 0 12px 2px #22C55E;
+  animation: scan-line 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.2; }
+  50% { transform: scale(1.05); opacity: 0.4; }
+  100% { transform: scale(0.95); opacity: 0.2; }
+}
+
+.pulse-glow-ring {
+  animation: pulse-ring 3s ease-in-out infinite;
 }
 
 /* Styled scrollbar for modern looks */

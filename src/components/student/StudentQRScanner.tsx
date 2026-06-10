@@ -337,25 +337,41 @@ export const StudentQRScanner: React.FC = () => {
 
         {/* PANEL C: Camera Simulation */}
         {activeMethod === 'camera' && (
-          <div id="panel-camera" className="w-full max-w-xs text-center space-y-6">
+          <div id="panel-camera" className="w-full max-w-sm text-center space-y-7">
             
             {/* Visual Viewfinder framing box styling */}
-            <div className="relative aspect-square max-w-[180px] mx-auto bg-slate-950 border border-slate-850 rounded-2xl flex items-center justify-center overflow-hidden">
-              {/* Pulsing corners styling */}
-              <div className="absolute top-3 left-3 h-4 w-4 border-t-2 border-l-2 border-emerald-400 animate-pulse" />
-              <div className="absolute top-3 right-3 h-4 w-4 border-t-2 border-r-2 border-emerald-400 animate-pulse" />
-              <div className="absolute bottom-3 left-3 h-4 w-4 border-b-2 border-l-2 border-emerald-400 animate-pulse" />
-              <div className="absolute bottom-3 right-3 h-4 w-4 border-b-2 border-r-2 border-emerald-400 animate-pulse" />
+            <div className="relative aspect-square max-w-[260px] mx-auto bg-slate-950 border border-slate-800 rounded-[28px] flex items-center justify-center overflow-hidden shadow-[0_0_40px_rgba(16,185,129,0.15)] group">
+              {/* Pulsing corners styling with thick sci-fi bracket style borders */}
+              <div className="absolute top-5 left-5 h-6 w-6 border-t-4 border-l-4 border-emerald-400 rounded-tl-md transition-all duration-300 group-hover:scale-105" />
+              <div className="absolute top-5 right-5 h-6 w-6 border-t-4 border-r-4 border-emerald-400 rounded-tr-md transition-all duration-300 group-hover:scale-105" />
+              <div className="absolute bottom-5 left-5 h-6 w-6 border-b-4 border-l-4 border-emerald-400 rounded-bl-md transition-all duration-300 group-hover:scale-105" />
+              <div className="absolute bottom-5 right-5 h-6 w-6 border-b-4 border-r-4 border-emerald-400 rounded-br-md transition-all duration-300 group-hover:scale-105" />
+
+              {/* Glowing camera lens / ring indicator background decoration */}
+              <div className="absolute inset-8 rounded-full border border-emerald-500/10 pointer-events-none flex items-center justify-center">
+                <div className="h-24 w-24 rounded-full bg-emerald-500/5 animate-pulse" />
+              </div>
 
               {simulatedCameraScanning ? (
-                <div className="space-y-2 text-center animate-pulse z-10">
-                  <div className="h-1 bg-emerald-500/80 w-32 rounded-full mx-auto" />
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Focusing lens...</p>
-                </div>
+                <>
+                  {/* Flashing target center reticle */}
+                  <div className="absolute h-5 w-5 border border-dashed border-emerald-300/40 rounded-full animate-ping z-20" />
+                  
+                  {/* Animated laser horizontal beam spanning entire frame width */}
+                  <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_12px_#10b981] scanner-laser z-20" />
+                  
+                  <div className="space-y-2 text-center z-10 select-none animate-pulse">
+                    <p className="text-[10px] text-emerald-400 font-mono font-bold uppercase tracking-widest">DECODING MATRIX PARAMS...</p>
+                    <p className="text-[9px] text-slate-500 font-semibold font-mono tracking-wider">LATENCY: 42ms &bull; ACCURACY: 99.8%</p>
+                  </div>
+                </>
               ) : (
-                <div className="text-slate-600 flex flex-col items-center justify-center">
-                  <Camera className="h-8 w-8 animate-bounce mb-3 text-slate-450" />
-                  <span className="text-[9px] font-extrabold text-slate-500 tracking-widest uppercase mt-1">Camera Feed</span>
+                <div className="text-slate-500 flex flex-col items-center justify-center z-10 transition-all duration-300 group-hover:text-emerald-400">
+                  <div className="h-14 w-14 rounded-full bg-white/5 border border-white/5 flex items-center justify-center mb-4 shadow-inner group-hover:-translate-y-1 transition-transform">
+                    <Camera className="h-6 w-6 animate-pulse text-emerald-400" />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-400 tracking-widest uppercase block">READY TO COMMENCE SCAN</span>
+                  <span className="text-[9px] font-semibold text-slate-500 block mt-1 tracking-wide uppercase">Point at broadcasting gateway</span>
                 </div>
               )}
             </div>
@@ -364,10 +380,10 @@ export const StudentQRScanner: React.FC = () => {
               onClick={handleSimulateCameraTrigger}
               id="simulate-camera-scan-btn"
               disabled={simulatedCameraScanning || loading}
-              className="bg-slate-950 border border-slate-850 hover:bg-slate-900 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-300 transition-colors uppercase gap-2 items-center inline-flex select-none cursor-pointer"
+              className="bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white shadow-lg shadow-emerald-500/20 px-6 py-3.5 rounded-xl text-xs font-bold transition-all uppercase tracking-wider gap-2 items-center inline-flex select-none cursor-pointer active:scale-95"
             >
-              <RefreshCcw className={`h-3.5 w-3.5 ${simulatedCameraScanning ? 'animate-spin' : ''}`} />
-              <span>{simulatedCameraScanning ? 'Decoding QR...' : 'Simulate Camera Frame'}</span>
+              <RefreshCcw className={`h-4 w-4 ${simulatedCameraScanning ? 'animate-spin' : ''}`} />
+              <span>{simulatedCameraScanning ? 'Decrypting Session...' : 'Initiate Camera Stream'}</span>
             </button>
           </div>
         )}

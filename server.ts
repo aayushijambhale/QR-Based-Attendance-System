@@ -1,4 +1,5 @@
 import express from 'express';
+import fs from 'fs';
 import path from 'path';
 import jwt from 'jsonwebtoken';
 import { createServer as createViteServer } from 'vite';
@@ -55,29 +56,51 @@ const scanLimiter = rateLimit({
   message: { error: 'Scan speed limit reached. Please retry in some minutes.' }
 });
 
+// Log helper to append debugging information to a local file
+const debugLog = (msg: string) => {
+  try {
+    const logDir = path.join(process.cwd(), 'data');
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true });
+    }
+    fs.appendFileSync(
+      path.join(logDir, 'server_debug.log'),
+      `[${new Date().toISOString()}] ${msg}\n`
+    );
+  } catch (err) {
+    console.error('Debug log failed:', err);
+  }
+};
+
 // Log incoming API requests for debugging
 app.use((req, res, next) => {
   console.log(`[API REQUEST] ${req.method} ${req.url}`);
+  debugLog(`REQUEST: ${req.method} ${req.url} | Headers: ${JSON.stringify(req.headers)}`);
   next();
 });
 
 // Middleware to verify JWT token
 const authenticateJWT = (req: any, res: any, next: any) => {
   const authHeader = req.headers.authorization;
+  debugLog(`authenticateJWT active for url ${req.url} | authHeader: ${authHeader || 'NONE'}`);
   if (!authHeader) {
+    debugLog(`authenticateJWT failed for ${req.url}: authHeader missing`);
     return res.status(401).json({ error: 'Authorization header missing' });
   }
 
   const token = authHeader.split(' ')[1];
   if (!token) {
+    debugLog(`authenticateJWT failed for ${req.url}: token missing`);
     return res.status(401).json({ error: 'Access token missing' });
   }
 
   try {
     const verified = jwt.verify(token, JWT_SECRET) as any;
     req.user = verified;
+    debugLog(`authenticateJWT verified successfully for ${req.url}: user role ${verified.role}`);
     next();
-  } catch (err) {
+  } catch (err: any) {
+    debugLog(`authenticateJWT verification throwing error for ${req.url}: ${err.message}`);
     return res.status(403).json({ error: 'Invalid or expired token' });
   }
 };
