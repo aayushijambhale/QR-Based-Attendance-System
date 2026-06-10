@@ -8,14 +8,14 @@ export async function generateSessionExcel(sessionId: string): Promise<Buffer> {
   const worksheet = workbook.addWorksheet('Attendance Report');
 
   // 1. Fetch data
-  const session = db.getQRSessions().find(s => s.id === sessionId);
+  const session = (await db.getQRSessions()).find(s => s.id === sessionId);
   if (!session) {
     throw new Error('Attendance session not found');
   }
 
-  const subject = db.getSubjects().find(s => s.id === session.subjectId);
-  const attendanceLogs = db.getAttendance().filter(a => a.subjectId === session.subjectId && a.date === session.generatedTime.split('T')[0]);
-  const enrolledStudents = db.getStudents().filter(
+  const subject = (await db.getSubjects()).find(s => s.id === session.subjectId);
+  const attendanceLogs = (await db.getAttendance()).filter(a => a.subjectId === session.subjectId && a.date === session.generatedTime.split('T')[0]);
+  const enrolledStudents = (await db.getStudents()).filter(
     s => s.department.toLowerCase() === (subject?.department || '').toLowerCase()
   );
 

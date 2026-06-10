@@ -27,10 +27,10 @@ export function initializeAttendanceSocket(io: SocketIOServer) {
   });
 
   // Background secure QR token auto-regeneration (ticking every 1-2 seconds for high responsiveness)
-  setInterval(() => {
+  setInterval(async () => {
     try {
       const db = JSONDB.getInstance();
-      const sessions = db.getQRSessions(); // This triggers expiration check and rotating token generation in db.json if 30s elapsed
+      const sessions = await db.getQRSessions(); // This triggers expiration check and rotating token generation in db.json if 30s elapsed
 
       sessions.forEach(s => {
         if (s.status === 'Active') {

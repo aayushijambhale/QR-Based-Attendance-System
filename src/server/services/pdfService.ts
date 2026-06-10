@@ -4,7 +4,7 @@ import { JSONDB } from '../db.js';
 const db = JSONDB.getInstance();
 
 export function generateSessionPDF(sessionId: string): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
       const doc = new PDFDocument({ margin: 50, size: 'A4' });
       const buffers: Buffer[] = [];
@@ -14,16 +14,16 @@ export function generateSessionPDF(sessionId: string): Promise<Buffer> {
       doc.on('error', (err) => reject(err));
 
       // 1. Fetch Session and Subject Details
-      const session = db.getQRSessions().find(s => s.id === sessionId);
+      const session = (await db.getQRSessions()).find(s => s.id === sessionId);
       if (!session) {
         throw new Error('Attendance session not found');
       }
 
-      const subject = db.getSubjects().find(s => s.id === session.subjectId);
-      const attendanceLogs = db.getAttendance().filter(a => a.subjectId === session.subjectId && a.date === session.generatedTime.split('T')[0]);
+      const subject = (await db.getSubjects()).find(s => s.id === session.subjectId);
+      const attendanceLogs = (await db.getAttendance()).filter(a => a.subjectId === session.subjectId && a.date === session.generatedTime.split('T')[0]);
 
       // Metrics calculation
-      const totalEnrolled = db.getStudents().filter(s => s.department.toLowerCase() === (subject?.department || '').toLowerCase()).length;
+      const totalEnrolled = (await db.getStudents()).filter(s => s.department.toLowerCase() === (subject?.department || '').toLowerCase()).length;
       const totalPresent = attendanceLogs.filter(a => a.status === 'Present').length;
       const totalLate = attendanceLogs.filter(a => a.status === 'Late').length;
       const totalAttended = totalPresent + totalLate;
@@ -137,7 +137,7 @@ export function generateSessionPDF(sessionId: string): Promise<Buffer> {
       doc.font('Helvetica').fontSize(8).fillColor('#334155');
 
       // Loop through enrolled students to see if present or absent
-      const enrolledStudents = db.getStudents().filter(
+      const enrolledStudents = (await db.getStudents()).filter(
         s => s.department.toLowerCase() === (subject?.department || '').toLowerCase()
       );
 

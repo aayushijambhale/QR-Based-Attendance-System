@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+import mongoose from 'mongoose';
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
@@ -16,6 +19,18 @@ import { Notification } from './src/types.js';
 
 const db = JSONDB.getInstance();
 const app = express();
+// MongoDB Connection & Seeding
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/attendance';
+mongoose.connect(MONGODB_URI)
+  .then(async () => {
+    console.log(`[DATABASE] MongoDB successfully connected to: ${MONGODB_URI.split('@').pop()}`);
+    const { seedDatabase } = await import('./src/server/db.js');
+    await seedDatabase();
+  })
+  .catch(err => {
+    console.error('[DATABASE] Critical: MongoDB connection failed!', err);
+  });
+
 const PORT = 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'university-attendance-secret-2026';
 
@@ -110,20 +125,20 @@ const authenticateJWT = (req: any, res: any, next: any) => {
 // ==========================================
 
 // Login endpoint
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
   }
 
-  const admin = db.getAdminByEmail(email);
+  const admin = await db.getAdminByEmail(email);
   if (!admin) {
     return res.status(401).json({ error: 'Invalid email or password' });
   }
 
   // Check credentials
-  const hashedPw = db.getAdminCredentials(email);
+  const hashedPw = await db.getAdminCredentials(email);
   if (!hashedPw) {
     return res.status(401).json({ error: 'Invalid email or password' });
   }
@@ -157,9 +172,9 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 // Get current user details (Admin, Teacher or Student)
-app.get('/api/auth/me', authenticateJWT, (req: any, res) => {
+app.get('/api/auth/me', authenticateJWT,  async (req: any, res) => {
   if (req.user.role === 'teacher') {
-    const teacher = db.getTeacherByEmail(req.user.email);
+    const teacher = await db.getTeacherByEmail(req.user.email);
     if (!teacher) {
       return res.status(404).json({ error: 'Teacher user not found' });
     }
@@ -167,7 +182,7 @@ app.get('/api/auth/me', authenticateJWT, (req: any, res) => {
   }
 
   if (req.user.role === 'student') {
-    const student = db.getStudents().find(s => s.id === req.user.id);
+    const student = (await db.getStudents()).find(s => s.id === req.user.id);
     if (!student) {
       return res.status(404).json({ error: 'Student user not found' });
     }
@@ -175,7 +190,7 @@ app.get('/api/auth/me', authenticateJWT, (req: any, res) => {
   }
 
   // Default to admin for backwards compatibility
-  const admin = db.getAdminByEmail(req.user.email);
+  const admin = await db.getAdminByEmail(req.user.email);
   if (!admin) {
     return res.status(404).json({ error: 'Admin user not found' });
   }
@@ -185,15 +200,15 @@ app.get('/api/auth/me', authenticateJWT, (req: any, res) => {
 // ==========================================
 // 2. DASHBOARD STATS ENDPOINT
 // ==========================================
-app.get('/api/dashboard/stats', authenticateJWT, (req, res) => {
-  res.json(db.getDashboardStats());
+app.get('/api/dashboard/stats', authenticateJWT,  async (req, res) => {
+  res.json(await db.getDashboardStats());
 });
 
 // ==========================================
 // 3. STUDENT ENDPOINTS (CRUD)
 // ==========================================
-app.get('/api/students', authenticateJWT, (req, res) => {
-  let list = db.getStudents();
+app.get('/api/students', authenticateJWT,  async (req, res) => {
+  let list = await db.getStudents();
   
   // Apply Search
   const query = req.query.q as string;
@@ -221,7 +236,7 @@ app.get('/api/students', authenticateJWT, (req, res) => {
   res.json(list);
 });
 
-app.post('/api/students', authenticateJWT, (req, res) => {
+app.post('/api/students', authenticateJWT,  async (req, res) => {
   const { fullName, rollNumber, email, department, year, division, profilePhoto } = req.body;
   if (!fullName || !rollNumber || !email || !department || !year || !division) {
     return res.status(400).json({ error: 'Missing required student fields' });
@@ -229,7 +244,7 @@ app.post('/api/students', authenticateJWT, (req, res) => {
 
   try {
     const defaultPhoto = profilePhoto || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fullName)}`;
-    const newStudent = db.createStudent({
+    const newStudent = await db.createStudent({
       fullName,
       rollNumber,
       email,
@@ -244,18 +259,18 @@ app.post('/api/students', authenticateJWT, (req, res) => {
   }
 });
 
-app.put('/api/students/:id', authenticateJWT, (req, res) => {
+app.put('/api/students/:id', authenticateJWT,  async (req, res) => {
   try {
-    const updated = db.updateStudent(req.params.id, req.body);
+    const updated = await db.updateStudent(req.params.id, req.body);
     res.json(updated);
   } catch (err: any) {
     res.status(404).json({ error: err.message });
   }
 });
 
-app.delete('/api/students/:id', authenticateJWT, (req, res) => {
+app.delete('/api/students/:id', authenticateJWT,  async (req, res) => {
   try {
-    db.deleteStudent(req.params.id);
+    await db.deleteStudent(req.params.id);
     res.json({ success: true, message: 'Student deleted successfully' });
   } catch (err: any) {
     res.status(404).json({ error: err.message });
@@ -266,8 +281,8 @@ app.delete('/api/students/:id', authenticateJWT, (req, res) => {
 // ==========================================
 // 4. TEACHER ENDPOINTS (CRUD)
 // ==========================================
-app.get('/api/teachers', authenticateJWT, (req, res) => {
-  let list = db.getTeachers();
+app.get('/api/teachers', authenticateJWT,  async (req, res) => {
+  let list = await db.getTeachers();
 
   // Apply Search
   const query = req.query.q as string;
@@ -290,7 +305,7 @@ app.get('/api/teachers', authenticateJWT, (req, res) => {
   res.json(list);
 });
 
-app.post('/api/teachers', authenticateJWT, (req, res) => {
+app.post('/api/teachers', authenticateJWT,  async (req, res) => {
   const { fullName, employeeId, email, department, phoneNumber, profilePhoto } = req.body;
   if (!fullName || !employeeId || !email || !department || !phoneNumber) {
     return res.status(400).json({ error: 'Missing required teacher fields' });
@@ -298,7 +313,7 @@ app.post('/api/teachers', authenticateJWT, (req, res) => {
 
   try {
     const defaultPhoto = profilePhoto || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fullName)}`;
-    const newTeacher = db.createTeacher({
+    const newTeacher = await db.createTeacher({
       fullName,
       employeeId,
       email,
@@ -312,18 +327,18 @@ app.post('/api/teachers', authenticateJWT, (req, res) => {
   }
 });
 
-app.put('/api/teachers/:id', authenticateJWT, (req, res) => {
+app.put('/api/teachers/:id', authenticateJWT,  async (req, res) => {
   try {
-    const updated = db.updateTeacher(req.params.id, req.body);
+    const updated = await db.updateTeacher(req.params.id, req.body);
     res.json(updated);
   } catch (err: any) {
     res.status(404).json({ error: err.message });
   }
 });
 
-app.delete('/api/teachers/:id', authenticateJWT, (req, res) => {
+app.delete('/api/teachers/:id', authenticateJWT,  async (req, res) => {
   try {
-    db.deleteTeacher(req.params.id);
+    await db.deleteTeacher(req.params.id);
     res.json({ success: true, message: 'Teacher deleted successfully' });
   } catch (err: any) {
     res.status(404).json({ error: err.message });
@@ -334,8 +349,8 @@ app.delete('/api/teachers/:id', authenticateJWT, (req, res) => {
 // ==========================================
 // 5. SUBJECT ENDPOINTS (CRUD)
 // ==========================================
-app.get('/api/subjects', authenticateJWT, (req, res) => {
-  let list = db.getSubjects();
+app.get('/api/subjects', authenticateJWT,  async (req, res) => {
+  let list = await db.getSubjects();
 
   // Apply Search
   const query = req.query.q as string;
@@ -357,14 +372,14 @@ app.get('/api/subjects', authenticateJWT, (req, res) => {
   res.json(list);
 });
 
-app.post('/api/subjects', authenticateJWT, (req, res) => {
+app.post('/api/subjects', authenticateJWT,  async (req, res) => {
   const { name, code, department, semester, teacherId } = req.body;
   if (!name || !code || !department || !semester) {
     return res.status(400).json({ error: 'Missing required subject fields' });
   }
 
   try {
-    const newSubject = db.createSubject({
+    const newSubject = await db.createSubject({
       name,
       code,
       department,
@@ -377,18 +392,18 @@ app.post('/api/subjects', authenticateJWT, (req, res) => {
   }
 });
 
-app.put('/api/subjects/:id', authenticateJWT, (req, res) => {
+app.put('/api/subjects/:id', authenticateJWT,  async (req, res) => {
   try {
-    const updated = db.updateSubject(req.params.id, req.body);
+    const updated = await db.updateSubject(req.params.id, req.body);
     res.json(updated);
   } catch (err: any) {
     res.status(404).json({ error: err.message });
   }
 });
 
-app.delete('/api/subjects/:id', authenticateJWT, (req, res) => {
+app.delete('/api/subjects/:id', authenticateJWT,  async (req, res) => {
   try {
-    db.deleteSubject(req.params.id);
+    await db.deleteSubject(req.params.id);
     res.json({ success: true, message: 'Subject deleted successfully' });
   } catch (err: any) {
     res.status(404).json({ error: err.message });
@@ -399,8 +414,8 @@ app.delete('/api/subjects/:id', authenticateJWT, (req, res) => {
 // ==========================================
 // 6. ATTENDANCE ENDPOINTS
 // ==========================================
-app.get('/api/attendance', authenticateJWT, (req, res) => {
-  let list = db.getAttendance();
+app.get('/api/attendance', authenticateJWT,  async (req, res) => {
+  let list = await db.getAttendance();
 
   // Filter Date (YYYY-MM-DD)
   const date = req.query.date as string;
@@ -440,23 +455,23 @@ app.get('/api/attendance', authenticateJWT, (req, res) => {
 });
 
 // Create attendance logs manually by Admin
-app.post('/api/attendance', authenticateJWT, (req, res) => {
+app.post('/api/attendance', authenticateJWT,  async (req, res) => {
   const { studentId, subjectId, date, time, status } = req.body;
   if (!studentId || !subjectId || !date || !time || !status) {
     return res.status(400).json({ error: 'Missing required attendance fields' });
   }
 
-  const student = db.getStudents().find(s => s.id === studentId);
-  const subject = db.getSubjects().find(sub => sub.id === subjectId);
+  const student = (await db.getStudents()).find(s => s.id === studentId);
+  const subject = (await db.getSubjects()).find(sub => sub.id === subjectId);
   
   if (!student) return res.status(404).json({ error: 'Student not found' });
   if (!subject) return res.status(404).json({ error: 'Subject not found' });
 
-  const teacher = db.getTeachers().find(t => t.id === subject.teacherId);
+  const teacher = (await db.getTeachers()).find(t => t.id === subject.teacherId);
   const teacherName = teacher ? teacher.fullName : 'Not Assigned';
   const teacherId = teacher ? teacher.id : '';
 
-  const newRecord = db.addAttendance({
+  const newRecord = await db.addAttendance({
     studentId,
     studentName: student.fullName,
     rollNumber: student.rollNumber,
@@ -476,20 +491,20 @@ app.post('/api/attendance', authenticateJWT, (req, res) => {
 // ==========================================
 // 7. QR SESSIONS ENDPOINTS
 // ==========================================
-app.get('/api/qr-sessions', authenticateJWT, (req, res) => {
-  res.json(db.getQRSessions());
+app.get('/api/qr-sessions', authenticateJWT,  async (req, res) => {
+  res.json(await db.getQRSessions());
 });
 
-app.post('/api/qr-sessions', authenticateJWT, (req, res) => {
+app.post('/api/qr-sessions', authenticateJWT,  async (req, res) => {
   const { subjectId, durationMinutes } = req.body;
   if (!subjectId || !durationMinutes) {
     return res.status(400).json({ error: 'Subject and duration are required' });
   }
 
-  const subject = db.getSubjects().find(s => s.id === subjectId);
+  const subject = (await db.getSubjects()).find(s => s.id === subjectId);
   if (!subject) return res.status(404).json({ error: 'Subject not found' });
 
-  const teacher = db.getTeachers().find(t => t.id === subject.teacherId);
+  const teacher = (await db.getTeachers()).find(t => t.id === subject.teacherId);
   const teacherName = teacher ? teacher.fullName : 'Not Assigned';
   const teacherId = teacher ? teacher.id : '';
 
@@ -497,7 +512,7 @@ app.post('/api/qr-sessions', authenticateJWT, (req, res) => {
   const expiryTime = new Date(generatedTime.getTime() + durationMinutes * 60 * 1000);
   const sessionCode = `QR_ATT_${subject.code}_${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-  const newSession = db.createQRSession({
+  const newSession = await db.createQRSession({
     subjectId,
     subjectName: subject.name,
     teacherId,
@@ -512,24 +527,24 @@ app.post('/api/qr-sessions', authenticateJWT, (req, res) => {
 });
 
 // Create the dedicated /api/attendance/create-session route
-app.post('/api/attendance/create-session', authenticateJWT, (req: any, res) => {
+app.post('/api/attendance/create-session', authenticateJWT,  async (req: any, res) => {
   const { subjectId, durationMinutes } = req.body;
   if (!subjectId || !durationMinutes) {
     return res.status(400).json({ error: 'subjectId and durationMinutes are required' });
   }
 
-  const subject = db.getSubjects().find(s => s.id === subjectId);
+  const subject = (await db.getSubjects()).find(s => s.id === subjectId);
   if (!subject) return res.status(404).json({ error: 'Subject not found' });
 
   // Get active teacher details
-  const teacher = db.getTeachers().find(t => t.id === subject.teacherId) || db.getTeacherByEmail(req.user.email);
+  const teacher = (await db.getTeachers()).find(t => t.id === subject.teacherId) || await db.getTeacherByEmail(req.user.email);
   if (!teacher) return res.status(404).json({ error: 'Teacher registration not found' });
 
   const generatedTime = new Date();
   const expiryTime = new Date(generatedTime.getTime() + durationMinutes * 60 * 1000);
   const sessionCode = `QR_ATT_${subject.code}_${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-  const newSession = db.createQRSession({
+  const newSession = await db.createQRSession({
     subjectId,
     subjectName: subject.name,
     teacherId: teacher.id,
@@ -541,7 +556,7 @@ app.post('/api/attendance/create-session', authenticateJWT, (req: any, res) => {
   });
 
   // Post systemic broadcast notification to notify all students
-  db.createNotification({
+  await db.createNotification({
     userId: 'all', // global notification
     title: 'Attendance Gate Opened',
     message: `${teacher.fullName} started check-ins for "${subject.name}". Scan to verify attendance before timeout.`,
@@ -554,9 +569,9 @@ app.post('/api/attendance/create-session', authenticateJWT, (req: any, res) => {
   res.status(201).json(newSession);
 });
 
-app.put('/api/qr-sessions/:id/expire', authenticateJWT, (req, res) => {
+app.put('/api/qr-sessions/:id/expire', authenticateJWT,  async (req, res) => {
   try {
-    const session = db.expireQRSession(req.params.id);
+    const session = await db.expireQRSession(req.params.id);
     res.json(session);
   } catch (err: any) {
     res.status(404).json({ error: err.message });
@@ -567,7 +582,7 @@ app.put('/api/qr-sessions/:id/expire', authenticateJWT, (req, res) => {
 // ==========================================
 // 7.5 SCAN SIMULATOR: ADD ENTRY BY QR CODE
 // ==========================================
-app.post('/api/qr-sessions/scan', authenticateJWT, (req, res) => {
+app.post('/api/qr-sessions/scan', authenticateJWT,  async (req, res) => {
   const { sessionCode, studentId } = req.body;
 
   if (!sessionCode || !studentId) {
@@ -575,7 +590,7 @@ app.post('/api/qr-sessions/scan', authenticateJWT, (req, res) => {
   }
 
   // Find active session
-  const session = db.getQRSessions().find(s => s.sessionCode === sessionCode);
+  const session = (await db.getQRSessions()).find(s => s.sessionCode === sessionCode);
   if (!session) {
     return res.status(404).json({ error: 'Invalid attendance session code' });
   }
@@ -585,14 +600,14 @@ app.post('/api/qr-sessions/scan', authenticateJWT, (req, res) => {
   }
 
   // Find student
-  const student = db.getStudents().find(s => s.id === studentId);
+  const student = (await db.getStudents()).find(s => s.id === studentId);
   if (!student) {
     return res.status(404).json({ error: 'Student registration not found' });
   }
 
   // Check if student already has attendance log for this session today
   const todayStr = new Date().toISOString().split('T')[0];
-  const alreadyLogged = db.getAttendance().some(
+  const alreadyLogged = (await db.getAttendance()).some(
     a => a.studentId === studentId && 
          a.subjectId === session.subjectId && 
          a.date === todayStr
@@ -611,7 +626,7 @@ app.post('/api/qr-sessions/scan', authenticateJWT, (req, res) => {
   const now = new Date();
   const timeStr = now.toTimeString().split(' ')[0]; // HH:MM:SS
 
-  const record = db.addAttendance({
+  const record = await db.addAttendance({
     studentId,
     studentName: student.fullName,
     rollNumber: student.rollNumber,
@@ -635,24 +650,24 @@ app.post('/api/qr-sessions/scan', authenticateJWT, (req, res) => {
 // ==========================================
 // 8. SETTINGS & PROFILE MANAGEMENT
 // ==========================================
-app.get('/api/settings', authenticateJWT, (req, res) => {
-  res.json(db.getSystemSettings());
+app.get('/api/settings', authenticateJWT,  async (req, res) => {
+  res.json(await db.getSystemSettings());
 });
 
-app.put('/api/settings', authenticateJWT, (req, res) => {
-  const updated = db.updateSystemSettings(req.body);
+app.put('/api/settings', authenticateJWT,  async (req, res) => {
+  const updated = await db.updateSystemSettings(req.body);
   res.json(updated);
 });
 
 // Update profile details
-app.put('/api/auth/profile', authenticateJWT, (req: any, res) => {
+app.put('/api/auth/profile', authenticateJWT,  async (req: any, res) => {
   const { fullName, email, currentPassword, newPassword } = req.body;
   if (!fullName || !email) {
     return res.status(400).json({ error: 'Full Name and Email are required' });
   }
 
   const oldEmail = req.user.email;
-  const admin = db.getAdminByEmail(oldEmail);
+  const admin = await db.getAdminByEmail(oldEmail);
   if (!admin) {
     return res.status(404).json({ error: 'Admin not found' });
   }
@@ -660,22 +675,21 @@ app.put('/api/auth/profile', authenticateJWT, (req: any, res) => {
   try {
     // If Admin is updating password
     if (newPassword && currentPassword) {
-      const hashedPw = db.getAdminCredentials(oldEmail);
+      const hashedPw = await db.getAdminCredentials(oldEmail);
       if (hashedPw) {
-        import('bcryptjs').then((bcryptModule) => {
-          const bcrypt = bcryptModule.default;
-          if (!bcrypt.compareSync(currentPassword, hashedPw)) {
-            return res.status(400).json({ error: 'Existing password does not match' });
-          }
-          db.updateAdminPassword(email, newPassword);
-          const updated = db.updateAdminProfile(admin.id, fullName, email);
-          res.json({ admin: updated, message: 'Profile and password updated successfully' });
-        });
+        const bcryptModule = await import('bcryptjs');
+        const bcrypt = bcryptModule.default;
+        if (!bcrypt.compareSync(currentPassword, hashedPw)) {
+          return res.status(400).json({ error: 'Existing password does not match' });
+        }
+        await db.updateAdminPassword(email, newPassword);
+        const updated = await db.updateAdminProfile(admin.id, fullName, email);
+        res.json({ admin: updated, message: 'Profile and password updated successfully' });
         return;
       }
     }
 
-    const updated = db.updateAdminProfile(admin.id, fullName, email);
+    const updated = await db.updateAdminProfile(admin.id, fullName, email);
     res.json({ admin: updated, message: 'Profile updated successfully' });
   } catch (err: any) {
     res.status(400).json({ error: err.message });
@@ -688,19 +702,19 @@ app.put('/api/auth/profile', authenticateJWT, (req: any, res) => {
 // ==========================================
 
 // Teacher Login
-app.post('/api/teacher/login', (req, res) => {
+app.post('/api/teacher/login', async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
   }
 
-  const teacher = db.getTeacherByEmail(email);
+  const teacher = await db.getTeacherByEmail(email);
   if (!teacher) {
     return res.status(401).json({ error: 'Invalid teacher email or password' });
   }
 
-  const hashedPw = db.getTeacherCredentials(email);
+  const hashedPw = await db.getTeacherCredentials(email);
   if (!hashedPw) {
     return res.status(401).json({ error: 'Invalid teacher email or password' });
   }
@@ -731,16 +745,16 @@ app.post('/api/teacher/login', (req, res) => {
 });
 
 // Teacher Logout
-app.post('/api/teacher/logout', (req, res) => {
+app.post('/api/teacher/logout', async (req, res) => {
   res.json({ success: true, message: 'Teacher logged out successfully' });
 });
 
 // Get current teacher profile
-app.get('/api/teacher/profile', authenticateJWT, (req: any, res) => {
+app.get('/api/teacher/profile', authenticateJWT,  async (req: any, res) => {
   if (req.user.role !== 'teacher') {
     return res.status(403).json({ error: 'Access denied. Teachers only.' });
   }
-  const teacher = db.getTeacherByEmail(req.user.email);
+  const teacher = await db.getTeacherByEmail(req.user.email);
   if (!teacher) {
     return res.status(404).json({ error: 'Teacher profile not found' });
   }
@@ -748,7 +762,7 @@ app.get('/api/teacher/profile', authenticateJWT, (req: any, res) => {
 });
 
 // Edit teacher profile / change password
-app.put('/api/teacher/profile', authenticateJWT, (req: any, res) => {
+app.put('/api/teacher/profile', authenticateJWT,  async (req: any, res) => {
   if (req.user.role !== 'teacher') {
     return res.status(403).json({ error: 'Access denied. Teachers only.' });
   }
@@ -759,66 +773,65 @@ app.put('/api/teacher/profile', authenticateJWT, (req: any, res) => {
   }
 
   const oldEmail = req.user.email;
-  const teacher = db.getTeacherByEmail(oldEmail);
+  const teacher = await db.getTeacherByEmail(oldEmail);
   if (!teacher) {
     return res.status(404).json({ error: 'Teacher not found' });
   }
 
   try {
-    const handleProfileUpdate = () => {
-      const updated = db.updateTeacher(teacher.id, { fullName, email, phoneNumber });
+    const handleProfileUpdate = async () => {
+      const updated = await db.updateTeacher(teacher.id, { fullName, email, phoneNumber });
       res.json({ teacher: updated, message: 'Profile updated successfully' });
     };
 
     if (newPassword && currentPassword) {
-      const hashedPw = db.getTeacherCredentials(oldEmail);
+      const hashedPw = await db.getTeacherCredentials(oldEmail);
       if (hashedPw) {
-        import('bcryptjs').then((bcryptModule) => {
-          const bcrypt = bcryptModule.default;
-          if (!bcrypt.compareSync(currentPassword, hashedPw)) {
-            return res.status(400).json({ error: 'Existing password does not match' });
-          }
-          db.updateTeacherPassword(email, newPassword);
-          handleProfileUpdate();
-        });
+        const bcryptModule = await import('bcryptjs');
+        const bcrypt = bcryptModule.default;
+        if (!bcrypt.compareSync(currentPassword, hashedPw)) {
+          return res.status(400).json({ error: 'Existing password does not match' });
+        }
+        await db.updateTeacherPassword(email, newPassword);
+        await handleProfileUpdate();
         return;
       }
     }
 
-    handleProfileUpdate();
+    await handleProfileUpdate();
   } catch (err: any) {
     res.status(400).json({ error: err.message });
   }
 });
 
 // Get assigned subjects
-app.get('/api/teacher/subjects', authenticateJWT, (req: any, res) => {
+app.get('/api/teacher/subjects', authenticateJWT,  async (req: any, res) => {
   if (req.user.role !== 'teacher') {
     return res.status(403).json({ error: 'Access denied' });
   }
-  const teacher = db.getTeacherByEmail(req.user.email);
+  const teacher = await db.getTeacherByEmail(req.user.email);
   if (!teacher) return res.status(404).json({ error: 'Teacher not found' });
 
-  const list = db.getSubjects().filter(s => s.teacherId === teacher.id);
+  const list = (await db.getSubjects()).filter(s => s.teacherId === teacher.id);
   res.json(list);
 });
 
 // Get subject details with enrolled students list
-app.get('/api/teacher/subjects/:id', authenticateJWT, (req: any, res) => {
+app.get('/api/teacher/subjects/:id', authenticateJWT,  async (req: any, res) => {
   if (req.user.role !== 'teacher') {
     return res.status(403).json({ error: 'Access denied' });
   }
-  const subject = db.getSubjects().find(s => s.id === req.params.id);
+  const subject = (await db.getSubjects()).find(s => s.id === req.params.id);
   if (!subject) return res.status(404).json({ error: 'Subject not found' });
 
   // Get enrolled students by matching department
-  const students = db.getStudents().filter(s => s.department.toLowerCase() === subject.department.toLowerCase());
+  const students = (await db.getStudents()).filter(s => s.department.toLowerCase() === subject.department.toLowerCase());
   
   res.json({ subject, students });
 });
 
 // Create attendance session
-app.post('/api/teacher/attendance/session', authenticateJWT, (req: any, res) => {
+app.post('/api/teacher/attendance/session', authenticateJWT,  async (req: any, res) => {
   if (req.user.role !== 'teacher') {
     return res.status(403).json({ error: 'Access denied' });
   }
@@ -828,17 +841,17 @@ app.post('/api/teacher/attendance/session', authenticateJWT, (req: any, res) => 
     return res.status(400).json({ error: 'subjectId and durationMinutes are required' });
   }
 
-  const subject = db.getSubjects().find(s => s.id === subjectId);
+  const subject = (await db.getSubjects()).find(s => s.id === subjectId);
   if (!subject) return res.status(404).json({ error: 'Subject not found' });
 
-  const teacher = db.getTeacherByEmail(req.user.email);
+  const teacher = await db.getTeacherByEmail(req.user.email);
   if (!teacher) return res.status(404).json({ error: 'Teacher not found' });
 
   const generatedTime = new Date();
   const expiryTime = new Date(generatedTime.getTime() + durationMinutes * 60 * 1000);
   const sessionCode = `QR_ATT_${subject.code}_${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-  const newSession = db.createQRSession({
+  const newSession = await db.createQRSession({
     subjectId,
     subjectName: subject.name,
     teacherId: teacher.id,
@@ -850,7 +863,7 @@ app.post('/api/teacher/attendance/session', authenticateJWT, (req: any, res) => 
   });
 
   // Post systemic broadcast notification to notify all students
-  db.createNotification({
+  await db.createNotification({
     userId: 'all', // global notification
     title: 'Attendance Gate Opened',
     message: `${teacher.fullName} started check-ins for "${subject.name}". Scan to verify attendance before timeout.`,
@@ -864,19 +877,19 @@ app.post('/api/teacher/attendance/session', authenticateJWT, (req: any, res) => 
 });
 
 // Get target session info
-app.get('/api/teacher/attendance/session/:id', authenticateJWT, (req: any, res) => {
-  const session = db.getQRSessions().find(s => s.id === req.params.id);
+app.get('/api/teacher/attendance/session/:id', authenticateJWT,  async (req: any, res) => {
+  const session = (await db.getQRSessions()).find(s => s.id === req.params.id);
   if (!session) return res.status(404).json({ error: 'Session not found' });
   res.json(session);
 });
 
 // End active QR session
-app.put('/api/teacher/attendance/session/end', authenticateJWT, (req: any, res) => {
+app.put('/api/teacher/attendance/session/end', authenticateJWT,  async (req: any, res) => {
   const { sessionId } = req.body;
   if (!sessionId) return res.status(400).json({ error: 'sessionId is required' });
 
   try {
-    const expired = db.expireQRSession(sessionId);
+    const expired = await db.expireQRSession(sessionId);
     // Broadcast end session websocket event
     SocketNotifier.notifySessionEnded(sessionId);
     res.json(expired);
@@ -886,15 +899,15 @@ app.put('/api/teacher/attendance/session/end', authenticateJWT, (req: any, res) 
 });
 
 // Get live attendance list for current session or general student-wise
-app.get('/api/teacher/attendance', authenticateJWT, (req: any, res) => {
+app.get('/api/teacher/attendance', authenticateJWT,  async (req: any, res) => {
   if (req.user.role !== 'teacher') {
     return res.status(455).json({ error: 'Access denied' });
   }
   
-  const teacher = db.getTeacherByEmail(req.user.email);
+  const teacher = await db.getTeacherByEmail(req.user.email);
   if (!teacher) return res.status(404).json({ error: 'Teacher not found' });
 
-  let list = db.getAttendance().filter(a => a.teacherId === teacher.id);
+  let list = (await db.getAttendance()).filter(a => a.teacherId === teacher.id);
 
   // Filter by subject
   const subjectId = req.query.subjectId as string;
@@ -912,28 +925,28 @@ app.get('/api/teacher/attendance', authenticateJWT, (req: any, res) => {
 });
 
 // Get previous attendance records
-app.get('/api/teacher/attendance/history', authenticateJWT, (req: any, res) => {
+app.get('/api/teacher/attendance/history', authenticateJWT,  async (req: any, res) => {
   if (req.user.role !== 'teacher') {
     return res.status(403).json({ error: 'Access denied' });
   }
-  const teacher = db.getTeacherByEmail(req.user.email);
+  const teacher = await db.getTeacherByEmail(req.user.email);
   if (!teacher) return res.status(404).json({ error: 'Teacher not found' });
 
-  const list = db.getAttendance().filter(a => a.teacherId === teacher.id);
+  const list = (await db.getAttendance()).filter(a => a.teacherId === teacher.id);
   res.json(list);
 });
 
 // Get attendance report data
-app.get('/api/teacher/attendance/report', authenticateJWT, (req: any, res) => {
+app.get('/api/teacher/attendance/report', authenticateJWT,  async (req: any, res) => {
   if (req.user.role !== 'teacher') {
     return res.status(403).json({ error: 'Access denied' });
   }
-  const teacher = db.getTeacherByEmail(req.user.email);
+  const teacher = await db.getTeacherByEmail(req.user.email);
   if (!teacher) return res.status(404).json({ error: 'Teacher not found' });
 
-  const attendanceList = db.getAttendance().filter(a => a.teacherId === teacher.id);
-  const subjectsList = db.getSubjects().filter(s => s.teacherId === teacher.id);
-  const studentsList = db.getStudents();
+  const attendanceList = (await db.getAttendance()).filter(a => a.teacherId === teacher.id);
+  const subjectsList = (await db.getSubjects()).filter(s => s.teacherId === teacher.id);
+  const studentsList = await db.getStudents();
 
   res.json({ attendance: attendanceList, subjects: subjectsList, students: studentsList });
 });
@@ -944,19 +957,19 @@ app.get('/api/teacher/attendance/report', authenticateJWT, (req: any, res) => {
 // ==========================================
 
 // Student Login (rollNumber, password)
-app.post('/api/student/login', (req, res) => {
+app.post('/api/student/login', async (req, res) => {
   const { rollNumber, password } = req.body;
 
   if (!rollNumber || !password) {
     return res.status(400).json({ error: 'Roll number and password are required' });
   }
 
-  const student = db.getStudentByRollNumber(rollNumber);
+  const student = await db.getStudentByRollNumber(rollNumber);
   if (!student) {
     return res.status(401).json({ error: 'Invalid roll number or password' });
   }
 
-  const hashedPw = db.getStudentCredentials(rollNumber);
+  const hashedPw = await db.getStudentCredentials(rollNumber);
   if (!hashedPw) {
     return res.status(401).json({ error: 'Invalid roll number or password' });
   }
@@ -987,16 +1000,16 @@ app.post('/api/student/login', (req, res) => {
 });
 
 // Student Logout
-app.post('/api/student/logout', (req, res) => {
+app.post('/api/student/logout', async (req, res) => {
   res.json({ success: true, message: 'Student logged out successfully' });
 });
 
 // Get student profile
-app.get('/api/student/profile', authenticateJWT, (req: any, res) => {
+app.get('/api/student/profile', authenticateJWT,  async (req: any, res) => {
   if (req.user.role !== 'student') {
     return res.status(403).json({ error: 'Access denied. Students only.' });
   }
-  const student = db.getStudents().find(s => s.id === req.user.id);
+  const student = (await db.getStudents()).find(s => s.id === req.user.id);
   if (!student) {
     return res.status(404).json({ error: 'Student profile not found' });
   }
@@ -1004,18 +1017,18 @@ app.get('/api/student/profile', authenticateJWT, (req: any, res) => {
 });
 
 // Update student profile (email, profile photo)
-app.put('/api/student/profile', authenticateJWT, (req: any, res) => {
+app.put('/api/student/profile', authenticateJWT,  async (req: any, res) => {
   if (req.user.role !== 'student') {
     return res.status(403).json({ error: 'Access denied. Students only.' });
   }
-  const student = db.getStudents().find(s => s.id === req.user.id);
+  const student = (await db.getStudents()).find(s => s.id === req.user.id);
   if (!student) {
     return res.status(404).json({ error: 'Student not found' });
   }
   const { email, profilePhoto } = req.body;
   
   try {
-    const updated = db.updateStudent(student.id, {
+    const updated = await db.updateStudent(student.id, {
       email: email || student.email,
       profilePhoto: profilePhoto || student.profilePhoto
     });
@@ -1026,7 +1039,7 @@ app.put('/api/student/profile', authenticateJWT, (req: any, res) => {
 });
 
 // Student Change Password
-app.put('/api/student/change-password', authenticateJWT, (req: any, res) => {
+app.put('/api/student/change-password', authenticateJWT,  async (req: any, res) => {
   if (req.user.role !== 'student') {
     return res.status(403).json({ error: 'Access denied. Students only.' });
   }
@@ -1035,44 +1048,46 @@ app.put('/api/student/change-password', authenticateJWT, (req: any, res) => {
     return res.status(400).json({ error: 'Current password and new password are required' });
   }
 
-  const student = db.getStudents().find(s => s.id === req.user.id);
+  const student = (await db.getStudents()).find(s => s.id === req.user.id);
   if (!student) {
     return res.status(404).json({ error: 'Student user not found' });
   }
 
-  const hashedPw = db.getStudentCredentials(student.rollNumber);
+  const hashedPw = await db.getStudentCredentials(student.rollNumber);
   if (!hashedPw) {
     return res.status(401).json({ error: 'Student credentials not found' });
   }
 
-  import('bcryptjs').then((bcryptModule) => {
+  try {
+    const bcryptModule = await import('bcryptjs');
     const bcrypt = bcryptModule.default;
     if (!bcrypt.compareSync(currentPassword, hashedPw)) {
       return res.status(400).json({ error: 'Current password is incorrect' });
     }
-    db.updateStudentPassword(student.rollNumber, newPassword);
+    await db.updateStudentPassword(student.rollNumber, newPassword);
     res.json({ message: 'Password changed successfully' });
-  }).catch((err) => {
+  } catch (err) {
     console.error('Bcrypt loading failed:', err);
     res.status(500).json({ error: 'Internal cryptography library error' });
-  });
+  }
 });
 
 // Get active subjects enrolled by the student
-app.get('/api/student/subjects', authenticateJWT, (req: any, res) => {
+app.get('/api/student/subjects', authenticateJWT,  async (req: any, res) => {
   if (req.user.role !== 'student') {
     return res.status(403).json({ error: 'Access denied. Students only.' });
   }
-  const student = db.getStudents().find(s => s.id === req.user.id);
+  const student = (await db.getStudents()).find(s => s.id === req.user.id);
   if (!student) return res.status(404).json({ error: 'Student not found' });
 
   // Filter subjects belonging to student's department
-  const list = db.getSubjects().filter(s => s.department.toLowerCase() === student.department.toLowerCase());
+  const list = (await db.getSubjects()).filter(s => s.department.toLowerCase() === student.department.toLowerCase());
 
   // Enrich with teacher info and attendance totals
-  const attendanceList = db.getAttendance().filter(a => a.studentId === student.id);
+  const attendanceList = (await db.getAttendance()).filter(a => a.studentId === student.id);
+  const teachers = await db.getTeachers();
   const enrichedList = list.map(subject => {
-    const teacher = db.getTeachers().find(t => t.id === subject.teacherId);
+    const teacher = teachers.find(t => t.id === subject.teacherId);
     
     // Calculate student attendance for this subject
     const subjectAttendance = attendanceList.filter(a => a.subjectId === subject.id);
@@ -1098,20 +1113,20 @@ app.get('/api/student/subjects', authenticateJWT, (req: any, res) => {
 });
 
 // Get individual subject statistics & details
-app.get('/api/student/subjects/:id', authenticateJWT, (req: any, res) => {
+app.get('/api/student/subjects/:id', authenticateJWT,  async (req: any, res) => {
   if (req.user.role !== 'student') {
     return res.status(403).json({ error: 'Access denied. Students only.' });
   }
-  const student = db.getStudents().find(s => s.id === req.user.id);
+  const student = (await db.getStudents()).find(s => s.id === req.user.id);
   if (!student) return res.status(404).json({ error: 'Student not found' });
 
-  const subject = db.getSubjects().find(s => s.id === req.params.id);
+  const subject = (await db.getSubjects()).find(s => s.id === req.params.id);
   if (!subject) return res.status(404).json({ error: 'Subject not found' });
 
-  const teacher = db.getTeachers().find(t => t.id === subject.teacherId);
+  const teacher = (await db.getTeachers()).find(t => t.id === subject.teacherId);
   const teacherName = teacher ? teacher.fullName : 'Not Assigned';
 
-  const studentAttendance = db.getAttendance().filter(
+  const studentAttendance = (await db.getAttendance()).filter(
     a => a.studentId === student.id && a.subjectId === subject.id
   );
 
@@ -1183,7 +1198,7 @@ const verifyCampusLocation = (req: any, res: any, next: any) => {
 };
 
 // Scan and record attendance using live QR code session validation
-app.post('/api/student/scan-attendance', authenticateJWT, scanLimiter, verifyCampusLocation, (req: any, res) => {
+app.post('/api/student/scan-attendance', authenticateJWT, scanLimiter, verifyCampusLocation,  async (req: any, res) => {
   if (req.user.role !== 'student') {
     return res.status(403).json({ error: 'Access denied. Students only.' });
   }
@@ -1199,7 +1214,7 @@ app.post('/api/student/scan-attendance', authenticateJWT, scanLimiter, verifyCam
   const targetQrToken = scanParts[1];
 
   // Find active session by id or code
-  const session = db.getQRSessions().find(s => s.id === targetSessionId || s.sessionCode === targetSessionId);
+  const session = (await db.getQRSessions()).find(s => s.id === targetSessionId || s.sessionCode === targetSessionId);
   if (!session) {
     return res.status(404).json({ error: 'Invalid attendance session code or expired QR code.' });
   }
@@ -1216,7 +1231,7 @@ app.post('/api/student/scan-attendance', authenticateJWT, scanLimiter, verifyCam
     });
   }
 
-  const student = db.getStudents().find(s => s.id === req.user.id);
+  const student = (await db.getStudents()).find(s => s.id === req.user.id);
   if (!student) {
     return res.status(404).json({ error: 'Student registration not found' });
   }
@@ -1238,14 +1253,14 @@ app.post('/api/student/scan-attendance', authenticateJWT, scanLimiter, verifyCam
   }
 
   // Check enrollment integrity
-  const subject = db.getSubjects().find(sub => sub.id === session.subjectId);
+  const subject = (await db.getSubjects()).find(sub => sub.id === session.subjectId);
   if (subject && subject.department.toLowerCase() !== student.department.toLowerCase()) {
     return res.status(400).json({ error: 'You are not enrolled in this department/course' });
   }
 
   // Check if attendance already logged today
   const todayStr = now.toISOString().split('T')[0];
-  const alreadyLogged = db.getAttendance().some(
+  const alreadyLogged = (await db.getAttendance()).some(
     a => a.studentId === student.id && 
          a.subjectId === session.subjectId && 
          a.date === todayStr
@@ -1263,7 +1278,7 @@ app.post('/api/student/scan-attendance', authenticateJWT, scanLimiter, verifyCam
   const timeStr = now.toTimeString().split(' ')[0]; // HH:MM:SS
 
   // Record Attendance with GPS Coordinates 
-  const record = db.addAttendance({
+  const record = await db.addAttendance({
     studentId: student.id,
     studentName: student.fullName,
     rollNumber: student.rollNumber,
@@ -1281,7 +1296,7 @@ app.post('/api/student/scan-attendance', authenticateJWT, scanLimiter, verifyCam
   });
 
   // Create Student Notification pushing immediately
-  db.createNotification({
+  await db.createNotification({
     userId: student.id,
     title: 'Attendance Checked-In',
     message: `Your presence has been successfully filed for "${session.subjectName}" as "${status}" with verified GPS & biometrics!`,
@@ -1307,20 +1322,20 @@ app.post('/api/student/scan-attendance', authenticateJWT, scanLimiter, verifyCam
 });
 
 // Get list of overall attendance logs for current student
-app.get('/api/student/attendance', authenticateJWT, (req: any, res) => {
+app.get('/api/student/attendance', authenticateJWT,  async (req: any, res) => {
   if (req.user.role !== 'student') {
     return res.status(403).json({ error: 'Access denied. Students only.' });
   }
-  const list = db.getAttendance().filter(a => a.studentId === req.user.id);
+  const list = (await db.getAttendance()).filter(a => a.studentId === req.user.id);
   res.json(list);
 });
 
 // Get attendance history logs for current student with filtering
-app.get('/api/student/attendance/history', authenticateJWT, (req: any, res) => {
+app.get('/api/student/attendance/history', authenticateJWT,  async (req: any, res) => {
   if (req.user.role !== 'student') {
     return res.status(403).json({ error: 'Access denied. Students only.' });
   }
-  let list = db.getAttendance().filter(a => a.studentId === req.user.id);
+  let list = (await db.getAttendance()).filter(a => a.studentId === req.user.id);
   
   // Search query (subject or lecturer name)
   const q = req.query.q as string;
@@ -1342,15 +1357,15 @@ app.get('/api/student/attendance/history', authenticateJWT, (req: any, res) => {
 });
 
 // Get advanced student attendance analytics
-app.get('/api/student/attendance/analytics', authenticateJWT, (req: any, res) => {
+app.get('/api/student/attendance/analytics', authenticateJWT,  async (req: any, res) => {
   if (req.user.role !== 'student') {
     return res.status(403).json({ error: 'Access denied. Students only.' });
   }
-  const student = db.getStudents().find(s => s.id === req.user.id);
+  const student = (await db.getStudents()).find(s => s.id === req.user.id);
   if (!student) return res.status(404).json({ error: 'Student not found' });
 
-  const attendanceList = db.getAttendance().filter(a => a.studentId === student.id);
-  const studentSubjects = db.getSubjects().filter(s => s.department.toLowerCase() === student.department.toLowerCase());
+  const attendanceList = (await db.getAttendance()).filter(a => a.studentId === student.id);
+  const studentSubjects = (await db.getSubjects()).filter(s => s.department.toLowerCase() === student.department.toLowerCase());
 
   let present = 0;
   let late = 0;
@@ -1393,15 +1408,15 @@ app.get('/api/student/attendance/analytics', authenticateJWT, (req: any, res) =>
 });
 
 // Get student reports list
-app.get('/api/student/reports', authenticateJWT, (req: any, res) => {
+app.get('/api/student/reports', authenticateJWT,  async (req: any, res) => {
   if (req.user.role !== 'student') {
     return res.status(403).json({ error: 'Access denied. Students only.' });
   }
-  const student = db.getStudents().find(s => s.id === req.user.id);
+  const student = (await db.getStudents()).find(s => s.id === req.user.id);
   if (!student) return res.status(404).json({ error: 'Student not found' });
 
-  const attendanceList = db.getAttendance().filter(a => a.studentId === student.id);
-  const subjectsList = db.getSubjects().filter(s => s.department.toLowerCase() === student.department.toLowerCase());
+  const attendanceList = (await db.getAttendance()).filter(a => a.studentId === student.id);
+  const subjectsList = (await db.getSubjects()).filter(s => s.department.toLowerCase() === student.department.toLowerCase());
 
   res.json({
     student,
@@ -1411,18 +1426,18 @@ app.get('/api/student/reports', authenticateJWT, (req: any, res) => {
 });
 
 // REAL PDF / Excel and SYSTEM NOTIFICATIONS API ENDPOINTS
-app.get('/api/notifications', authenticateJWT, (req: any, res) => {
+app.get('/api/notifications', authenticateJWT,  async (req: any, res) => {
   try {
-    const list = db.getNotifications(req.user.id);
+    const list = await db.getNotifications(req.user.id);
     res.json(list);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.put('/api/notifications/:id/read', authenticateJWT, (req: any, res) => {
+app.put('/api/notifications/:id/read', authenticateJWT,  async (req: any, res) => {
   try {
-    const updated = db.markNotificationAsRead(req.params.id);
+    const updated = await db.markNotificationAsRead(req.params.id);
     res.json(updated);
   } catch (err: any) {
     res.status(404).json({ error: err.message });
@@ -1472,7 +1487,7 @@ async function startViteServer() {
     // Direct static folder serving for production deployments
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
+    app.get('*', async (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
     console.log('[PRODUCTION] Static build server mounting to port 3000');

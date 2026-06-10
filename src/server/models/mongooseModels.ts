@@ -1,7 +1,25 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 // ==========================================
-// 1. STUDENT SCHEMA
+// 1. ADMIN SCHEMA
+// ==========================================
+export interface IAdmin extends Document {
+  fullName: string;
+  email: string;
+  passwordHash: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const AdminSchema: Schema = new Schema({
+  _id: { type: String, default: () => 'admin-' + Math.random().toString(36).substr(2, 9) },
+  fullName: { type: String, required: true },
+  email: { type: String, required: true, unique: true, lowercase: true, index: true },
+  passwordHash: { type: String, required: true }
+}, { timestamps: true });
+
+// ==========================================
+// 2. STUDENT SCHEMA
 // ==========================================
 export interface IStudent extends Document {
   fullName: string;
@@ -12,11 +30,13 @@ export interface IStudent extends Document {
   division: string;
   profilePhoto: string;
   faceDescriptor: number[]; // 128-dimensional biometric floats
+  passwordHash: string; // Store hashed credentials
   createdAt: Date;
   updatedAt: Date;
 }
 
 const StudentSchema: Schema = new Schema({
+  _id: { type: String, default: () => 'student_' + Math.random().toString(36).substr(2, 9) },
   fullName: { type: String, required: true },
   rollNumber: { type: String, required: true, unique: true, index: true },
   email: { type: String, required: true, unique: true },
@@ -24,11 +44,12 @@ const StudentSchema: Schema = new Schema({
   year: { type: String, required: true },
   division: { type: String, required: true },
   profilePhoto: { type: String, default: '' },
-  faceDescriptor: { type: [Number], default: [] }
+  faceDescriptor: { type: [Number], default: [] },
+  passwordHash: { type: String, required: true }
 }, { timestamps: true });
 
 // ==========================================
-// 2. TEACHER SCHEMA
+// 3. TEACHER SCHEMA
 // ==========================================
 export interface ITeacher extends Document {
   fullName: string;
@@ -37,21 +58,24 @@ export interface ITeacher extends Document {
   department: string;
   phoneNumber: string;
   profilePhoto: string;
+  passwordHash: string; // Store hashed credentials
   createdAt: Date;
   updatedAt: Date;
 }
 
 const TeacherSchema: Schema = new Schema({
+  _id: { type: String, default: () => 'teacher_' + Math.random().toString(36).substr(2, 9) },
   fullName: { type: String, required: true },
   employeeId: { type: String, required: true, unique: true, index: true },
   email: { type: String, required: true, unique: true },
   department: { type: String, required: true },
   phoneNumber: { type: String, required: true },
-  profilePhoto: { type: String, default: '' }
+  profilePhoto: { type: String, default: '' },
+  passwordHash: { type: String, required: true }
 }, { timestamps: true });
 
 // ==========================================
-// 3. SUBJECT SCHEMA
+// 4. SUBJECT SCHEMA
 // ==========================================
 export interface ISubject extends Document {
   name: string;
@@ -64,6 +88,7 @@ export interface ISubject extends Document {
 }
 
 const SubjectSchema: Schema = new Schema({
+  _id: { type: String, default: () => 'subject_' + Math.random().toString(36).substr(2, 9) },
   name: { type: String, required: true },
   code: { type: String, required: true, unique: true, index: true },
   department: { type: String, required: true },
@@ -72,7 +97,7 @@ const SubjectSchema: Schema = new Schema({
 }, { timestamps: true });
 
 // ==========================================
-// 4. ATTENDANCE SCHEMA
+// 5. ATTENDANCE SCHEMA
 // ==========================================
 export interface IAttendance extends Document {
   studentId: string;
@@ -89,9 +114,12 @@ export interface IAttendance extends Document {
   longitude: number;
   attendanceTime: Date;
   selfieImage: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const AttendanceSchema: Schema = new Schema({
+  _id: { type: String, default: () => 'attendance_' + Math.random().toString(36).substr(2, 9) },
   studentId: { type: String, required: true, index: true },
   studentName: { type: String, required: true },
   rollNumber: { type: String, required: true, index: true },
@@ -109,7 +137,7 @@ const AttendanceSchema: Schema = new Schema({
 }, { timestamps: true });
 
 // ==========================================
-// 5. ATTENDANCE SESSION SCHEMA (QR)
+// 6. ATTENDANCE SESSION SCHEMA (QR)
 // ==========================================
 export interface IAttendanceSession extends Document {
   subjectId: string;
@@ -122,9 +150,12 @@ export interface IAttendanceSession extends Document {
   sessionCode: string;
   qrToken: string;
   lastRegeneratedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const AttendanceSessionSchema: Schema = new Schema({
+  _id: { type: String, default: () => 'session_' + Math.random().toString(36).substr(2, 9) },
   subjectId: { type: String, required: true, index: true },
   subjectName: { type: String, default: '' },
   teacherId: { type: String, required: true },
@@ -138,7 +169,7 @@ const AttendanceSessionSchema: Schema = new Schema({
 }, { timestamps: true });
 
 // ==========================================
-// 6. NOTIFICATION SCHEMA
+// 7. NOTIFICATION SCHEMA
 // ==========================================
 export interface INotification extends Document {
   userId: string;
@@ -150,6 +181,7 @@ export interface INotification extends Document {
 }
 
 const NotificationSchema: Schema = new Schema({
+  _id: { type: String, default: () => 'notif_' + Math.random().toString(36).substr(2, 9) },
   userId: { type: String, required: true, index: true },
   title: { type: String, required: true },
   message: { type: String, required: true },
@@ -157,10 +189,30 @@ const NotificationSchema: Schema = new Schema({
   isRead: { type: Boolean, default: false }
 }, { timestamps: true });
 
+// ==========================================
+// 8. SYSTEM SETTINGS SCHEMA
+// ==========================================
+export interface ISystemSettings extends Document {
+  collegeName: string;
+  academicYear: string;
+  refreshIntervalSeconds: number;
+  allowLateAttendance: boolean;
+}
+
+const SystemSettingsSchema: Schema = new Schema({
+  _id: { type: String, default: () => 'settings' },
+  collegeName: { type: String, default: 'Apex Institute of Technology' },
+  academicYear: { type: String, default: '2026-2027' },
+  refreshIntervalSeconds: { type: Number, default: 30 },
+  allowLateAttendance: { type: Boolean, default: true }
+}, { timestamps: true });
+
 // Export Models
-export const MongoStudent = mongoose.models.Student || mongoose.model<IStudent>('Student', StudentSchema);
-export const MongoTeacher = mongoose.models.Teacher || mongoose.model<ITeacher>('Teacher', TeacherSchema);
-export const MongoSubject = mongoose.models.Subject || mongoose.model<ISubject>('Subject', SubjectSchema);
-export const MongoAttendance = mongoose.models.Attendance || mongoose.model<IAttendance>('Attendance', AttendanceSchema);
-export const MongoAttendanceSession = mongoose.models.AttendanceSession || mongoose.model<IAttendanceSession>('AttendanceSession', AttendanceSessionSchema);
-export const MongoNotification = mongoose.models.Notification || mongoose.model<INotification>('Notification', NotificationSchema);
+export const MongoAdmin: mongoose.Model<IAdmin> = mongoose.models.Admin || mongoose.model<IAdmin>('Admin', AdminSchema);
+export const MongoStudent: mongoose.Model<IStudent> = mongoose.models.Student || mongoose.model<IStudent>('Student', StudentSchema);
+export const MongoTeacher: mongoose.Model<ITeacher> = mongoose.models.Teacher || mongoose.model<ITeacher>('Teacher', TeacherSchema);
+export const MongoSubject: mongoose.Model<ISubject> = mongoose.models.Subject || mongoose.model<ISubject>('Subject', SubjectSchema);
+export const MongoAttendance: mongoose.Model<IAttendance> = mongoose.models.Attendance || mongoose.model<IAttendance>('Attendance', AttendanceSchema);
+export const MongoAttendanceSession: mongoose.Model<IAttendanceSession> = mongoose.models.AttendanceSession || mongoose.model<IAttendanceSession>('AttendanceSession', AttendanceSessionSchema);
+export const MongoNotification: mongoose.Model<INotification> = mongoose.models.Notification || mongoose.model<INotification>('Notification', NotificationSchema);
+export const MongoSystemSettings: mongoose.Model<ISystemSettings> = mongoose.models.SystemSettings || mongoose.model<ISystemSettings>('SystemSettings', SystemSettingsSchema);
