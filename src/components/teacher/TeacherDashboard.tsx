@@ -39,12 +39,34 @@ export const TeacherDashboard: React.FC<Props> = ({ setActiveTab }) => {
   const loadData = async () => {
     if (!teacher) return;
     try {
-      const [subs, attHistory, allSessions, allStudents] = await Promise.all([
-        api.get<Subject[]>('/api/teacher/subjects'),
-        api.get<Attendance[]>('/api/teacher/attendance/history'),
-        api.get<QRSession[]>('/api/qr-sessions'),
-        api.get<Student[]>('/api/students')
-      ]);
+      let subs: Subject[] = [];
+      let attHistory: Attendance[] = [];
+      let allSessions: QRSession[] = [];
+      let allStudents: Student[] = [];
+
+      try {
+        subs = await api.get<Subject[]>('/api/teacher/subjects');
+      } catch (err) {
+        console.error("Failed to load /api/teacher/subjects:", err);
+      }
+
+      try {
+        attHistory = await api.get<Attendance[]>('/api/teacher/attendance/history');
+      } catch (err) {
+        console.error("Failed to load /api/teacher/attendance/history:", err);
+      }
+
+      try {
+        allSessions = await api.get<QRSession[]>('/api/qr-sessions');
+      } catch (err) {
+        console.error("Failed to load /api/qr-sessions:", err);
+      }
+
+      try {
+        allStudents = await api.get<Student[]>('/api/students');
+      } catch (err) {
+        console.error("Failed to load /api/students:", err);
+      }
 
       setSubjects(subs);
       setAttendance(attHistory);
@@ -60,7 +82,7 @@ export const TeacherDashboard: React.FC<Props> = ({ setActiveTab }) => {
       );
       
       setActiveSession(myActive || null);
-    } catch (e) {
+    } catch (e: any) {
       console.error("Failed to load dashboard data:", e);
     } finally {
       setLoading(false);

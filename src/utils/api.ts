@@ -37,7 +37,19 @@ export const api = {
       const errData = await res.json().catch(() => ({}));
       throw new Error(errData.error || `HTTP error ${res.status}`);
     }
-    return res.json() as Promise<T>;
+
+    try {
+      const clone = res.clone();
+      try {
+        return await res.json() as T;
+      } catch (jsonErr: any) {
+        const textBody = await clone.text().catch(() => "FAILED TO READ TEXT");
+        console.error(`[API PARSE ERROR] URL: ${url} | Status: ${res.status} | Content-Type: ${res.headers.get('content-type')} | Body Start: ${textBody.substring(0, 300)}`);
+        throw jsonErr;
+      }
+    } catch (cloneErr: any) {
+      return res.json() as Promise<T>;
+    }
   },
 
   post: async <T>(endpoint: string, body: any): Promise<T> => {

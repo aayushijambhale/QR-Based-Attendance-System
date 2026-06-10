@@ -380,90 +380,100 @@ export const TeacherQR: React.FC = () => {
 
       {/* Dynamic QR Full Display Screen Dialog */}
       {activeQRModal && (
-        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl border border-slate-100 overflow-hidden text-center animate-zoom-in">
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-xl z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 rounded-[36px] w-full max-w-md shadow-[0_30px_70px_rgba(2,6,23,0.8)] border border-white/10 overflow-hidden text-center animate-zoom-in relative">
+            
+            {/* Background cyber glow gradients */}
+            <div className="absolute top-0 left-1/2 w-72 h-72 bg-indigo-500/10 rounded-full blur-[60px] -translate-x-1/2 pointer-events-none" />
+            
             {/* Modal header details */}
-            <div className="flex items-center justify-between px-6 py-4 bg-slate-50/50 border-b border-slate-100 select-none">
-              <span className="text-xs font-mono text-slate-440 uppercase tracking-widest leading-none">Broadcasting Gate</span>
+            <div className="flex items-center justify-between px-8 py-5 bg-white/[0.02] border-b border-white/5 select-none relative z-10">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest leading-none font-bold">Encrypted Gate Broadcaster</span>
+              </div>
               <button 
                 onClick={() => setActiveQRModal(null)}
-                className="text-slate-400 hover:text-slate-650 transition-colors cursor-pointer"
+                className="text-slate-400 hover:text-white transition-colors cursor-pointer bg-white/5 hover:bg-white/10 p-1.5 rounded-full"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4" />
               </button>
             </div>
 
             {/* Modal Content body */}
-            <div className="p-6 space-y-5 flex flex-col items-center">
+            <div className="p-8 space-y-6 flex flex-col items-center relative z-10">
               <div>
-                <h3 className="font-extrabold text-slate-900 text-md leading-tight">{activeQRModal.subjectName}</h3>
-                <p className="text-[11px] text-slate-400 mt-1 uppercase font-semibold">Broadcaster: {activeQRModal.teacherName}</p>
+                <h3 className="font-extrabold text-white text-xl leading-snug">{activeQRModal.subjectName}</h3>
+                <p className="text-xs text-blue-400 mt-1 uppercase font-semibold tracking-wider font-mono">BROADCAST GATEWAY CODE: {activeQRModal.sessionCode}</p>
               </div>
 
-              {/* QR Image containing compound sessionID and rotating token */}
-              <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-md ring-4 ring-slate-50 relative shrink-0">
-                {qrUrl ? (
-                  <img
-                    src={qrUrl}
-                    alt="Dynamic Session Attendance Check-in QR Code"
-                    className="h-48 w-48 object-contain select-none"
-                  />
-                ) : (
-                  <div className="h-48 w-48 flex items-center justify-center">
-                    <RefreshCw className="h-6 w-6 animate-spin text-slate-400" />
-                  </div>
-                )}
+              {/* QR Image with neon border and pulse effect */}
+              <div className="bg-slate-950 p-6 rounded-[32px] border border-white/10 shadow-2xl relative shrink-0">
+                
+                {/* Neon pulsating scan rings decoration */}
+                <div className="absolute -inset-1 rounded-[34px] bg-gradient-to-tr from-blue-500 to-purple-600 opacity-20 blur-sm pulse-glow-ring" />
+                
+                <div className="relative bg-white p-4 rounded-2xl">
+                  {qrUrl ? (
+                    <img
+                      src={qrUrl}
+                      alt="Dynamic Session Attendance Check-in QR Code"
+                      className="h-52 w-52 object-contain select-none transition-all duration-500 hover:scale-[1.02]"
+                    />
+                  ) : (
+                    <div className="h-52 w-52 flex items-center justify-center">
+                      <RefreshCw className="h-7 w-7 animate-spin text-indigo-500" />
+                    </div>
+                  )}
 
-                {/* Expiry overlay screen */}
-                {(!(activeQRModal.status === 'Active' && new Date(activeQRModal.expiryTime) > new Date()) || inspectedTimeLeft === 'Expired') && (
-                  <div className="absolute inset-0 bg-white/95 backdrop-blur-xs flex flex-col items-center justify-center p-4 rounded-3xl select-none text-red-505">
-                    <X className="h-8 w-8 text-red-500 mb-2" />
-                    <span className="text-xs font-extrabold uppercase tracking-wide">Gateway QR Expired</span>
-                    <span className="text-[10px] text-slate-450 block mt-1">This entry key has expired</span>
-                  </div>
-                )}
+                  {/* Expired overlay screen */}
+                  {(!(activeQRModal.status === 'Active' && new Date(activeQRModal.expiryTime) > new Date()) || inspectedTimeLeft === 'Expired') && (
+                    <div className="absolute inset-0 bg-slate-900/98 backdrop-blur-md flex flex-col items-center justify-center p-4 rounded-2xl select-none text-rose-450 z-20">
+                      <div className="h-12 w-12 rounded-full bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-500 mb-3">
+                        <X className="h-6 w-6" />
+                      </div>
+                      <span className="text-xs font-bold uppercase tracking-widest text-white">Attendance Vault Locked</span>
+                      <span className="text-[11px] text-slate-400 block mt-1.5 font-semibold">Broadcasting window closed</span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {activeQRModal.status === 'Active' && inspectedTimeLeft !== 'Expired' && (
-                <div className="text-center select-none shrink-0">
-                  <span className="text-[9px] font-mono font-extrabold text-indigo-500 bg-indigo-50/75 border border-indigo-100 px-2.5 py-1 rounded-full uppercase tracking-wider block mb-1">
-                    Signature: {activeQRModal.qrToken ? activeQRModal.qrToken.split('_')[1] || activeQRModal.qrToken.slice(0, 10) : 'PENDING'}
+                <div className="text-center select-none shrink-0 w-full space-y-2.5">
+                  <span className="text-[10px] font-mono font-bold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-1.5 rounded-full uppercase tracking-wider inline-block">
+                    Anti-Proxy Code: <span className="text-white font-extrabold font-mono">{activeQRModal.qrToken ? activeQRModal.qrToken.split('_')[1] || activeQRModal.qrToken.slice(0, 10) : 'PENDING'}</span>
                   </span>
-                  <p className="text-[10px] text-emerald-600 mt-1.5 font-mono flex items-center justify-center gap-1">
-                    <RefreshCw className="h-3 w-3 animate-spin shrink-0 text-emerald-500" />
-                    Anti-Proxy Token rotates in: <b className="font-extrabold text-xs">{tokenSecsLeft}s</b>
+                  <p className="text-[11px] text-emerald-400 mt-1 font-mono flex items-center justify-center gap-2">
+                    <RefreshCw className="h-3.5 w-3.5 animate-spin shrink-0 text-emerald-400" />
+                    Checking for dynamic check-ins. Rotating token: <b className="font-extrabold text-white text-md pl-1">{tokenSecsLeft}s</b>
                   </p>
                 </div>
               )}
 
               {/* Countdown clock segment */}
-              <div className="w-full bg-slate-50 p-4 rounded-2xl border border-slate-100/60 shrink-0">
-                <span className="text-[9px] text-slate-400 uppercase font-bold block tracking-wider">Remaining Broadcast Window</span>
+              <div className="w-full bg-white/[0.02] p-5 rounded-2xl border border-white/5 shrink-0">
+                <span className="text-[10px] text-slate-400 uppercase font-black block tracking-widest mb-1">Time Remaining till Expiry</span>
                 
                 {(activeQRModal.status === 'Active' && new Date(activeQRModal.expiryTime) > new Date()) && inspectedTimeLeft !== 'Expired' ? (
-                  <div className="flex items-center justify-center gap-2 mt-2">
-                    <Clock className="h-5 w-5 text-indigo-600 animate-pulse shrink-0" />
-                    <span className="text-3xl font-mono font-extrabold text-indigo-600 tracking-tight">
+                  <div className="flex items-center justify-center gap-2.5 mt-2">
+                    <Clock className="h-5 w-5 text-indigo-400 animate-pulse shrink-0" />
+                    <span className="text-4xl font-mono font-extrabold text-white tracking-tight">
                       {inspectedTimeLeft || '--:--'}
                     </span>
                   </div>
                 ) : (
-                  <span className="text-lg font-bold text-slate-400 mt-1.5 block">Access Revoked</span>
+                  <span className="text-sm font-bold text-slate-450 mt-1.5 block uppercase tracking-wide">Gateway Vault Sealed</span>
                 )}
               </div>
-
-              {/* Simulative scan guidance */}
-              <span className="text-[10px] text-slate-430 leading-normal block max-w-xs">
-                Students must scan this code using their camera in Student Dashboard. Code rotates automatically to block static screenshots.
-              </span>
 
               {/* Force Deactivate */}
               {(activeQRModal.status === 'Active' && new Date(activeQRModal.expiryTime) > new Date()) && inspectedTimeLeft !== 'Expired' && (
                 <button
                   onClick={() => handleForceExpire(activeQRModal.id)}
-                  className="w-full bg-red-500 hover:bg-red-650 text-white font-semibold text-xs py-3 rounded-xl transition-colors shrink-0 cursor-pointer"
+                  className="w-full bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-bold text-xs py-3.5 rounded-xl transition-all shadow-lg shadow-rose-500/20 cursor-pointer active:scale-95 shrink-0"
                 >
-                  Terminate Gate Immediately
+                  Close Gateway Instantly
                 </button>
               )}
             </div>
