@@ -173,14 +173,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
     : 94;
 
   return (
-    <div className="space-y-8 animate-fade-in animate-duration-300" id="dashboard-view-content">
+    <div className="space-y-6 animate-fade-in animate-duration-300" id="dashboard-view-content">
       {/* Upper header with elegant typography and action button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight font-sans">
+          <h1 className="text-3xl font-bold text-[#134E4A] tracking-tight font-sans">
             ERP Control Console
           </h1>
-          <p className="text-slate-500 text-xs mt-1 uppercase tracking-wider font-semibold">
+          <p className="text-[#64748B] text-xs mt-1 uppercase tracking-wider font-semibold">
             REALTIME GATEWAY &bull; MULTI-USER SIMULATION DASHBOARD
           </p>
         </div>
@@ -188,153 +188,161 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
         <button
           onClick={fetchDashboardData}
           disabled={refreshing}
-          className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl flex items-center gap-2 transition-all shadow-sm hover:shadow-md cursor-pointer disabled:opacity-50 select-none self-start"
+          className="saas-button-secondary flex items-center gap-2"
         >
-          <RefreshCw className={`h-3 w-3 text-indigo-600 ${refreshing ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 text-[#0F766E] ${refreshing ? 'animate-spin' : ''}`} />
           <span>Refresh Metadata</span>
         </button>
       </div>
 
-      {/* Bento Grid layout containing both numbers and controls with asymmetrical design and glassmorphism */}
-      <div className="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 gap-8 select-none" id="bento-grid-dashboard">
+      {/* Grid layout containing stats and controls */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 select-none" id="bento-grid-dashboard">
         
-        {/* Asymmetrical Column Layout: 1. Total Students Stat Panel (col-span-3 - Narrow/Tall layout) */}
+        {/* Total Students Stat Panel */}
         <div
           onClick={() => setActiveTab('students')}
-          className="md:col-span-3 lg:col-span-4 bg-white/70 backdrop-blur-md border border-white/50 rounded-[30px] p-7 flex flex-col justify-between shadow-premium-light hover:shadow-xl hover:border-blue-300 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer group relative overflow-hidden"
+          className="saas-card p-6 flex flex-col justify-between saas-card-hover cursor-pointer"
           id="bento-card-students"
         >
-          {/* Subtle gradient glow decoration */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-2xl -mr-6 -mt-6 group-hover:bg-blue-400/20 transition-all duration-500" />
-          
-          <div className="flex items-center justify-between w-full relative z-10">
-            <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest font-sans">
-              Total Student Body
+          <div className="flex items-center justify-between w-full">
+            <span className="text-[#64748B] text-[13px] font-medium font-sans">
+              Total Students
             </span>
-            <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center border border-blue-100 shadow-inner group-hover:rotate-6 transition-all duration-300">
-              <Users className="h-5 w-5" />
+            <div className="flex items-center gap-2">
+              <span className="saas-pill-success">+12%</span>
             </div>
           </div>
-          <div className="mt-8 relative z-10">
-            <span className="text-5xl font-black text-slate-900 tracking-tight block">
+          <div className="mt-4 flex items-end justify-between">
+            <span className="text-4xl font-bold text-[#134E4A] tracking-tight block">
               {stats?.totalStudents ?? 0}
             </span>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-emerald-500 text-[10px] font-bold uppercase tracking-wider bg-emerald-50 border border-emerald-100/60 px-2 py-0.5 rounded-full select-none">
-                +12.4% Semester Growth
-              </span>
+            <div className="w-10 h-10 border border-[#F1F5F9] rounded-full flex items-center justify-center">
+              <Users className="h-5 w-5 text-[#14B8A6]" />
             </div>
           </div>
         </div>
 
-        {/* Asymmetrical Column Layout: 2. Core Lecturers (col-span-3 - Narrow/Tall layout) */}
+        {/* Core Lecturers */}
         <div
           onClick={() => setActiveTab('teachers')}
-          className="md:col-span-3 lg:col-span-4 bg-white/70 backdrop-blur-md border border-white/50 rounded-[30px] p-7 flex flex-col justify-between shadow-premium-light hover:shadow-xl hover:border-purple-300 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer group relative overflow-hidden"
+          className="saas-card p-6 flex flex-col justify-between saas-card-hover cursor-pointer"
           id="bento-card-teachers"
         >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-400/10 rounded-full blur-2xl -mr-6 -mt-6 group-hover:bg-purple-400/20 transition-all duration-500" />
-          
-          <div className="flex items-center justify-between w-full relative z-10">
-            <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest font-sans">
+          <div className="flex items-center justify-between w-full">
+            <span className="text-[#64748B] text-[13px] font-medium font-sans">
               Allocated Faculty
             </span>
-            <div className="w-10 h-10 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center border border-purple-100 shadow-inner group-hover:-rotate-6 transition-all duration-300">
-              <GraduationCap className="h-5 w-5" />
+            <div className="flex items-center gap-2">
+              <span className="saas-pill-success">+5%</span>
             </div>
           </div>
-          <div className="mt-8 relative z-10">
-            <span className="text-5xl font-black text-slate-900 tracking-tight block">
+          <div className="mt-4 flex items-end justify-between">
+            <span className="text-4xl font-bold text-[#134E4A] tracking-tight block">
               {stats?.totalTeachers ?? 0}
             </span>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-slate-450 text-[10px] font-bold uppercase tracking-widest bg-slate-100 border border-slate-200/60 px-2 py-0.5 rounded-full select-none">
-                Active & Steady
-              </span>
+            <div className="w-10 h-10 border border-[#F1F5F9] rounded-full flex items-center justify-center">
+              <GraduationCap className="h-5 w-5 text-[#0F766E]" />
             </div>
           </div>
         </div>
 
-        {/* Asymmetrical Column Layout: 3. Today's Scan Metrics & Attendance Gauge (col-span-4 - Large Display layout) */}
+        {/* Registered Subjects Stat Block */}
+        <div
+          onClick={() => setActiveTab('subjects')}
+          className="saas-card p-6 flex flex-col justify-between saas-card-hover cursor-pointer"
+          id="bento-card-subjects"
+        >
+          <div className="flex items-center justify-between w-full">
+            <span className="text-[#64748B] text-[13px] font-medium font-sans">
+              Registered Syllabuses
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="saas-pill-success">+2%</span>
+            </div>
+          </div>
+          <div className="mt-4 flex items-end justify-between">
+            <span className="text-4xl font-bold text-[#134E4A] tracking-tight block">
+              {stats?.totalSubjects ?? 0}
+            </span>
+            <div className="w-10 h-10 border border-[#F1F5F9] rounded-full flex items-center justify-center">
+              <BookOpen className="h-5 w-5 text-[#0F766E]" />
+            </div>
+          </div>
+        </div>
+
+        {/* Today's Scan Metrics */}
         <div
           onClick={() => setActiveTab('attendance')}
-          className="md:col-span-6 lg:col-span-4 bg-gradient-to-tr from-blue-600 to-indigo-700 text-white rounded-[30px] p-7 flex flex-col justify-between shadow-xl hover:shadow-2xl hover:scale-[1.01] hover:-translate-y-1.5 transition-all duration-300 cursor-pointer group relative overflow-hidden text-left"
+          className="saas-card p-6 flex flex-col justify-between saas-card-hover cursor-pointer bg-[#F8FAFC]"
           id="bento-card-scan-today"
         >
-          {/* Immersive background decoration */}
-          <div className="absolute inset-0 bg-cover bg-center mix-blend-overlay opacity-15" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600')" }} />
-          <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-white/10 rounded-full blur-2xl pulse-glow-ring" />
-          
-          <div className="flex items-center justify-between w-full relative z-10">
-            <span className="text-white/70 text-[10px] font-bold uppercase tracking-widest font-sans">
-              Daily Attendance Score
+          <div className="flex items-center justify-between w-full">
+            <span className="text-[#64748B] text-[13px] font-medium font-sans">
+              Today's Attendance
             </span>
-            <div className="w-10 h-10 bg-white/15 text-white rounded-2xl flex items-center justify-center border border-white/20 backdrop-blur-sm shadow-inner group-hover:scale-110 transition-transform duration-300">
-              <UserCheck className="h-5 w-5" />
+            <div className="flex items-center gap-2">
+              <span className="saas-pill-success">Live</span>
             </div>
           </div>
-          <div className="mt-8 relative z-10">
-            <span className="text-5xl font-black text-white tracking-tight block">
+          <div className="mt-4 flex items-end justify-between">
+            <span className="text-4xl font-bold text-[#134E4A] tracking-tight block">
               {stats?.todayAttendanceCount ?? 0}
             </span>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-white text-[10px] font-extrabold bg-emerald-500/80 border border-emerald-400/40 px-2.5 py-0.5 rounded-full shadow-lg shadow-emerald-700/20 select-none">
-                {attendanceRate}% Present Ratio Today
-              </span>
+            <div className="w-10 h-10 border border-[#E2E8F0] rounded-full flex items-center justify-center bg-white">
+              <UserCheck className="h-5 w-5 text-[#14B8A6]" />
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Asymmetrical Row Layout: 4. Active Simulator Feed Panel (col-span-7 - Super wide glassmorphism container) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Active Simulator Feed Panel */}
         <div 
-          className="md:col-span-6 lg:col-span-8 bg-slate-900 text-slate-100 rounded-[32px] p-8 shadow-premium-dark flex flex-col justify-between relative overflow-hidden transition-all duration-300 hover:shadow-[0_25px_60px_-15px_rgba(2,6,23,0.7)] border border-white/10"
+          className="lg:col-span-2 saas-card p-8 flex flex-col justify-between relative overflow-hidden"
           id="bento-card-simulation-panel"
         >
-          {/* Gradient background aura */}
-          <div className="absolute top-0 left-1/4 w-[400px] h-[400px] bg-indigo-505/5 rounded-full blur-[80px] -translate-y-1/2 pointer-events-none" />
-          
           <div>
-            <div className="flex items-center justify-between border-b border-white/5 pb-5 mb-5 select-none">
-              <div className="flex items-center gap-2.5">
-                <span className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-blue-400 text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase border border-blue-500/20">
+            <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-4 mb-5 select-none">
+              <div className="flex items-center gap-2">
+                <span className="text-[#0F766E] text-sm font-semibold uppercase">
                   Active Simulator Feed
                 </span>
-                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-glow shadow-emerald-400/50" />
+                <span className="h-2 w-2 rounded-full bg-[#14B8A6] animate-pulse" />
               </div>
-              <span className="text-[10px] text-slate-505 font-mono font-semibold tracking-wider">
+              <span className="text-xs text-[#64748B] font-mono font-semibold tracking-wider">
                 SERVER-AUTHORITATIVE
               </span>
             </div>
 
-            <p className="text-xs text-slate-400 leading-relaxed mb-6 font-medium">
+            <p className="text-sm text-[#64748B] mb-6">
               Validate and load test without physical dynamic device scanner codes. Mock or emulate checking in instantly using any live active QR gate code.
             </p>
 
             {simulationStatus && (
               <div 
                 id="simulation-alert-box"
-                className={`p-4 rounded-2xl text-xs mb-6 border animate-fade-in flex items-start gap-3 font-semibold ${
+                className={`p-4 rounded-md text-sm mb-6 border flex items-start gap-3 font-medium ${
                   simulationStatus.type === 'success' 
-                    ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-300 shadow-premium-dark' 
-                    : 'bg-rose-950/40 border-rose-500/30 text-rose-300 shadow-premium-dark'
+                    ? 'bg-[#DCFCE7] border-[#86EFAC] text-[#166534]' 
+                    : 'bg-[#FEE2E2] border-[#FCA5A5] text-[#991B1B]'
                 }`}
               >
-                <Sparkles className="h-4 w-4 shrink-0 mt-0.5 text-indigo-400" />
+                <Sparkles className="h-5 w-5 shrink-0" />
                 <span className="break-words w-full">{simulationStatus.message}</span>
               </div>
             )}
 
             {activeSessions.length === 0 ? (
-              <div className="py-12 px-6 border border-dashed border-slate-800 rounded-[24px] text-center bg-slate-950/30">
-                <QrCode className="h-10 w-10 text-slate-600 mx-auto mb-3" />
-                <h4 className="text-sm font-bold text-slate-300">No Active Attendance QR Sessions</h4>
-                <p className="text-xs text-slate-500 max-w-xs mx-auto mt-2 mb-5 leading-relaxed font-semibold">
+              <div className="py-12 px-6 border border-dashed border-[#E2E8F0] rounded-lg text-center bg-[#FFFBF5]">
+                <QrCode className="h-10 w-10 text-[#64748B] mx-auto mb-3" />
+                <h4 className="text-base font-semibold text-[#134E4A]">No Active Attendance QR Sessions</h4>
+                <p className="text-sm text-[#64748B] max-w-sm mx-auto mt-2 mb-5">
                   Syllabus sessions are inactive. Ask a registered Lecturer to broadcast or generate a dynamic QR gate session.
                 </p>
                 <button
                   type="button"
                   onClick={() => setActiveTab('qr-sessions')}
-                  className="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-xs font-semibold rounded-xl inline-flex items-center gap-2 cursor-pointer shadow-lg shadow-blue-500/20 transition-all active:scale-95"
+                  className="saas-button-primary inline-flex items-center gap-2"
                 >
                   <span>Go to QR Sessions</span>
                   <ArrowRight className="h-4 w-4" />
@@ -345,16 +353,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   {/* Select Student */}
                   <div className="space-y-1.5">
-                    <label className="block text-[10px] font-bold text-slate-450 uppercase tracking-widest pl-1">
+                    <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider">
                       1. Check-In Student Profile
                     </label>
                     <select
                       value={selectedStudentId}
                       onChange={(e) => setSelectedStudentId(e.target.value)}
-                      className="w-full bg-slate-950 border border-white/10 text-xs rounded-xl p-3.5 outline-none focus:border-blue-500 transition-colors font-semibold text-slate-200 cursor-pointer shadow-inner"
+                      className="saas-input"
                     >
                       {studentsArray.map(std => (
-                        <option key={std.id} value={std.id} className="bg-slate-950 text-slate-200">
+                        <option key={std.id} value={std.id}>
                           {std.fullName} ({std.rollNumber})
                         </option>
                       ))}
@@ -363,16 +371,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
 
                   {/* Select active QR */}
                   <div className="space-y-1.5">
-                    <label className="block text-[10px] font-bold text-slate-450 uppercase tracking-widest pl-1">
+                    <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider">
                       2. Active QR Code Session
                     </label>
                     <select
                       value={selectedSessionCode}
                       onChange={(e) => setSelectedSessionCode(e.target.value)}
-                      className="w-full bg-slate-950 border border-white/10 text-xs rounded-xl p-3.5 outline-none focus:border-blue-500 transition-colors font-semibold text-slate-200 cursor-pointer shadow-inner"
+                      className="saas-input"
                     >
                       {activeSessions.map(sess => (
-                        <option key={sess.id} value={sess.sessionCode} className="bg-slate-950 text-slate-200">
+                        <option key={sess.id} value={sess.sessionCode}>
                           {sess.subjectName} ({sess.teacherName})
                         </option>
                       ))}
@@ -383,197 +391,99 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                 <button
                   type="submit"
                   disabled={simulating}
-                  className="w-full bg-gradient-to-r from-blue-550 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 active:scale-[0.99] text-white text-xs font-bold rounded-xl py-3.5 shadow-xl shadow-blue-600/10 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full saas-button-primary flex items-center justify-center gap-2 py-3"
                 >
-                  <Play className="h-4 w-4 shrink-0 text-indigo-200" />
+                  <Play className="h-4 w-4 shrink-0" />
                   <span>{simulating ? 'Authenticating & Saving...' : 'Simulate Scanning Active QR Code'}</span>
                 </button>
               </form>
             )}
           </div>
 
-          <div className="mt-8 pt-4 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] text-slate-500 select-none">
-            <span className="font-semibold">Simulated geo-markers match college coordinate guidelines</span>
-            <span className="font-mono bg-white/5 rounded px-2 py-0.5">Sync Interval: Instantaneous</span>
+          <div className="mt-8 pt-4 border-t border-[#E2E8F0] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-[#64748B]">
+            <span>Simulated geo-markers match college coordinate guidelines</span>
+            <span className="font-mono bg-[#FFFBF5] border border-[#E2E8F0] rounded px-2 py-1">Sync Interval: Instantaneous</span>
           </div>
         </div>
 
-        {/* Asymmetrical Column Layout: 5. Registered Subjects Stat Block (col-span-4 - Small card) */}
-        <div
-          onClick={() => setActiveTab('subjects')}
-          className="md:col-span-3 lg:col-span-4 bg-white/70 backdrop-blur-md border border-white/50 rounded-[30px] p-7 flex flex-col justify-between shadow-premium-light hover:shadow-xl hover:border-blue-200 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer group relative overflow-hidden"
-          id="bento-card-subjects"
-        >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-sky-400/10 rounded-full blur-2xl -mr-6 -mt-6 group-hover:bg-sky-400/20 transition-all duration-500" />
-          
-          <div className="flex items-center justify-between w-full relative z-10">
-            <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest font-sans">
-              Registered Syllabuses
-            </span>
-            <div className="w-10 h-10 bg-sky-50 text-sky-600 rounded-2xl flex items-center justify-center border border-sky-100 shadow-inner group-hover:scale-115 transition-transform duration-300">
-              <BookOpen className="h-4.5 w-4.5" />
-            </div>
-          </div>
-          <div className="mt-8 relative z-10">
-            <span className="text-5xl font-black text-slate-900 tracking-tight block">
-              {stats?.totalSubjects ?? 0}
-            </span>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-sky-600 text-[10px] font-extrabold bg-sky-50 border border-sky-100/60 px-2.5 py-0.5 rounded-full select-none">
-                Core syllabus active
+        <div className="space-y-6">
+          {/* Realtime Active Sessions */}
+          <div
+            onClick={() => setActiveTab('qr-sessions')}
+            className="saas-card p-6 flex flex-col justify-between saas-card-hover cursor-pointer"
+            id="bento-card-qr-sessions"
+          >
+            <div className="flex items-center justify-between w-full">
+              <span className="text-[#64748B] text-xs font-semibold uppercase tracking-wider font-sans">
+                Active Gates
               </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Asymmetrical Column Layout: 6. Realtime Active Sessions (col-span-4 - Dark, narrow card) */}
-        <div
-          onClick={() => setActiveTab('qr-sessions')}
-          className="md:col-span-3 lg:col-span-4 bg-slate-900 border border-white/10 rounded-[30px] p-7 flex flex-col justify-between shadow-premium-dark hover:shadow-2xl hover:border-slate-800 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer group relative overflow-hidden"
-          id="bento-card-qr-sessions"
-        >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -mr-6 -mt-6 group-hover:bg-blue-500/15 transition-all duration-500" />
-          
-          <div className="flex items-center justify-between w-full relative z-10">
-            <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest font-sans">
-              Active Gates
-            </span>
-            <div className="w-10 h-10 bg-white/5 text-blue-400 rounded-2xl flex items-center justify-center border border-white/10 shadow-inner group-hover:scale-115 transition-transform duration-300">
-              <QrCode className="h-5 w-5" />
-            </div>
-          </div>
-          <div className="mt-8 relative z-10">
-            <span className="text-5.5xl font-black text-white tracking-tight block">
-              {activeSessions.length}
-            </span>
-            <div className="flex items-center gap-2 mt-2">
-              <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full select-none ${
-                activeSessions.length > 0 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/20' : 'bg-slate-805 text-slate-400 border border-white/5'
-              }`}>
-                {activeSessions.length > 0 ? 'Active Broadcasts Live' : 'Syllabus Standby'}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Asymmetrical Column Layout: 7. Live Activity log feed (col-span-4 - Glass, modern timeline) */}
-        <div 
-          className="md:col-span-6 lg:col-span-4 bg-white/75 backdrop-blur-md border border-white/50 rounded-[30px] p-7 shadow-premium-light overflow-hidden flex flex-col justify-between hover:shadow-xl hover:border-white/90 transition-all"
-          id="bento-card-activity-log"
-        >
-          <div>
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4 select-none">
-              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider font-sans">Live Activity</h3>
-              <button 
-                onClick={() => setActiveTab('attendance')}
-                className="text-blue-650 text-xs font-bold hover:underline transition-colors cursor-pointer"
-              >
-                View Roster
-              </button>
-            </div>
-
-            <p className="text-[11px] text-slate-450 mb-4 font-semibold leading-normal">
-              Latest check-in updates verified from client-side student keys.
-            </p>
-
-            {recentAttendance.length === 0 ? (
-              <div className="py-10 text-center text-slate-350 bg-slate-50/20 rounded-2xl border border-dashed border-slate-200">
-                <Users className="h-8 w-8 mx-auto mb-2 text-slate-300" />
-                <span className="text-xs font-bold">No logs today yet</span>
+              <div className="w-10 h-10 bg-[#EAF5F5] text-[#14B8A6] rounded-md flex items-center justify-center">
+                <QrCode className="h-5 w-5" />
               </div>
-            ) : (
-              <div className="space-y-3.5" id="dashboard-recent-feed">
-                {recentAttendance.slice(0, 3).map((log) => {
-                  const statusColors = {
-                    Present: 'bg-emerald-50 border-emerald-100 text-emerald-800',
-                    Late: 'bg-amber-50 border-amber-100 text-amber-800',
-                    Absent: 'bg-red-50 border-red-100 text-red-800',
-                  };
-                  return (
-                    <div 
-                      key={log.id} 
-                      className="p-3 bg-white/50 border border-slate-100/80 flex items-center justify-between gap-3 transition-all text-left rounded-2xl hover:border-blue-100 shadow-xs"
-                    >
-                      <div className="overflow-hidden min-w-0">
-                        <p className="text-xs font-bold text-slate-800 truncate leading-snug">{log.studentName}</p>
-                        <p className="text-[10px] text-slate-400 font-bold truncate mt-0.5">
-                          {log.subjectName} &bull; <span className="font-mono text-[9px] text-slate-400 font-semibold">{log.rollNumber}</span>
-                        </p>
+            </div>
+            <div className="mt-4">
+              <span className="text-4xl font-bold text-[#134E4A] tracking-tight block">
+                {activeSessions.length}
+              </span>
+              <div className="flex items-center gap-2 mt-2">
+                <span className={`text-xs font-medium ${
+                  activeSessions.length > 0 ? 'text-[#0F766E]' : 'text-[#64748B]'
+                }`}>
+                  {activeSessions.length > 0 ? 'Active Broadcasts Live' : 'Syllabus Standby'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Live Activity log feed */}
+          <div 
+            className="saas-card p-6 flex flex-col justify-between"
+            id="bento-card-activity-log"
+          >
+            <div>
+              <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-4 mb-4 select-none">
+                <h3 className="text-sm font-semibold text-[#134E4A] uppercase tracking-wider font-sans">Live Activity</h3>
+                <button 
+                  onClick={() => setActiveTab('attendance')}
+                  className="text-[#0F766E] text-xs font-medium hover:underline cursor-pointer"
+                >
+                  View Roster
+                </button>
+              </div>
+
+              {recentAttendance.length === 0 ? (
+                <div className="py-8 text-center text-[#64748B] bg-[#FFFBF5] rounded-lg border border-dashed border-[#E2E8F0]">
+                  <Users className="h-6 w-6 mx-auto mb-2 text-[#64748B]" />
+                  <span className="text-xs font-medium">No logs today yet</span>
+                </div>
+              ) : (
+                <div className="space-y-3" id="dashboard-recent-feed">
+                  {recentAttendance.slice(0, 3).map((log) => {
+                    const statusColors: any = {
+                      Present: 'saas-pill-success',
+                      Late: 'saas-pill-warning',
+                      Absent: 'saas-pill-error',
+                    };
+                    return (
+                      <div 
+                        key={log.id} 
+                        className="p-3 bg-[#F8FAFC] flex items-center justify-between gap-3 rounded-xl hover:bg-[#F1F5F9] transition-colors"
+                      >
+                        <div className="overflow-hidden min-w-0">
+                          <p className="text-sm font-bold text-[#134E4A] truncate">{log.studentName}</p>
+                          <p className="text-xs text-[#64748B] truncate mt-0.5">
+                            {log.subjectName} &bull; <span className="font-mono">{log.rollNumber}</span>
+                          </p>
+                        </div>
+                        <span className={`${statusColors[log.status] || 'saas-pill-warning'} shrink-0`}>
+                          {log.status}
+                        </span>
                       </div>
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-lg border shrink-0 ${statusColors[log.status] || 'bg-slate-50'}`}>
-                        {log.status}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          {recentAttendance.length > 0 && (
-            <button
-              onClick={() => setActiveTab('attendance')}
-              className="w-full mt-4 text-center text-xs font-bold text-indigo-600 hover:text-indigo-700 transition-colors block cursor-pointer"
-            >
-              Analyze full ledger &rarr;
-            </button>
-          )}
-        </div>
-
-        {/* Asymmetrical Column Layout: 8. Quick Shortcut Commands (col-span-8 - Gradient border luxury panel) */}
-        <div 
-          className="md:col-span-6 lg:col-span-12 bg-indigo-50/40 border-b border-r border-l border-indigo-100/50 backdrop-blur-md rounded-[32px] p-8 shadow-premium-light flex flex-col justify-between hover:shadow-md transition-all duration-300 relative overflow-hidden"
-          id="bento-card-quick-actions"
-        >
-          {/* Subtle gradient highlights */}
-          <div className="absolute top-0 right-1/3 w-64 h-64 bg-indigo-200/20 rounded-full blur-[60px] pointer-events-none" />
-          
-          <div>
-            <h3 className="text-slate-900 text-md font-bold uppercase tracking-wider mb-1.5 font-sans">ERP Master Operations</h3>
-            <p className="text-xs text-slate-505 mb-6 font-semibold leading-normal max-w-2xl">
-              Execute core registry operations instantly without looking through the menu indexes.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <button 
-              onClick={() => setActiveTab('students')}
-              className="flex items-center gap-4 p-5 bg-white border border-slate-100 rounded-[22px] hover:border-blue-500 hover:shadow-lg hover:-translate-y-1 transition-all group cursor-pointer shadow-premium-light"
-            >
-              <div className="w-11 h-11 rounded-2xl bg-blue-50 flex items-center justify-center shrink-0 group-hover:bg-blue-500 group-hover:text-white transition-all">
-                <Users className="w-5 h-5 text-blue-600 group-hover:text-white" />
-              </div>
-              <div className="text-left">
-                <span className="text-xs font-bold text-slate-800 block">Student Roster</span>
-                <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">Manage Profiles</span>
-              </div>
-            </button>
-
-            <button 
-              onClick={() => setActiveTab('qr-sessions')}
-              className="flex items-center gap-4 p-5 bg-white border border-slate-100 rounded-[22px] hover:border-blue-500 hover:shadow-lg hover:-translate-y-1 transition-all group cursor-pointer shadow-premium-light"
-            >
-              <div className="w-11 h-11 rounded-2xl bg-indigo-50 flex items-center justify-center shrink-0 group-hover:bg-indigo-500 group-hover:text-white transition-all">
-                <QrCode className="w-5 h-5 text-indigo-600 group-hover:text-white" />
-              </div>
-              <div className="text-left">
-                <span className="text-xs font-bold text-slate-800 block">Broadcast Portal</span>
-                <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">QR Transmission</span>
-              </div>
-            </button>
-
-            <button 
-              onClick={() => setActiveTab('reports')}
-              className="flex items-center gap-4 p-5 bg-white border border-slate-100 rounded-[22px] hover:border-blue-500 hover:shadow-lg hover:-translate-y-1 transition-all group cursor-pointer shadow-premium-light"
-            >
-              <div className="w-11 h-11 rounded-2xl bg-purple-50 flex items-center justify-center shrink-0 group-hover:bg-purple-500 group-hover:text-white transition-all">
-                <BookOpen className="w-5 h-5 text-purple-600 group-hover:text-white" />
-              </div>
-              <div className="text-left">
-                <span className="text-xs font-bold text-slate-800 block">Executive Excel</span>
-                <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">Extract Spreadsheets</span>
-              </div>
-            </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -61,7 +61,7 @@ const AdminLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex" id="erp-layout-root">
+    <div className="min-h-screen bg-[#FFFBF5] text-[#134E4A] flex" id="erp-layout-root">
       {/* Sidebar Navigation */}
       <Sidebar 
         activeTab={activeTab} 
@@ -73,7 +73,7 @@ const AdminLayout: React.FC = () => {
       {/* Main Panel Content Wrapper */}
       <div className="flex-1 lg:pl-64 flex flex-col min-w-0 min-h-screen">
         {/* Global ERP Top Header Bar */}
-        <header className="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-6 lg:px-8 select-none shrink-0" id="erp-global-header">
+        <header className="h-20 bg-white border-b border-[#F1F5F9] flex items-center justify-between px-6 lg:px-8 select-none shrink-0" id="erp-global-header">
           {/* Mobile menu trigger */}
           <div className="flex items-center gap-4">
             <button
@@ -84,8 +84,8 @@ const AdminLayout: React.FC = () => {
               <Menu className="h-5 w-5" />
             </button>
             <div className="hidden sm:flex flex-col">
-              <span className="text-xs font-bold text-indigo-650 leading-none">Apex ERP Attendance Console</span>
-              <span className="text-[10px] text-slate-400 font-medium font-mono mt-1 font-semibold block uppercase">MANAGEMENT PRIVILEGES ACTIVE</span>
+              <span className="text-xs font-bold text-[#0F766E] leading-none">Apex ERP Attendance Console</span>
+              <span className="text-[10px] text-[#64748B] font-medium font-mono mt-1 font-semibold block uppercase">MANAGEMENT PRIVILEGES ACTIVE</span>
             </div>
           </div>
 
@@ -95,10 +95,10 @@ const AdminLayout: React.FC = () => {
               <NotificationBell />
               <div className="flex items-center gap-3">
                 <div className="text-right">
-                  <span className="text-xs font-semibold text-slate-800 block">Logged: {admin.fullName}</span>
-                  <span className="text-[10px] text-slate-400 font-medium font-mono block">System Admin</span>
+                  <span className="text-xs font-bold text-[#134E4A] block">Logged: {admin.fullName}</span>
+                  <span className="text-[10px] text-[#64748B] font-medium font-mono block">System Admin</span>
                 </div>
-                <div className="h-9 w-9 bg-slate-100 border border-slate-200/50 rounded-xl flex items-center justify-center text-xs font-bold text-slate-600">
+                <div className="h-9 w-9 bg-[#EAF5F5] border border-[#14B8A6]/50 rounded-md flex items-center justify-center text-xs font-bold text-[#0F766E]">
                   AD
                 </div>
               </div>
@@ -141,7 +141,7 @@ const TeacherLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-55 flex" id="teacher-layout-root">
+    <div className="min-h-screen bg-[#FFFBF5] text-[#134E4A] flex" id="teacher-layout-root">
       {/* Teacher Sidebar Navigation */}
       <TeacherSidebar 
         activeTab={activeTab} 
@@ -153,7 +153,7 @@ const TeacherLayout: React.FC = () => {
       {/* Main Panel Content Wrapper */}
       <div className="flex-1 lg:pl-64 flex flex-col min-w-0 min-h-screen">
         {/* Global Faculty Top Header Bar */}
-        <header className="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-6 lg:px-8 select-none shrink-0" id="teacher-global-header">
+        <header className="h-20 bg-white border-b border-[#F1F5F9] flex items-center justify-between px-6 lg:px-8 select-none shrink-0" id="teacher-global-header">
           {/* Mobile menu trigger */}
           <div className="flex items-center gap-4">
             <button
@@ -164,8 +164,8 @@ const TeacherLayout: React.FC = () => {
               <Menu className="h-5 w-5" />
             </button>
             <div className="hidden sm:flex flex-col">
-              <span className="text-xs font-bold text-indigo-650 leading-none">Apex ERP Faculty Terminal</span>
-              <span className="text-[10px] text-slate-400 font-medium font-mono mt-1 font-semibold block uppercase">LECTURE PRIVILEGES ACTIVE</span>
+              <span className="text-xs font-bold text-[#0F766E] leading-none">Apex ERP Faculty Terminal</span>
+              <span className="text-[10px] text-[#64748B] font-medium font-mono mt-1 font-semibold block uppercase">LECTURE PRIVILEGES ACTIVE</span>
             </div>
           </div>
 
@@ -175,13 +175,13 @@ const TeacherLayout: React.FC = () => {
               <NotificationBell />
               <div className="flex items-center gap-3">
                 <div className="text-right">
-                  <span className="text-xs font-semibold text-slate-800 block">{teacher.fullName}</span>
-                  <span className="text-[10px] text-slate-400 font-medium font-mono block">Dept Lecturer</span>
+                  <span className="text-xs font-bold text-[#134E4A] block">{teacher.fullName}</span>
+                  <span className="text-[10px] text-[#64748B] font-medium font-mono block">Dept Lecturer</span>
                 </div>
                 <img 
                   src={teacher.profilePhoto || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100"} 
                   alt="Teacher Av" 
-                  className="h-9 w-9 bg-slate-100 border border-slate-200 rounded-xl object-cover shrink-0"
+                  className="h-9 w-9 bg-[#FFFBF5] border border-[#E2E8F0] rounded-md object-cover shrink-0"
                 />
               </div>
             </div>
@@ -223,7 +223,7 @@ const StudentLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex text-slate-100 font-sans" id="student-layout-root">
+    <div className="min-h-screen bg-[#FFFBF5] flex text-[#134E4A] font-sans" id="student-layout-root">
       {/* Student Sidebar Navigation */}
       <StudentSidebar 
         activeTab={activeTab} 
@@ -233,21 +233,21 @@ const StudentLayout: React.FC = () => {
       />
 
       {/* Main Panel Content Wrapper */}
-      <div className="flex-1 lg:pl-64 flex flex-col min-w-0 min-h-screen bg-slate-950">
+      <div className="flex-1 lg:pl-64 flex flex-col min-w-0 min-h-screen bg-[#FFFBF5]">
         {/* Global Scholar Top Header Bar */}
-        <header className="h-20 bg-slate-950 border-b border-slate-900 flex items-center justify-between px-6 lg:px-8 select-none shrink-0" id="student-global-header">
+        <header className="h-20 bg-white border-b border-[#F1F5F9] flex items-center justify-between px-6 lg:px-8 select-none shrink-0" id="student-global-header">
           {/* Mobile menu trigger */}
           <div className="flex items-center gap-4">
             <button
               onClick={() => setMobileSidebarOpen(true)}
               id="mobile-student-menu-trigger"
-              className="lg:hidden p-1.5 hover:bg-slate-900 rounded-xl border border-slate-800 text-slate-300 transition-colors cursor-pointer"
+              className="lg:hidden p-1.5 hover:bg-[#EAF5F5] rounded-md border border-[#E2E8F0] text-[#64748B] transition-colors cursor-pointer"
             >
               <Menu className="h-5 w-5" />
             </button>
             <div className="hidden sm:flex flex-col text-left">
-              <span className="text-xs font-bold text-emerald-450 leading-none block">Apex Scholar Terminal</span>
-              <span className="text-[10px] text-slate-500 font-medium font-mono mt-1 font-semibold block uppercase">SCHOLASTIC RIGHTS ONLINE</span>
+              <span className="text-xs font-bold text-[#0F766E] leading-none block">Apex Scholar Terminal</span>
+              <span className="text-[10px] text-[#64748B] font-medium font-mono mt-1 font-semibold block uppercase">SCHOLASTIC RIGHTS ONLINE</span>
             </div>
           </div>
 
@@ -257,21 +257,20 @@ const StudentLayout: React.FC = () => {
               <NotificationBell />
               <div className="flex items-center gap-3">
                 <div className="text-right">
-                  <span className="text-xs font-bold text-slate-205 block">{student.fullName}</span>
-                  <span className="text-[10px] text-slate-500 font-mono block">Roll: {student.rollNumber}</span>
+                  <span className="text-xs font-bold text-[#134E4A] block">{student.fullName}</span>
+                  <span className="text-[10px] text-[#64748B] font-mono block">Roll: {student.rollNumber}</span>
                 </div>
                 <img 
                   src={student.profilePhoto || "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100"} 
                   alt="Student Av" 
-                  className="h-9 w-9 bg-slate-900 border border-slate-800 rounded-xl object-cover shrink-0"
+                  className="h-9 w-9 bg-[#FFFBF5] border border-[#E2E8F0] rounded-md object-cover shrink-0"
                 />
               </div>
             </div>
           )}
         </header>
 
-        {/* View content frame */}
-        <main className="flex-1 p-6 lg:p-8 overflow-y-auto bg-slate-950">
+        <main className="flex-1 p-6 lg:p-8 overflow-y-auto bg-[#FFFBF5]">
           {renderView()}
         </main>
       </div>
@@ -284,10 +283,10 @@ const AppContent: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-slate-950">
+      <div className="min-h-screen w-full flex items-center justify-center bg-[#FFFBF5]">
         <div className="text-center animate-pulse">
-          <GraduationCap className="h-12 w-12 text-indigo-500 animate-bounce mx-auto mb-4" />
-          <p className="text-sm text-indigo-200/60 font-medium font-mono">RESTORING APEX SESSION...</p>
+          <GraduationCap className="h-12 w-12 text-[#0F766E] animate-bounce mx-auto mb-4" />
+          <p className="text-sm text-[#64748B] font-medium font-mono">RESTORING APEX SESSION...</p>
         </div>
       </div>
     );

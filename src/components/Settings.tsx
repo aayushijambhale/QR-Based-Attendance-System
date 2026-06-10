@@ -215,7 +215,7 @@ export const Settings: React.FC = () => {
             <button
               type="submit"
               disabled={profileLoading}
-              className="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl py-3 shadow-md shadow-indigo-600/10 cursor-pointer transition-colors disabled:opacity-40"
+              className="saas-button-primary w-full mt-4 py-3 disabled:opacity-40"
             >
               {profileLoading ? 'Authenticating and saving...' : 'Commit Administration Changes'}
             </button>
@@ -300,7 +300,7 @@ export const Settings: React.FC = () => {
             <button
               type="submit"
               disabled={systemLoading}
-              className="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl py-3 shadow-md shadow-indigo-600/10 cursor-pointer transition-colors disabled:opacity-40"
+              className="saas-button-primary w-full mt-6 py-3 disabled:opacity-40"
             >
               {systemLoading ? 'Sychronizing specs...' : 'Save College Specifications'}
             </button>
