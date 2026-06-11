@@ -23,11 +23,32 @@ export const Login: React.FC = () => {
       return;
     }
 
+    const actualRole = isAdminDetected ? 'admin' : loginAs;
+
+    // Validate inputs depending on role
+    if (actualRole === 'student') {
+      const rollRegex = /^[a-zA-Z0-9\-/]{5,15}$/;
+      if (!rollRegex.test(emailOrRoll)) {
+        setError('Invalid Roll Number format. Use 5-15 alphanumeric characters (dashes or slashes allowed).');
+        return;
+      }
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(emailOrRoll)) {
+        setError('Invalid email address format.');
+        return;
+      }
+    }
+
+    // Validate password strength
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setError('Password must be at least 8 characters long and contain uppercase, lowercase, and numeric characters.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
-
-    // If admin is detected, override selection and authenticate as admin
-    const actualRole = isAdminDetected ? 'admin' : loginAs;
 
     try {
       await login(emailOrRoll, password, rememberMe, actualRole);

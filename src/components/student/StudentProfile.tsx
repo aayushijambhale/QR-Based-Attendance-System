@@ -48,6 +48,20 @@ export const StudentProfile: React.FC = () => {
       return;
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrorMsg('Invalid email address format.');
+      return;
+    }
+
+    if (currentPassword && newPassword) {
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+      if (!passwordRegex.test(newPassword)) {
+        setErrorMsg('New password must be at least 8 characters long and contain uppercase, lowercase, and numeric characters.');
+        return;
+      }
+    }
+
     setSaving(true);
 
     try {

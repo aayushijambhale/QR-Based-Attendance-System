@@ -15,6 +15,36 @@ import {
 // Seeding function to populate realistic ERP sample data if empty
 export async function seedDatabase() {
   try {
+    // Migration: Update existing users from legacy lowercase 'password123' to 'Password123'
+    const students = await MongoStudent.find({});
+    let updatedStudentsCount = 0;
+    const migrationSalt = bcrypt.genSaltSync(10);
+    const newMigrationHash = bcrypt.hashSync('Password123', migrationSalt);
+    
+    for (const student of students) {
+      if (bcrypt.compareSync('password123', student.passwordHash)) {
+        student.passwordHash = newMigrationHash;
+        await student.save();
+        updatedStudentsCount++;
+      }
+    }
+    if (updatedStudentsCount > 0) {
+      console.log(`[MIGRATION] Updated ${updatedStudentsCount} legacy student passwords to 'Password123'`);
+    }
+
+    const teachers = await MongoTeacher.find({});
+    let updatedTeachersCount = 0;
+    for (const teacher of teachers) {
+      if (bcrypt.compareSync('password123', teacher.passwordHash)) {
+        teacher.passwordHash = newMigrationHash;
+        await teacher.save();
+        updatedTeachersCount++;
+      }
+    }
+    if (updatedTeachersCount > 0) {
+      console.log(`[MIGRATION] Updated ${updatedTeachersCount} legacy teacher passwords to 'Password123'`);
+    }
+
     const adminCount = await MongoAdmin.countDocuments();
     if (adminCount > 0) {
       console.log("[DATABASE] Database already has data. Skipping seed.");
@@ -23,7 +53,7 @@ export async function seedDatabase() {
 
     console.log("[DATABASE] Database is empty. Seeding realistic ERP sample data...");
     const salt = bcrypt.genSaltSync(10);
-    const hashedDefaultPassword = bcrypt.hashSync('password123', salt);
+    const hashedDefaultPassword = bcrypt.hashSync('Password123', salt);
 
     const adminSeed = {
       _id: 'admin-1',
@@ -8876,7 +8906,7 @@ export class JSONDB {
 
   public async createStudent(student: Omit<Student, 'id' | 'createdAt' | 'updatedAt'>): Promise<Student> {
     const salt = bcrypt.genSaltSync(10);
-    const hashedPw = bcrypt.hashSync('password123', salt);
+    const hashedPw = bcrypt.hashSync('Password123', salt);
     
     const doc = await MongoStudent.create({
       ...student,
@@ -9157,6 +9187,8 @@ export class JSONDB {
       sessionCode: doc.sessionCode,
       qrToken: doc.qrToken,
       lastRegeneratedAt: doc.lastRegeneratedAt,
+      latitude: doc.latitude,
+      longitude: doc.longitude,
       createdAt: doc.createdAt ? doc.createdAt.toISOString() : nowIso
     };
   }

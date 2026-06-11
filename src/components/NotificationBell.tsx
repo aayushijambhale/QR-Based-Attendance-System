@@ -40,7 +40,7 @@ export const NotificationBell: React.FC = () => {
     fetchNotifications();
 
     // Setup real-time Socket.io feedback loop
-    const socket = io(window.location.origin, {
+    const socket = io(import.meta.env.VITE_API_URL || window.location.origin, {
       auth: { token }
     });
 

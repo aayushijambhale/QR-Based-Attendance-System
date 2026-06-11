@@ -166,6 +166,18 @@ export const Students: React.FC = () => {
       return;
     }
 
+    const rollRegex = /^[a-zA-Z0-9\-/]{5,15}$/;
+    if (!rollRegex.test(rollNumber)) {
+      alert('Invalid Roll Number format. Use 5-15 alphanumeric characters (dashes or slashes allowed).');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert('Invalid email address format.');
+      return;
+    }
+
     try {
       if (modalMode === 'add') {
         await api.post('/api/students', {

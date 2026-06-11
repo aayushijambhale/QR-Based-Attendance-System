@@ -72,7 +72,8 @@ export const TeacherQR: React.FC = () => {
   useEffect(() => {
     if (!token || !activeQRModal) return;
 
-    const socket = io(window.location.origin, {
+    // Connect to websocket namespace for live updates
+    const socket = io(import.meta.env.VITE_API_URL || window.location.origin, {
       auth: { token }
     });
 
@@ -184,19 +185,49 @@ export const TeacherQR: React.FC = () => {
       return;
     }
 
-    try {
-      const durationMinutes = parseInt(duration, 10);
-      const res = await api.post<QRSession>('/api/teacher/attendance/session', {
-        subjectId: selectedSubjectId,
-        durationMinutes
-      });
-
-      // Show active QR Modal right away
-      setActiveQRModal(res);
-      loadSessionsData();
-    } catch (err: any) {
-      alert(err.message || 'QR creation failed.');
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.');
+      return;
     }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const durationMinutes = parseInt(duration, 10);
+          const res = await api.post<QRSession>('/api/teacher/attendance/session', {
+            subjectId: selectedSubjectId,
+            durationMinutes,
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          });
+
+          // Show active QR Modal right away
+          setActiveQRModal(res);
+          loadSessionsData();
+        } catch (err: any) {
+          alert(err.message || 'QR creation failed.');
+        }
+      },
+      async (error) => {
+        console.warn("Could not retrieve teacher's exact GPS. Initializing session at campus coordinates.", error);
+        try {
+          const durationMinutes = parseInt(duration, 10);
+          const res = await api.post<QRSession>('/api/teacher/attendance/session', {
+            subjectId: selectedSubjectId,
+            durationMinutes,
+            latitude: 18.5204, // Default Apex Campus
+            longitude: 73.8567
+          });
+
+          // Show active QR Modal right away
+          setActiveQRModal(res);
+          loadSessionsData();
+        } catch (err: any) {
+          alert(err.message || 'QR creation failed.');
+        }
+      },
+      { enableHighAccuracy: true, timeout: 5000 }
+    );
   };
 
   const handleForceExpire = async (id: string) => {

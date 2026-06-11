@@ -39,6 +39,22 @@ export const TeacherProfile: React.FC = () => {
     setErrorMsg(null);
     setSuccessMsg(null);
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrorMsg('Invalid email address format.');
+      setSaving(false);
+      return;
+    }
+
+    if (currentPassword && newPassword) {
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+      if (!passwordRegex.test(newPassword)) {
+        setErrorMsg('New password must be at least 8 characters long and contain uppercase, lowercase, and numeric characters.');
+        setSaving(false);
+        return;
+      }
+    }
+
     try {
       // If updating password
       const changePassword = currentPassword && newPassword;

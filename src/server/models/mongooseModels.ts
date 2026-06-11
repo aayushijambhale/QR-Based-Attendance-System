@@ -150,6 +150,8 @@ export interface IAttendanceSession extends Document {
   sessionCode: string;
   qrToken: string;
   lastRegeneratedAt: string;
+  latitude: number;
+  longitude: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -165,7 +167,9 @@ const AttendanceSessionSchema: Schema = new Schema({
   status: { type: String, enum: ['Active', 'Expired'], default: 'Active' },
   sessionCode: { type: String, required: true, unique: true },
   qrToken: { type: String, required: true },
-  lastRegeneratedAt: { type: String, required: true }
+  lastRegeneratedAt: { type: String, required: true },
+  latitude: { type: Number, default: 0 },
+  longitude: { type: Number, default: 0 }
 }, { timestamps: true });
 
 // ==========================================
