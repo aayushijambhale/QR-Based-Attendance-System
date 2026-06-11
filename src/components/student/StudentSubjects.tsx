@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../utils/api.js';
 import { 
-  GraduationCap, 
   User, 
   Calendar, 
-  CheckCircle, 
-  AlertTriangle,
   ChevronLeft,
   Loader2,
   BookOpen,
@@ -90,17 +87,17 @@ export const StudentSubjects: React.FC = () => {
 
   if (loadingList) {
     return (
-      <div id="subjects-loading" className="flex items-center justify-center min-h-[40vh]">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 text-emerald-500 animate-spin mx-auto mb-3" />
-          <p className="text-sm text-slate-400">Loading course curriculum...</p>
+      <div id="subjects-loading" className="flex items-center justify-center min-h-[40vh] bg-[#F8F9FA]">
+        <div className="text-center select-none">
+          <Loader2 className="h-8 w-8 text-[#0071E3] animate-spin mx-auto mb-3" />
+          <p className="text-xs text-[#6E6E73] font-mono uppercase tracking-wider">Loading course curriculum...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div id="student-subjects-container" className="space-y-6">
+    <div id="student-subjects-container" className="space-y-6 text-[#1D1D1F]">
       
       {/* Detail View Mode */}
       {selectedSubjectId ? (
@@ -109,36 +106,36 @@ export const StudentSubjects: React.FC = () => {
           <button
             onClick={handleBackToList}
             id="back-to-subjects-list-btn"
-            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-slate-200 transition-colors select-none cursor-pointer"
+            className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#6E6E73] hover:text-[#1D1D1F] transition-colors select-none cursor-pointer"
           >
             <ChevronLeft className="h-4 w-4" />
-            <span>Store All Subjects</span>
+            <span>All Subjects</span>
           </button>
 
           {loadingDetail ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 text-emerald-500 animate-spin" />
+            <div className="flex items-center justify-center py-20 bg-white saas-card">
+              <Loader2 className="h-8 w-8 text-[#0071E3] animate-spin" />
             </div>
           ) : detail ? (
             <div className="space-y-6">
               
               {/* Subject Jumbotron Header Card */}
-              <div className="p-6 bg-slate-900/60 backdrop-blur-md rounded-2xl border border-slate-800 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+              <div className="saas-card p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                 <div>
-                  <span className="px-3 py-1 rounded-full text-[10px] bg-indigo-505/10 text-indigo-400 border border-indigo-500/10 font-bold uppercase font-mono tracking-wider">
+                  <span className="px-2.5 py-0.5 rounded bg-[#E8F2FF] text-[#0071E3] text-[9px] font-bold uppercase border border-[#0071E3]/20 select-none">
                     {detail.subject.semester}
                   </span>
-                  <h2 className="text-xl font-bold text-slate-100 mt-3">{detail.subject.name}</h2>
-                  <p className="text-xs text-slate-400 font-mono mt-1">{detail.subject.code} &bull; Department of {detail.subject.department}</p>
+                  <h2 className="text-xl font-bold text-[#1D1D1F] mt-2.5">{detail.subject.name}</h2>
+                  <p className="text-xs text-[#6E6E73] mt-1 font-semibold">{detail.subject.code} &bull; {detail.subject.department}</p>
                 </div>
 
-                <div className="flex items-center gap-3 bg-slate-950 p-4 rounded-xl border border-slate-900">
-                  <div className="h-10 w-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-                    <User className="h-5 w-5" />
+                <div className="flex items-center gap-3 bg-[#F8F9FA] p-3 rounded-xl border border-[#D2D2D7]/55 select-none">
+                  <div className="h-9 w-9 rounded-full bg-[#EAFBEF] text-[#34C759] flex items-center justify-center">
+                    <User className="h-4.5 w-4.5" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block">Course Lecturer</span>
-                    <span className="text-sm font-semibold text-slate-200 block">{detail.subject.teacherName}</span>
+                    <span className="text-[9px] font-bold text-[#6E6E73] uppercase tracking-wider block">Course Lecturer</span>
+                    <span className="text-xs font-bold text-[#1D1D1F] block mt-0.5">{detail.subject.teacherName}</span>
                   </div>
                 </div>
               </div>
@@ -147,39 +144,40 @@ export const StudentSubjects: React.FC = () => {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
                 {/* Checkin Logs Table */}
-                <div className="lg:col-span-8 p-6 bg-slate-900/60 backdrop-blur-md rounded-2xl border border-slate-800 space-y-4">
-                  <h3 className="text-xs font-extrabold uppercase tracking-widest text-slate-350">Individual Lesson History</h3>
+                <div className="lg:col-span-8 saas-card overflow-hidden">
+                  <div className="px-6 py-4 border-b border-[#D2D2D7]/55 select-none bg-[#F8F9FA]">
+                    <h3 className="text-[10px] font-bold uppercase tracking-wider text-[#1D1D1F]">Individual Lesson History</h3>
+                  </div>
                   
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto bg-white">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-slate-850 text-[10px] font-extrabold uppercase text-slate-500 tracking-wider">
-                          <th className="pb-3 pl-2">Session Date</th>
-                          <th className="pb-3">Timestamp</th>
-                          <th className="pb-3">Reporting Authority</th>
-                          <th className="pb-3 text-right pr-2">Attainment Status</th>
+                        <tr className="border-b border-[#D2D2D7]/65 text-[10px] font-bold uppercase text-[#6E6E73] tracking-wider select-none">
+                          <th className="py-3 px-6">Session Date</th>
+                          <th className="py-3 px-6">Timestamp</th>
+                          <th className="py-3 px-6">Reporting Authority</th>
+                          <th className="py-3 px-6 text-right pr-6">Check-In Status</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-850/40">
+                      <tbody className="divide-y divide-[#D2D2D7]/65 text-xs text-[#1D1D1F]">
                         {detail.attendance.map((log) => {
-                          const isLate = log.status === 'Late';
-                          const isAbsent = log.status === 'Absent';
+                          const statusColors: any = {
+                            Present: 'saas-pill-success',
+                            Late: 'saas-pill-warning',
+                            Absent: 'saas-pill-error'
+                          };
                           return (
-                            <tr key={log.id} id={`detail-log-row-${log.id}`} className="text-xs text-slate-300 hover:bg-slate-950/20 transition-colors">
-                              <td className="py-3.5 pl-2 font-semibold flex items-center gap-2">
-                                <Calendar className="h-3.5 w-3.5 text-slate-500" />
-                                <span>{log.date}</span>
+                            <tr key={log.id} id={`detail-log-row-${log.id}`} className="hover:bg-[#F8F9FA] transition-colors">
+                              <td className="py-3.5 px-6 font-semibold">
+                                <div className="flex items-center gap-2">
+                                  <Calendar className="h-3.5 w-3.5 text-[#6E6E73]" />
+                                  <span>{log.date}</span>
+                                </div>
                               </td>
-                              <td className="py-3.5 font-mono text-slate-400">{log.time}</td>
-                              <td className="py-3.5 font-medium">{log.teacherName}</td>
-                              <td className="py-3.5 text-right pr-2">
-                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase ${
-                                  isLate 
-                                    ? 'bg-amber-400/10 text-amber-400' 
-                                    : isAbsent 
-                                      ? 'bg-rose-450/10 text-rose-400' 
-                                      : 'bg-emerald-400/10 text-emerald-400'
-                                }`}>
+                              <td className="py-3.5 px-6 font-mono text-[#6E6E73]">{log.time}</td>
+                              <td className="py-3.5 px-6 font-semibold text-[#1D1D1F]">{log.teacherName}</td>
+                              <td className="py-3.5 px-6 text-right pr-6">
+                                <span className={`${statusColors[log.status] || 'saas-pill-warning'}`}>
                                   {log.status}
                                 </span>
                               </td>
@@ -189,8 +187,8 @@ export const StudentSubjects: React.FC = () => {
 
                         {detail.attendance.length === 0 && (
                           <tr>
-                            <td colSpan={4} className="py-10 text-center text-xs text-slate-500 italic">
-                              No attendance log files located for this catalog session.
+                            <td colSpan={4} className="py-10 text-center text-xs text-[#6E6E73] italic select-none">
+                              No attendance logs available for this session.
                             </td>
                           </tr>
                         )}
@@ -200,11 +198,11 @@ export const StudentSubjects: React.FC = () => {
                 </div>
 
                 {/* Left Side: Summary Card */}
-                <div className="lg:col-span-4 p-6 bg-slate-900/60 backdrop-blur-md rounded-2xl border border-slate-800 flex flex-col justify-between">
+                <div className="lg:col-span-4 saas-card p-5 flex flex-col justify-between h-fit">
                   <div>
-                    <div className="flex items-center gap-2 text-indigo-400 mb-4">
+                    <div className="flex items-center gap-2 text-[#0071E3] mb-4 select-none">
                       <PieChart className="h-4.5 w-4.5" />
-                      <h4 className="text-xs font-extrabold uppercase tracking-widest">Aggregate summary</h4>
+                      <h4 className="text-[10px] font-bold uppercase tracking-wider">Aggregate Summary</h4>
                     </div>
 
                     {/* Calculations */}
@@ -216,33 +214,33 @@ export const StudentSubjects: React.FC = () => {
 
                       return (
                         <div id="analytics-summary-body" className="space-y-6">
-                          <div className="text-center py-6 bg-slate-950 rounded-2xl border border-slate-900">
-                            <h5 className={`text-5xl font-extrabold tracking-tight ${thresholdOk ? 'text-emerald-400' : 'text-amber-400'}`}>
+                          <div className="text-center py-5 bg-[#F8F9FA] rounded-xl border border-[#D2D2D7]/55 select-none">
+                            <h5 className={`text-4xl font-extrabold tracking-tight ${thresholdOk ? 'text-[#34C759]' : 'text-[#FF9500]'}`}>
                               {percent}%
                             </h5>
-                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-2">Current Attendance Score</p>
+                            <p className="text-[9px] text-[#6E6E73] font-bold uppercase tracking-wider mt-2">Attendance Rating</p>
                           </div>
 
-                          <div className="space-y-3.5 text-xs text-slate-400 font-semibold uppercase">
+                          <div className="space-y-3.5 text-xs text-[#6E6E73] font-bold uppercase select-none">
                             <div className="flex justify-between">
                               <span>Lectures Enrolled:</span>
-                              <span className="text-slate-200 font-mono font-bold">{totalSubjectClasses}</span>
+                              <span className="text-[#1D1D1F] font-mono">{totalSubjectClasses}</span>
                             </div>
                             <div className="flex justify-between">
                               <span>Present logs:</span>
-                              <span className="text-emerald-400 font-mono font-bold">
+                              <span className="text-[#34C759] font-mono">
                                 {detail.attendance.filter(a => a.status === 'Present').length}
                               </span>
                             </div>
                             <div className="flex justify-between">
                               <span>Late logs:</span>
-                              <span className="text-amber-400 font-mono font-bold">
+                              <span className="text-[#FF9500] font-mono">
                                 {detail.attendance.filter(a => a.status === 'Late').length}
                               </span>
                             </div>
                             <div className="flex justify-between">
                               <span>Absent logs:</span>
-                              <span className="text-rose-400 font-mono font-bold">
+                              <span className="text-[#FF3B30] font-mono">
                                 {detail.attendance.filter(a => a.status === 'Absent').length}
                               </span>
                             </div>
@@ -252,9 +250,9 @@ export const StudentSubjects: React.FC = () => {
                     })()}
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-slate-800">
-                    <p className="text-[10px] text-slate-500 leading-normal font-medium uppercase tracking-wide">
-                      Notice: Students must maintain a minimum threshold criteria rating of <span className="text-slate-300 font-bold">75%</span> in order to qualify for end-semester exams.
+                  <div className="mt-6 pt-4 border-t border-[#D2D2D7]/55 select-none">
+                    <p className="text-[9px] text-[#6E6E73] leading-normal font-bold uppercase tracking-wider">
+                      Notice: Maintain at least <span className="text-[#1D1D1F]">75%</span> to qualify for end-semester exams.
                     </p>
                   </div>
                 </div>
@@ -263,19 +261,19 @@ export const StudentSubjects: React.FC = () => {
 
             </div>
           ) : (
-            <p className="text-xs text-slate-500">Failed to load item description.</p>
+            <p className="text-xs text-[#6E6E73] select-none">Failed to load subject description.</p>
           )}
 
         </div>
       ) : (
         <div id="student-subjects-list" className="space-y-6">
-          <div>
-            <h2 className="text-xl font-bold text-slate-100">My Subjects</h2>
-            <p className="text-xs text-slate-400 mt-1">Select a catalog course item bellow to inspect comprehensive logging histories, scores, and faculty information.</p>
+          <div className="select-none">
+            <h2 className="text-2xl font-bold text-[#1D1D1F]">My Subjects</h2>
+            <p className="text-xs text-[#6E6E73] mt-1">Select a course to inspect comprehensive logging histories, scores, and faculty information.</p>
           </div>
 
           {/* List of Subjects */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {subjects.map((sub) => {
               const analytics = sub.analytics;
               const percent = analytics?.percentage ?? 0;
@@ -286,32 +284,32 @@ export const StudentSubjects: React.FC = () => {
                   key={sub.id} 
                   onClick={() => handleSelectSubject(sub.id)}
                   id={`subject-card-${sub.id}`}
-                  className="p-5 bg-slate-900/60 hover:bg-slate-850/60 backdrop-blur-md rounded-2xl border border-slate-800/80 hover:border-slate-700/80 transition-all shadow-md group select-none cursor-pointer flex flex-col justify-between h-48"
+                  className="saas-card p-5 saas-card-hover transition-all group select-none cursor-pointer flex flex-col justify-between h-44"
                 >
                   <div>
                     <div className="flex items-center justify-between gap-1.5">
-                      <span className="text-[10px] font-mono text-slate-500">{sub.code}</span>
-                      <span className={`h-25 w-25 flex items-center justify-center rounded-lg ${subGood ? 'bg-emerald-500/10 text-emerald-450' : 'bg-amber-500/10 text-amber-400'}`}>
-                        <BookOpen className="h-4 w-4" />
+                      <span className="text-[10px] font-mono text-[#6E6E73] font-bold">{sub.code}</span>
+                      <span className={`h-8 w-8 flex items-center justify-center rounded-full ${subGood ? 'bg-[#EAFBEF] text-[#34C759]' : 'bg-[#FFF1E6] text-[#FF9500]'}`}>
+                        <BookOpen className="h-4.5 w-4.5" />
                       </span>
                     </div>
 
-                    <h3 className="text-sm font-bold text-slate-200 mt-3 group-hover:text-emerald-400 transition-colors line-clamp-1">
+                    <h3 className="text-sm font-bold text-[#1D1D1F] mt-3 group-hover:text-[#0071E3] transition-colors line-clamp-1">
                       {sub.name}
                     </h3>
-                    <p className="text-[11px] text-slate-400 font-medium truncate mt-1">Lecturer: {sub.teacherName}</p>
+                    <p className="text-[10px] text-[#6E6E73] font-bold mt-1 uppercase tracking-wider">Lecturer: {sub.teacherName}</p>
                   </div>
 
                   {/* Percentage Summary strip */}
-                  <div className="mt-4 pt-3 border-t border-slate-850/50">
-                    <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider mb-2">
-                      <span className="text-slate-500 font-bold text-[10px]">Attained</span>
-                      <span className={subGood ? 'text-emerald-400' : 'text-amber-400'}>{percent}%</span>
+                  <div className="mt-4 pt-3 border-t border-[#D2D2D7]/55">
+                    <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider mb-2">
+                      <span className="text-[#6E6E73] text-[9px]">Attainment</span>
+                      <span className={subGood ? 'text-[#34C759]' : 'text-[#FF9500]'}>{percent}%</span>
                     </div>
 
-                    <div className="w-full bg-slate-950 rounded-full h-1 overflow-hidden">
+                    <div className="w-full bg-[#EAEAEA] rounded-full h-1 overflow-hidden">
                       <div 
-                        className={`h-1 rounded-full ${subGood ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                        className={`h-1 rounded-full ${subGood ? 'bg-[#34C759]' : 'bg-[#FF9500]'}`}
                         style={{ width: `${Math.min(percent, 100)}%` }}
                       />
                     </div>
@@ -321,8 +319,8 @@ export const StudentSubjects: React.FC = () => {
             })}
 
             {subjects.length === 0 && (
-              <div colSpan={3} className="text-center py-10 bg-slate-900/20 border border-dashed border-slate-800 rounded-xl">
-                <p className="text-xs text-slate-500">No active subjects mapped to your current profile division.</p>
+              <div className="col-span-full text-center py-10 bg-white border border-dashed border-[#D2D2D7] rounded-2xl select-none">
+                <p className="text-xs text-[#6E6E73]">No active subjects mapped to your current profile division.</p>
               </div>
             )}
           </div>

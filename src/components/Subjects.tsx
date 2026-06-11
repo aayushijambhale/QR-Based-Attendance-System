@@ -128,17 +128,17 @@ export const Subjects: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in" id="subjects-view-container">
+    <div className="space-y-6 animate-fade-in text-[#1D1D1F]" id="subjects-view-container">
       {/* Header and Create Subject Action */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none">
         <div>
-          <h1 className="text-2xl font-bold text-[#134E4A] tracking-tight">Academic Subject Directory</h1>
-          <p className="text-[#64748B] text-xs mt-1">Configure study syllabuses, codes, semesters, and assign default lecturing faculty.</p>
+          <h1 className="text-2xl font-bold text-[#1D1D1F] tracking-tight">Subject Directory</h1>
+          <p className="text-[#6E6E73] text-xs mt-1">Configure study syllabuses, course codes, and assign default faculty.</p>
         </div>
         <button
           onClick={handleOpenAdd}
           id="add-subject-trigger"
-          className="saas-button-primary inline-flex items-center gap-2"
+          className="saas-button-primary inline-flex items-center gap-2 cursor-pointer"
         >
           <Plus className="h-4 w-4" />
           <span>Add New Subject</span>
@@ -148,18 +148,18 @@ export const Subjects: React.FC = () => {
       {/* Roster controls */}
       <div className="saas-card p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
         <div className="relative w-full sm:w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#64748B]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6E6E73]" />
           <input
             type="text"
-            placeholder="Search academic syllabus by name, keycode..."
+            placeholder="Search subject by name or course code..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="saas-input pl-9 py-2.5"
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <span className="text-xs font-medium text-[#64748B] select-none">Branch:</span>
+        <div className="flex items-center gap-2 w-full sm:w-auto text-xs">
+          <span className="text-xs font-semibold text-[#6E6E73] select-none">Branch:</span>
           <select
             value={deptFilter}
             onChange={(e) => setDeptFilter(e.target.value)}
@@ -176,15 +176,15 @@ export const Subjects: React.FC = () => {
       {/* Main Grid Card Lists */}
       {loading ? (
         <div className="text-center py-20 saas-card">
-          <BookOpen className="h-10 w-10 text-[#0F766E] animate-pulse mx-auto mb-3" />
-          <p className="text-xs text-[#64748B]">Loading comprehensive syllabus...</p>
+          <BookOpen className="h-10 w-10 text-[#0071E3] animate-pulse mx-auto mb-3" />
+          <p className="text-xs text-[#6E6E73] font-mono uppercase tracking-wider">Loading course directory...</p>
         </div>
       ) : subjects.length === 0 ? (
         <div className="saas-card p-12 text-center">
-          <BookOpen className="h-12 w-12 text-[#64748B] mx-auto mb-3" />
-          <h3 className="text-sm font-bold text-[#134E4A]">No Subject Exists</h3>
-          <p className="text-xs text-[#64748B] max-w-sm mx-auto mt-1 mb-4">
-            No academic course matches your parameters. Enroll a syllabus using "Add New Subject".
+          <BookOpen className="h-10 w-10 text-[#6E6E73] mx-auto mb-3" />
+          <h3 className="text-sm font-bold text-[#1D1D1F]">No Subjects Found</h3>
+          <p className="text-xs text-[#6E6E73] max-w-sm mx-auto mt-1 mb-4">
+            No academic course matches your parameters. Register a course using "Add New Subject".
           </p>
         </div>
       ) : (
@@ -194,72 +194,72 @@ export const Subjects: React.FC = () => {
             return (
               <div 
                 key={subj.id}
-                className="saas-card saas-card-hover relative group p-6 flex flex-col justify-between"
+                className="saas-card saas-card-hover relative group p-5 flex flex-col justify-between"
                 id={`subject-card-${subj.id}`}
               >
                 <div>
                   {/* Top section with Semester */}
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-[#EAF5F5] text-[#0F766E] uppercase border border-[#14B8A6]">
+                  <div className="flex items-center justify-between mb-4 select-none">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#E8F2FF] text-[#0071E3] uppercase border border-[#0071E3]/20">
                       {subj.semester}
                     </span>
-                    <span className="text-xs font-bold text-[#64748B] font-mono">
+                    <span className="text-xs font-bold text-[#6E6E73] font-mono">
                       {subj.code}
                     </span>
                   </div>
 
                   {/* Name and Department */}
-                  <div className="mb-6">
-                    <h3 className="font-bold text-[#134E4A] text-base leading-snug group-hover:text-[#0F766E] transition-colors">
+                  <div className="mb-5">
+                    <h3 className="font-bold text-[#1D1D1F] text-base leading-snug group-hover:text-[#0071E3] transition-colors">
                       {subj.name}
                     </h3>
-                    <p className="text-xs text-[#64748B] font-medium mt-1 uppercase tracking-wide">
-                      {subj.department} Branch
+                    <p className="text-[10px] text-[#6E6E73] font-bold mt-1 uppercase tracking-wider">
+                      {subj.department}
                     </p>
                   </div>
                 </div>
 
                 {/* Assigned Faculty Section */}
-                <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-between">
+                <div className="pt-3.5 border-t border-[#D2D2D7]/55 flex items-center justify-between">
                   <div className="flex items-center gap-2.5 overflow-hidden pr-2">
                     {assignedTeacher ? (
                       <>
                         <img
-                          src={assignedTeacher.profilePhoto}
+                          src={assignedTeacher.profilePhoto || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100"}
                           alt={assignedTeacher.fullName}
                           referrerPolicy="no-referrer"
-                          className="h-8 w-8 rounded-md object-cover ring-1 ring-[#E2E8F0]"
+                          className="h-8 w-8 rounded-full object-cover border border-[#D2D2D7] shrink-0"
                         />
                         <div className="overflow-hidden">
-                          <span className="text-[10px] text-[#64748B] block leading-none">Lecturing Faculty</span>
-                          <span className="text-xs font-semibold text-[#134E4A] truncate block mt-1">{assignedTeacher.fullName}</span>
+                          <span className="text-[9px] text-[#6E6E73] block leading-none font-bold uppercase">Lecturer</span>
+                          <span className="text-xs font-bold text-[#1D1D1F] truncate block mt-1">{assignedTeacher.fullName}</span>
                         </div>
                       </>
                     ) : (
                       <>
-                        <div className="h-8 w-8 rounded-md bg-[#FEF2F2] border border-[#FCA5A5] flex items-center justify-center text-[#EF4444]">
+                        <div className="h-8 w-8 rounded-full bg-[#FDF2F2] border border-[#FF3B30]/20 flex items-center justify-center text-[#FF3B30] shrink-0">
                           <User className="h-4 w-4" />
                         </div>
                         <div>
-                          <span className="text-[10px] text-[#EF4444] block font-medium">Faculty Unassigned</span>
+                          <span className="text-[9px] text-[#FF3B30] block font-bold uppercase">Unassigned</span>
                         </div>
                       </>
                     )}
                   </div>
 
                   {/* Actions keys */}
-                  <div className="flex items-center gap-1 shrink-0 bg-[#FFFBF5] p-1 rounded-md border border-[#E2E8F0]">
+                  <div className="flex items-center gap-1 shrink-0 bg-[#F5F5F7] p-0.5 rounded-lg border border-[#D2D2D7]/55">
                     <button
                       onClick={() => handleOpenEdit(subj)}
                       id={`edit-subject-btn-${subj.id}`}
-                      className="p-1 px-1.5 text-[#64748B] hover:text-[#F59E0B] transition-colors cursor-pointer"
+                      className="p-1 text-[#6E6E73] hover:text-[#FF9500] hover:bg-[#FFF1E6] rounded-md transition-colors cursor-pointer"
                     >
                       <Edit className="h-3.5 w-3.5" />
                     </button>
                     <button
                       onClick={() => handleDelete(subj.id, subj.name)}
                       id={`delete-subject-btn-${subj.id}`}
-                      className="p-1 px-1.5 text-[#64748B] hover:text-[#EF4444] transition-colors cursor-pointer"
+                      className="p-1 text-[#6E6E73] hover:text-[#FF3B30] hover:bg-[#FDF2F2] rounded-md transition-colors cursor-pointer"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -273,17 +273,17 @@ export const Subjects: React.FC = () => {
 
       {/* Form Dialog popup */}
       {showModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg w-full max-w-md shadow-2xl border border-[#E2E8F0] overflow-hidden text-left animate-zoom-in">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl border border-[#D2D2D7] overflow-hidden text-left animate-fade-in">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E8F0] bg-[#FFFBF5]">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#D2D2D7]">
               <div className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-[#0F766E]" />
-                <h3 className="font-semibold text-[#134E4A] text-base tracking-tight">
+                <BookOpen className="h-5 w-5 text-[#0071E3]" />
+                <h3 className="font-bold text-[#1D1D1F] text-base tracking-tight">
                   {modalMode === 'add' ? 'Add Syllabus Course' : 'Edit Syllabus Course'}
                 </h3>
               </div>
-              <button onClick={() => setShowModal(false)} className="text-[#64748B] hover:text-[#134E4A] transition-colors">
+              <button onClick={() => setShowModal(false)} className="text-[#6E6E73] hover:text-[#1D1D1F] transition-colors cursor-pointer">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -291,7 +291,7 @@ export const Subjects: React.FC = () => {
             {/* Form */}
             <form onSubmit={handleFormSubmit} className="p-6 space-y-4 text-xs">
               <div>
-                <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-2">Course Subject Name *</label>
+                <label className="block text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider mb-2">Course Subject Name *</label>
                 <input
                   type="text"
                   required
@@ -304,7 +304,7 @@ export const Subjects: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-2">Subject Course Code *</label>
+                  <label className="block text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider mb-2">Subject Course Code *</label>
                   <input
                     type="text"
                     required
@@ -316,7 +316,7 @@ export const Subjects: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-2">Branch Branch *</label>
+                  <label className="block text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider mb-2">Branch Department *</label>
                   <select
                     value={department}
                     onChange={(e) => setDepartment(e.target.value)}
@@ -331,7 +331,7 @@ export const Subjects: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-2">Yearly Semester *</label>
+                  <label className="block text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider mb-2">Yearly Semester *</label>
                   <select
                     value={semester}
                     onChange={(e) => setSemester(e.target.value)}
@@ -344,7 +344,7 @@ export const Subjects: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-2">Assign Default Faculty</label>
+                  <label className="block text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider mb-2">Assign Default Faculty</label>
                   <select
                     value={teacherId}
                     onChange={(e) => setTeacherId(e.target.value)}
@@ -358,7 +358,7 @@ export const Subjects: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E2E8F0]">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#D2D2D7]">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}

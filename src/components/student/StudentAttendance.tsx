@@ -3,13 +3,8 @@ import { api } from '../../utils/api.js';
 import { 
   Calendar, 
   Search, 
-  Filter, 
-  CheckCircle, 
   Clock, 
-  AlertTriangle, 
-  Download,
-  Loader2,
-  ListFilter
+  Loader2
 } from 'lucide-react';
 
 interface AttendanceLog {
@@ -62,25 +57,25 @@ export const StudentAttendance: React.FC = () => {
   const absent = logs.filter(l => l.status === 'Absent').length;
 
   return (
-    <div id="student-attendance-logs-root" className="space-y-6">
+    <div id="student-attendance-logs-root" className="space-y-6 text-[#1D1D1F]">
       
       {/* Overview stats bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="p-4 bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-xl">
-          <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Total Lectures</span>
-          <p className="text-2xl font-black text-slate-100 mt-1">{total}</p>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 select-none">
+        <div className="saas-card p-4 flex flex-col justify-between">
+          <span className="text-[10px] uppercase font-bold text-[#6E6E73] tracking-wider">Total Lectures</span>
+          <p className="text-2xl font-extrabold text-[#1D1D1F] mt-1">{total}</p>
         </div>
-        <div className="p-4 bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-xl">
-          <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Present</span>
-          <p className="text-2xl font-black text-emerald-400 mt-1">{present}</p>
+        <div className="saas-card p-4 flex flex-col justify-between">
+          <span className="text-[10px] uppercase font-bold text-[#6E6E73] tracking-wider">Present</span>
+          <p className="text-2xl font-extrabold text-[#34C759] mt-1">{present}</p>
         </div>
-        <div className="p-4 bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-xl">
-          <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Late Arrivals</span>
-          <p className="text-2xl font-black text-amber-400 mt-1">{late}</p>
+        <div className="saas-card p-4 flex flex-col justify-between">
+          <span className="text-[10px] uppercase font-bold text-[#6E6E73] tracking-wider">Late Arrivals</span>
+          <p className="text-2xl font-extrabold text-[#FF9500] mt-1">{late}</p>
         </div>
-        <div className="p-4 bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-xl">
-          <span className="text-[10px] uppercase font-bold text-slate-505 tracking-wider">Absents</span>
-          <p className="text-2xl font-black text-rose-450 mt-1">{absent}</p>
+        <div className="saas-card p-4 flex flex-col justify-between">
+          <span className="text-[10px] uppercase font-bold text-[#6E6E73] tracking-wider">Absents</span>
+          <p className="text-2xl font-extrabold text-[#FF3B30] mt-1">{absent}</p>
         </div>
       </div>
 
@@ -89,31 +84,31 @@ export const StudentAttendance: React.FC = () => {
         
         {/* Search bar inputs */}
         <div className="relative flex-1 max-w-md">
-          <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+          <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#6E6E73]">
             <Search className="h-4 w-4" />
           </span>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by subject or faculty name..."
+            placeholder="Search by subject or lecturer name..."
             id="search-attendance-logs-field"
-            className="w-full bg-slate-900/60 border border-slate-800 pl-10 pr-4 py-2.5 text-xs rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 font-semibold"
+            className="saas-input pl-9"
           />
         </div>
 
-        {/* Status Dropdowns */}
-        <div className="flex items-center gap-2">
-          <div className="flex bg-slate-950 p-1 border border-slate-900 rounded-xl gap-1">
+        {/* Status Dropdowns Segmented Control */}
+        <div className="flex items-center gap-2 select-none">
+          <div className="flex bg-[#EAEAEA] p-0.5 border border-[#D2D2D7]/55 rounded-lg gap-0.5">
             {(['All', 'Present', 'Late', 'Absent'] as const).map((st) => (
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
                 id={`status-filter-btn-${st}`}
-                className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg select-none cursor-pointer ${
+                className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all cursor-pointer ${
                   statusFilter === st 
-                    ? 'bg-slate-900 text-emerald-400 border border-slate-800' 
-                    : 'text-slate-500 hover:text-slate-350'
+                    ? 'bg-white text-[#0071E3] shadow-[0_1px_3px_rgba(0,0,0,0.1)] border border-[#D2D2D7]/55' 
+                    : 'text-[#6E6E73] hover:text-[#1D1D1F]'
                 }`}
               >
                 {st}
@@ -125,54 +120,50 @@ export const StudentAttendance: React.FC = () => {
       </div>
 
       {/* Main Results Board */}
-      <div className="p-6 bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-2xl">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest">Attendance Logs Terminal</h3>
+      <div className="saas-card overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#D2D2D7]/55 select-none bg-[#F8F9FA]">
+          <h3 className="text-[10px] font-bold text-[#1D1D1F] uppercase tracking-wider">Attendance Ledger History</h3>
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-7 w-7 text-emerald-500 animate-spin" />
+          <div className="flex items-center justify-center py-20 bg-white">
+            <Loader2 className="h-7 w-7 text-[#0071E3] animate-spin" />
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto bg-white">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-850 text-[10px] font-extrabold uppercase text-slate-500 tracking-wider">
-                  <th className="pb-3 pl-2">Session Date & Time</th>
-                  <th className="pb-3">Course / Curricula Item</th>
-                  <th className="pb-3">Assigned Faculty</th>
-                  <th className="pb-3 text-right pr-2">Attainment Status</th>
+                <tr className="border-b border-[#D2D2D7]/65 text-[10px] font-bold uppercase text-[#6E6E73] tracking-wider select-none">
+                  <th className="py-3 px-6">Session Date & Time</th>
+                  <th className="py-3 px-6">Subject Course</th>
+                  <th className="py-3 px-6">Assigned Faculty</th>
+                  <th className="py-3 px-6 text-right pr-6">Check-In Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-850/40">
+              <tbody className="divide-y divide-[#D2D2D7]/65 text-xs text-[#1D1D1F]">
                 {logs.map((log) => {
-                  const isLate = log.status === 'Late';
-                  const isAbsent = log.status === 'Absent';
+                  const statusColors: any = {
+                    Present: 'saas-pill-success',
+                    Late: 'saas-pill-warning',
+                    Absent: 'saas-pill-error'
+                  };
                   return (
-                    <tr key={log.id} id={`log-row-${log.id}`} className="text-xs text-slate-300 hover:bg-slate-950/25 transition-colors">
-                      <td className="py-4 pl-2 font-medium">
+                    <tr key={log.id} id={`log-row-${log.id}`} className="hover:bg-[#F8F9FA] transition-colors">
+                      <td className="py-4 px-6 font-semibold">
                         <div className="flex items-center gap-2">
-                          <Calendar className="h-3.5 w-3.5 text-slate-500" />
+                          <Calendar className="h-3.5 w-3.5 text-[#6E6E73]" />
                           <div>
-                            <span className="block text-slate-200">{log.date}</span>
-                            <span className="block text-[10px] text-slate-505 font-mono mt-0.5">{log.time}</span>
+                            <span className="block text-[#1D1D1F]">{log.date}</span>
+                            <span className="block text-[10px] text-[#6E6E73] font-mono mt-0.5">{log.time}</span>
                           </div>
                         </div>
                       </td>
-                      <td className="py-4">
-                        <span className="block font-bold text-slate-200">{log.subjectName}</span>
-                        <span className="block text-[10px] text-slate-450 mt-1 uppercase">Department Criteria Match</span>
+                      <td className="py-4 px-6">
+                        <span className="block font-bold text-[#1D1D1F]">{log.subjectName}</span>
                       </td>
-                      <td className="py-4 font-semibold text-slate-300">{log.teacherName}</td>
-                      <td className="py-4 text-right pr-2">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase ${
-                          isLate 
-                            ? 'bg-amber-400/10 text-amber-400' 
-                            : isAbsent 
-                              ? 'bg-rose-450/10 text-rose-400' 
-                              : 'bg-emerald-400/10 text-emerald-400'
-                        }`}>
+                      <td className="py-4 px-6 font-semibold text-[#6E6E73]">{log.teacherName}</td>
+                      <td className="py-4 px-6 text-right pr-6">
+                        <span className={`${statusColors[log.status] || 'saas-pill-warning'}`}>
                           {log.status}
                         </span>
                       </td>
@@ -182,8 +173,8 @@ export const StudentAttendance: React.FC = () => {
 
                 {logs.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="py-14 text-center text-xs text-slate-550 italic">
-                      No matches found. Select alternate filter scopes.
+                    <td colSpan={4} className="py-14 text-center text-xs text-[#6E6E73] italic select-none">
+                      No matching records found.
                     </td>
                   </tr>
                 )}

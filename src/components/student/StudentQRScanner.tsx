@@ -8,8 +8,6 @@ import {
   CheckCircle2, 
   XCircle, 
   Loader2,
-  Lock,
-  Sparkles,
   RefreshCcw,
   ArrowRight,
   MapPin,
@@ -145,7 +143,7 @@ export const StudentQRScanner: React.FC = () => {
   const [simulatedCameraScanning, setSimulatedCameraScanning] = useState(false);
   const handleSimulateCameraTrigger = () => {
     setSimulatedCameraScanning(true);
-    // Mimics reading a QR Code within 3 seconds
+    // Mimics reading a QR Code within 2 seconds
     setTimeout(() => {
       setSimulatedCameraScanning(false);
       // Fetches active sessions or passes a standard dummy Theory of Computation active session
@@ -165,15 +163,15 @@ export const StudentQRScanner: React.FC = () => {
   };
 
   return (
-    <div id="student-qr-scanner-container" className="max-w-2xl mx-auto space-y-6">
+    <div id="student-qr-scanner-container" className="max-w-2xl mx-auto space-y-6 text-[#1D1D1F]">
       
       {/* Title block */}
-      <div className="text-center space-y-2">
-        <h2 className="text-xl font-bold text-slate-100 flex items-center justify-center gap-2">
-          <QrCode className="h-5.5 w-5.5 text-emerald-400" />
-          <span>Biometric & GPS Check-In</span>
+      <div className="text-center space-y-2 select-none">
+        <h2 className="text-xl font-bold text-[#1D1D1F] flex items-center justify-center gap-2">
+          <QrCode className="h-5.5 w-5.5 text-[#0071E3]" />
+          <span>Security Verification Check-In</span>
         </h2>
-        <p className="text-xs text-slate-400 max-w-sm mx-auto">
+        <p className="text-xs text-[#6E6E73] max-w-sm mx-auto">
           Verify your physical presence and identity. The system conducts safe geodesic coordinate bounds checking and facial matching.
         </p>
       </div>
@@ -181,95 +179,95 @@ export const StudentQRScanner: React.FC = () => {
       {/* Campus GPS Tracker & Face Match Status indicator */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Card A: GPS Lock */}
-        <div className="bg-slate-950 border border-slate-900 rounded-2xl p-4 flex items-center gap-3">
-          <div className={`p-2.5 rounded-xl ${coords.latitude === 18.5204 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}`}>
+        <div className="saas-card p-4 flex items-center gap-3">
+          <div className={`p-2.5 rounded-full ${coords.latitude === 18.5204 ? 'bg-[#EAFBEF] text-[#34C759]' : 'bg-[#FFF1E6] text-[#FF9500]'}`}>
             <MapPin className="h-5 w-5" />
           </div>
           <div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[10px] uppercase font-mono tracking-widest text-slate-500 block">Campus GPS Boundary</span>
-              <span className={`h-1.5 w-1.5 rounded-full ${coords.latitude === 18.5204 ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+            <div className="flex items-center gap-1.5 select-none">
+              <span className="text-[9px] uppercase font-bold tracking-wider text-[#6E6E73] block">Campus GPS Boundary</span>
+              <span className={`h-1.5 w-1.5 rounded-full ${coords.latitude === 18.5204 ? 'bg-[#34C759]' : 'bg-[#FF9500]'}`} />
             </div>
-            <p className="text-xs text-slate-200 mt-1 font-mono">
+            <p className="text-xs text-[#1D1D1F] mt-1 font-mono font-semibold">
               Lat: {coords.latitude.toFixed(4)}, Lon: {coords.longitude.toFixed(4)}
             </p>
-            <span className="text-[9px] text-slate-400 block mt-0.5">
-              {coords.latitude === 18.5204 ? 'Apex Campus (200m Geo Perimeter Locked)' : 'Off-Campus (Limits violated, will trigger block)'}
+            <span className="text-[9px] text-[#6E6E73] block mt-0.5 select-none">
+              {coords.latitude === 18.5204 ? 'Apex Campus (200m Perimeter Locked)' : 'Off-Campus (Limits violated, will trigger block)'}
             </span>
           </div>
         </div>
 
         {/* Card B: Biometrics matched status */}
-        <div className="bg-slate-950 border border-slate-900 rounded-2xl p-4 flex items-center gap-3">
-          <div className="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl">
+        <div className="saas-card p-4 flex items-center gap-3">
+          <div className="p-2.5 bg-[#EAFBEF] text-[#34C759] rounded-full">
             <UserCheck className="h-5 w-5" />
           </div>
           <div className="flex-1">
-            <span className="text-[10px] uppercase font-mono tracking-widest text-slate-500 block">Biometric Alignment</span>
-            <p className="text-xs text-slate-200 mt-1 font-semibold flex items-center gap-1.5">
+            <span className="text-[9px] uppercase font-bold tracking-wider text-[#6E6E73] block select-none">Biometric Identity</span>
+            <p className="text-xs text-[#1D1D1F] mt-1 font-bold flex items-center gap-1.5">
               Profile: Aiden Mitchell
-              <span className={`px-1.5 py-0.5 text-[8px] rounded-full uppercase tracking-widest ${biometricSim === 'match' ? 'bg-emerald-950 text-emerald-400' : 'bg-rose-950 text-rose-450'}`}>
-                {biometricSim === 'match' ? 'Matched ID' : 'Proxy Simulation'}
+              <span className={`px-1.5 py-0.5 text-[8px] rounded-full uppercase tracking-wider ${biometricSim === 'match' ? 'bg-[#EAFBEF] text-[#34C759]' : 'bg-[#FDF2F2] text-[#FF3B30]'}`}>
+                {biometricSim === 'match' ? 'Matched ID' : 'Proxy Error'}
               </span>
             </p>
-            <span className="text-[9px] text-slate-400 block mt-0.5">
-              {biometricSim === 'match' ? 'Matching descriptor vector active' : 'Biometric Euclidean distance threshold exceeded'}
+            <span className="text-[9px] text-[#6E6E73] block mt-0.5 select-none">
+              {biometricSim === 'match' ? 'Euclidean descriptor vector active' : 'Biometric matching threshold exceeded'}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Tabs Menu selectors */}
-      <div className="grid grid-cols-3 p-1 bg-slate-950 rounded-xl border border-slate-900">
+      {/* Tabs Menu selectors / Segmented control layout */}
+      <div className="flex bg-[#EAEAEA] p-0.5 rounded-lg border border-[#D2D2D7]/55 select-none">
         <button
           onClick={() => { setActiveMethod('manual'); setResult(null); }}
           id="tab-manual-entry"
-          className={`py-2 px-3 text-xs font-semibold rounded-lg uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+          className={`flex-1 py-1.5 text-xs font-semibold rounded-md uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             activeMethod === 'manual' 
-              ? 'bg-slate-900 border border-slate-800 text-emerald-400 shadow-sm' 
-              : 'text-slate-500 hover:text-slate-300'
+              ? 'bg-white text-[#0071E3] shadow-[0_1px_3px_rgba(0,0,0,0.1)] border border-[#D2D2D7]/55' 
+              : 'text-[#6E6E73] hover:text-[#1D1D1F]'
           }`}
         >
           <Keyboard className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Manual Entry</span>
+          <span>Manual Code</span>
         </button>
 
         <button
           onClick={() => { setActiveMethod('upload'); setResult(null); }}
           id="tab-image-upload"
-          className={`py-2 px-3 text-xs font-semibold rounded-lg uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+          className={`flex-1 py-1.5 text-xs font-semibold rounded-md uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             activeMethod === 'upload' 
-              ? 'bg-slate-900 border border-slate-800 text-emerald-400 shadow-sm' 
-              : 'text-slate-500 hover:text-slate-300'
+              ? 'bg-white text-[#0071E3] shadow-[0_1px_3px_rgba(0,0,0,0.1)] border border-[#D2D2D7]/55' 
+              : 'text-[#6E6E73] hover:text-[#1D1D1F]'
           }`}
         >
           <Upload className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Upload Screenshot</span>
+          <span>Upload QR</span>
         </button>
 
         <button
           onClick={() => { setActiveMethod('camera'); setResult(null); }}
           id="tab-camera-scan"
-          className={`py-2 px-3 text-xs font-semibold rounded-lg uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+          className={`flex-1 py-1.5 text-xs font-semibold rounded-md uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             activeMethod === 'camera' 
-              ? 'bg-slate-900 border border-slate-800 text-emerald-400 shadow-sm' 
-              : 'text-slate-500 hover:text-slate-300'
+              ? 'bg-white text-[#0071E3] shadow-[0_1px_3px_rgba(0,0,0,0.1)] border border-[#D2D2D7]/55' 
+              : 'text-[#6E6E73] hover:text-[#1D1D1F]'
           }`}
         >
           <Camera className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Camera Live</span>
+          <span>Camera Live</span>
         </button>
       </div>
 
       {/* Method panels */}
-      <div id="method-panels-body" className="p-8 bg-slate-900/60 backdrop-blur-md rounded-2xl border border-slate-800/80 min-h-[220px] flex items-center justify-center">
+      <div id="method-panels-body" className="saas-card p-8 min-h-[220px] flex items-center justify-center">
         
         {/* PANEL A: Manual Code Input */}
         {activeMethod === 'manual' && (
           <div id="panel-manual-entry" className="w-full max-w-md space-y-4">
             <div className="space-y-2">
-              <label className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
-                Full Session Code (Format: session_id|dynamic_token)
+              <label className="text-[9px] uppercase font-bold text-[#6E6E73] tracking-wider select-none">
+                Session Code (Format: session_id|dynamic_token)
               </label>
               
               <div className="flex gap-2.5">
@@ -279,17 +277,17 @@ export const StudentQRScanner: React.FC = () => {
                   onChange={(e) => setManualCode(e.target.value)}
                   placeholder="e.g. session_q2|ACTIVE_TOKEN_23910"
                   id="session-code-input-field"
-                  className="flex-1 bg-slate-950 border border-slate-850 px-4 py-3 text-xs rounded-xl text-slate-105 placeholder:text-slate-650 focus:outline-none focus:border-emerald-550 focus:ring-1 focus:ring-emerald-555 font-mono"
+                  className="saas-input flex-1 font-mono text-xs py-2.5"
                 />
                 
                 <button
                   onClick={() => handleSubmitCode(manualCode)}
                   id="submit-session-code-btn"
                   disabled={loading || !manualCode.trim()}
-                  className="bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white rounded-xl px-4.5 font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-1.5 cursor-pointer"
+                  className="saas-button-primary px-5 font-semibold text-xs tracking-wider transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
                 >
                   {loading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin text-white" />
                   ) : (
                     <>
                       <span>Submit</span>
@@ -300,8 +298,8 @@ export const StudentQRScanner: React.FC = () => {
               </div>
             </div>
 
-            <p className="text-[9px] text-slate-500 text-center leading-relaxed font-semibold">
-              * Tips: Copy code from any faculty generator window (active broadcast is session_q2|ACTIVE_TOKEN_23910 by default) and paste above.
+            <p className="text-[9px] text-[#6E6E73] text-center font-bold uppercase tracking-wider select-none">
+              * Broadcast session code is session_q2|ACTIVE_TOKEN_23910 by default
             </p>
           </div>
         )}
@@ -310,7 +308,7 @@ export const StudentQRScanner: React.FC = () => {
         {activeMethod === 'upload' && (
           <div id="panel-image-upload" className="w-full text-center space-y-4">
             <div className="max-w-xs mx-auto">
-              <label className="border-2 border-dashed border-slate-800 hover:border-emerald-550 bg-slate-950 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer transition-all">
+              <label className="border-2 border-dashed border-[#D2D2D7] hover:border-[#0071E3] bg-[#F8F9FA] rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer transition-all">
                 <input 
                   type="file" 
                   accept="image/*" 
@@ -320,14 +318,14 @@ export const StudentQRScanner: React.FC = () => {
                 
                 {loading ? (
                   <div className="space-y-2 py-2">
-                    <Loader2 className="h-8 w-8 text-emerald-500 animate-spin mx-auto" />
-                    <p className="text-xs text-slate-350">Scanning screenshot layers...</p>
+                    <Loader2 className="h-8 w-8 text-[#0071E3] animate-spin mx-auto" />
+                    <p className="text-xs text-[#6E6E73] font-semibold">Scanning screenshot layers...</p>
                   </div>
                 ) : (
-                  <div className="space-y-2 py-2 text-slate-450">
-                    <Upload className="h-8 w-8 mx-auto text-slate-50" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-300 block">Select QR Image</span>
-                    <span className="text-[10px] text-slate-500 block leading-normal mt-1">Upload a screenshot of the lecture check-in screen</span>
+                  <div className="space-y-2 py-2 text-[#6E6E73] select-none">
+                    <Upload className="h-8 w-8 mx-auto text-[#0071E3]" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#1D1D1F] block">Select QR Image</span>
+                    <span className="text-[10px] text-[#6E6E73] block leading-normal mt-1">Upload a screenshot of the lecture check-in screen</span>
                   </div>
                 )}
               </label>
@@ -337,41 +335,41 @@ export const StudentQRScanner: React.FC = () => {
 
         {/* PANEL C: Camera Simulation */}
         {activeMethod === 'camera' && (
-          <div id="panel-camera" className="w-full max-w-sm text-center space-y-7">
+          <div id="panel-camera" className="w-full max-w-sm text-center space-y-6">
             
             {/* Visual Viewfinder framing box styling */}
-            <div className="relative aspect-square max-w-[260px] mx-auto bg-slate-950 border border-slate-800 rounded-[28px] flex items-center justify-center overflow-hidden shadow-[0_0_40px_rgba(16,185,129,0.15)] group">
+            <div className="relative aspect-square max-w-[240px] mx-auto bg-black border border-[#D2D2D7] rounded-3xl flex items-center justify-center overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.06)] group select-none">
               {/* Pulsing corners styling with thick sci-fi bracket style borders */}
-              <div className="absolute top-5 left-5 h-6 w-6 border-t-4 border-l-4 border-emerald-400 rounded-tl-md transition-all duration-300 group-hover:scale-105" />
-              <div className="absolute top-5 right-5 h-6 w-6 border-t-4 border-r-4 border-emerald-400 rounded-tr-md transition-all duration-300 group-hover:scale-105" />
-              <div className="absolute bottom-5 left-5 h-6 w-6 border-b-4 border-l-4 border-emerald-400 rounded-bl-md transition-all duration-300 group-hover:scale-105" />
-              <div className="absolute bottom-5 right-5 h-6 w-6 border-b-4 border-r-4 border-emerald-400 rounded-br-md transition-all duration-300 group-hover:scale-105" />
+              <div className="absolute top-5 left-5 h-6 w-6 border-t-4 border-l-4 border-[#34C759] rounded-tl" />
+              <div className="absolute top-5 right-5 h-6 w-6 border-t-4 border-r-4 border-[#34C759] rounded-tr" />
+              <div className="absolute bottom-5 left-5 h-6 w-6 border-b-4 border-l-4 border-[#34C759] rounded-bl" />
+              <div className="absolute bottom-5 right-5 h-6 w-6 border-b-4 border-r-4 border-[#34C759] rounded-br" />
 
               {/* Glowing camera lens / ring indicator background decoration */}
-              <div className="absolute inset-8 rounded-full border border-emerald-500/10 pointer-events-none flex items-center justify-center">
-                <div className="h-24 w-24 rounded-full bg-emerald-500/5 animate-pulse" />
+              <div className="absolute inset-8 rounded-full border border-[#34C759]/10 pointer-events-none flex items-center justify-center">
+                <div className="h-24 w-24 rounded-full bg-[#34C759]/5 animate-pulse" />
               </div>
 
               {simulatedCameraScanning ? (
                 <>
                   {/* Flashing target center reticle */}
-                  <div className="absolute h-5 w-5 border border-dashed border-emerald-300/40 rounded-full animate-ping z-20" />
+                  <div className="absolute h-5 w-5 border border-dashed border-[#34C759]/40 rounded-full animate-ping z-20" />
                   
                   {/* Animated laser horizontal beam spanning entire frame width */}
-                  <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_12px_#10b981] scanner-laser z-20" />
+                  <div className="scanner-laser z-20" />
                   
-                  <div className="space-y-2 text-center z-10 select-none animate-pulse">
-                    <p className="text-[10px] text-emerald-400 font-mono font-bold uppercase tracking-widest">DECODING MATRIX PARAMS...</p>
-                    <p className="text-[9px] text-slate-500 font-semibold font-mono tracking-wider">LATENCY: 42ms &bull; ACCURACY: 99.8%</p>
+                  <div className="space-y-1.5 text-center z-10 animate-pulse text-white">
+                    <p className="text-[10px] text-[#34C759] font-mono font-bold uppercase tracking-widest">Decoding matrix...</p>
+                    <p className="text-[9px] text-[#AEAEB2] font-semibold font-mono tracking-wider">LATENCY: 24ms</p>
                   </div>
                 </>
               ) : (
-                <div className="text-slate-500 flex flex-col items-center justify-center z-10 transition-all duration-300 group-hover:text-emerald-400">
-                  <div className="h-14 w-14 rounded-full bg-white/5 border border-white/5 flex items-center justify-center mb-4 shadow-inner group-hover:-translate-y-1 transition-transform">
-                    <Camera className="h-6 w-6 animate-pulse text-emerald-400" />
+                <div className="text-[#AEAEB2] flex flex-col items-center justify-center z-10 transition-all duration-300">
+                  <div className="h-12 w-12 rounded-full bg-white/10 border border-white/10 flex items-center justify-center mb-3">
+                    <Camera className="h-5 w-5 text-[#34C759]" />
                   </div>
-                  <span className="text-[10px] font-bold text-slate-400 tracking-widest uppercase block">READY TO COMMENCE SCAN</span>
-                  <span className="text-[9px] font-semibold text-slate-500 block mt-1 tracking-wide uppercase">Point at broadcasting gateway</span>
+                  <span className="text-[10px] font-bold text-[#E5E5EA] tracking-wider uppercase block">VIEWFINDER STANDBY</span>
+                  <span className="text-[9px] font-semibold text-[#8E8E93] block mt-1 uppercase">Ready to commence scan</span>
                 </div>
               )}
             </div>
@@ -380,10 +378,10 @@ export const StudentQRScanner: React.FC = () => {
               onClick={handleSimulateCameraTrigger}
               id="simulate-camera-scan-btn"
               disabled={simulatedCameraScanning || loading}
-              className="bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white shadow-lg shadow-emerald-500/20 px-6 py-3.5 rounded-xl text-xs font-bold transition-all uppercase tracking-wider gap-2 items-center inline-flex select-none cursor-pointer active:scale-95"
+              className="saas-button-primary flex items-center justify-center gap-2 py-2.5 cursor-pointer select-none active:scale-95"
             >
-              <RefreshCcw className={`h-4 w-4 ${simulatedCameraScanning ? 'animate-spin' : ''}`} />
-              <span>{simulatedCameraScanning ? 'Decrypting Session...' : 'Initiate Camera Stream'}</span>
+              <RefreshCcw className={`h-4 w-4 text-white ${simulatedCameraScanning ? 'animate-spin' : ''}`} />
+              <span>{simulatedCameraScanning ? 'Scanning...' : 'Initiate Camera stream'}</span>
             </button>
           </div>
         )}
@@ -394,47 +392,47 @@ export const StudentQRScanner: React.FC = () => {
       {result && (
         <div 
           id="verification-result-panel"
-          className={`p-6 rounded-2xl border flex flex-col gap-4 animate-fade-in ${
+          className={`p-5 rounded-2xl border flex flex-col gap-4 animate-fade-in ${
             result.success 
-              ? 'bg-emerald-500/5 border-emerald-500/10 text-emerald-400' 
-              : 'bg-rose-500/5 border-rose-500/10 text-rose-450'
+              ? 'bg-[#EAFBEF] border-[#34C759]/25 text-[#34C759]' 
+              : 'bg-[#FDF2F2] border-[#FF3B30]/25 text-[#FF3B30]'
           }`}
         >
-          <div className="flex items-start gap-3.5">
+          <div className="flex items-start gap-3">
             <span className="shrink-0 mt-0.5">
               {result.success ? (
-                <CheckCircle2 className="h-6 w-6 text-emerald-400" />
+                <CheckCircle2 className="h-6 w-6 text-[#34C759]" />
               ) : (
-                <XCircle className="h-6 w-6 text-rose-455" />
+                <XCircle className="h-6 w-6 text-[#FF3B30]" />
               )}
             </span>
             <div className="flex-1 space-y-1">
-              <h4 className="text-sm font-extrabold uppercase tracking-wide">
+              <h4 className="text-xs font-bold uppercase tracking-wider">
                 {result.success ? 'Attendance Verified' : 'Check-In Blocked'}
               </h4>
-              <p className="text-xs text-slate-300 leading-relaxed font-semibold">
+              <p className="text-xs text-[#1D1D1F] leading-relaxed font-semibold">
                 {result.message}
               </p>
             </div>
           </div>
 
           {result.success && result.details && (
-            <div className="bg-slate-950 rounded-xl p-4 border border-slate-850 grid grid-cols-2 gap-3 text-xs text-slate-400 font-semibold uppercase">
+            <div className="bg-[#F8F9FA] rounded-xl p-4 border border-[#D2D2D7]/55 grid grid-cols-2 gap-3 text-xs text-[#6E6E73] font-bold uppercase select-none">
               <div>
-                <span className="text-[10px] text-slate-500 font-bold block">Enrolled Student</span>
-                <span className="text-slate-205 mt-0.5 block font-bold">{result.details.studentName}</span>
+                <span className="text-[9px] text-[#6E6E73] font-bold block">Enrolled Student</span>
+                <span className="text-[#1D1D1F] mt-0.5 block font-bold">{result.details.studentName}</span>
               </div>
               <div>
-                <span className="text-[10px] text-slate-500 font-bold block">Subject Course</span>
-                <span className="text-slate-205 mt-0.5 block font-bold">{result.details.subjectName}</span>
+                <span className="text-[9px] text-[#6E6E73] font-bold block">Subject Course</span>
+                <span className="text-[#1D1D1F] mt-0.5 block font-bold">{result.details.subjectName}</span>
               </div>
               <div>
-                <span className="text-[10px] text-slate-500 font-bold block">Attainment status</span>
-                <span className="text-emerald-450 mt-0.5 font-extrabold block">{result.details.status}</span>
+                <span className="text-[9px] text-[#6E6E73] font-bold block">Attainment Status</span>
+                <span className="text-[#34C759] mt-0.5 font-extrabold block">{result.details.status}</span>
               </div>
               <div>
-                <span className="text-[10px] text-slate-500 font-bold block">Recorded time</span>
-                <span className="text-slate-205 mt-0.5 block font-mono">{result.details.time} &bull; {result.details.date}</span>
+                <span className="text-[9px] text-[#6E6E73] font-bold block">Recorded Time</span>
+                <span className="text-[#1D1D1F] mt-0.5 block font-mono font-semibold">{result.details.time} &bull; {result.details.date}</span>
               </div>
             </div>
           )}
@@ -442,23 +440,23 @@ export const StudentQRScanner: React.FC = () => {
       )}
 
       {/* INTERACTIVE DEMO SETTINGS HELPER (ANTI-PROXY & GPS BOUNDS TESTING FRAME) */}
-      <div className="bg-slate-950/60 p-5 rounded-2xl border border-slate-900 text-xs text-slate-400 space-y-4">
-        <div className="flex items-center gap-1.5 text-slate-200 font-bold uppercase tracking-wide">
-          <Smartphone className="h-4 w-4 text-emerald-400 animate-pulse" />
+      <div className="saas-card p-5 text-xs text-[#6E6E73] space-y-3.5 select-none">
+        <div className="flex items-center gap-1.5 text-[#1D1D1F] font-bold uppercase tracking-wider">
+          <Smartphone className="h-4 w-4 text-[#0071E3]" />
           <span>Security Sandbox Lab Console</span>
         </div>
-        <p className="text-[11px] text-slate-500 leading-relaxed">
-          Toggle below to test geodesic GPS geofencing perimeter controls and physical facial recognition protections live:
+        <p className="text-[11px] text-[#6E6E73] leading-relaxed">
+          Toggle parameters below to test geofencing perimeters and physical biometric protections live:
         </p>
         
-        <div className="flex flex-wrap gap-4 pt-1">
+        <div className="flex flex-wrap gap-3.5 pt-1">
           {/* GPS toggle button */}
           <button
             onClick={toggleSimulateOffCampus}
-            className={`px-3 py-1.5 text-[11px] rounded-xl font-bold uppercase border transition-all cursor-pointer flex items-center gap-1 ${
+            className={`px-3 py-1.5 text-[10px] rounded-lg font-bold uppercase border transition-all cursor-pointer flex items-center gap-1 ${
               coords.latitude === 18.5204 
-                ? 'bg-emerald-950/30 text-emerald-400 border-emerald-900' 
-                : 'bg-rose-950/30 text-rose-455 border-rose-900'
+                ? 'bg-[#EAFBEF] text-[#34C759] border-[#34C759]/20 shadow-[0_1px_2px_rgba(0,0,0,0.02)]' 
+                : 'bg-[#FDF2F2] text-[#FF3B30] border-[#FF3B30]/20'
             }`}
           >
             <MapPin className="h-3 w-3" />
@@ -468,14 +466,14 @@ export const StudentQRScanner: React.FC = () => {
           {/* Biometrics Toggle Button */}
           <button
             onClick={() => setBiometricSim(prev => prev === 'match' ? 'proxy' : 'match')}
-            className={`px-3 py-1.5 text-[11px] rounded-xl font-bold uppercase border transition-all cursor-pointer flex items-center gap-1 ${
+            className={`px-3 py-1.5 text-[10px] rounded-lg font-bold uppercase border transition-all cursor-pointer flex items-center gap-1 ${
               biometricSim === 'match' 
-                ? 'bg-emerald-950/30 text-emerald-400 border-emerald-900' 
-                : 'bg-rose-950/30 text-rose-455 border-rose-900'
+                ? 'bg-[#EAFBEF] text-[#34C759] border-[#34C759]/20 shadow-[0_1px_2px_rgba(0,0,0,0.02)]' 
+                : 'bg-[#FDF2F2] text-[#FF3B30] border-[#FF3B30]/20'
             }`}
           >
             <UserCheck className="h-3 w-3" />
-            <span>Face ID: {biometricSim === 'match' ? 'Aiden Match (0.1 Vector)' : 'Fake Proxy Scan (0.9 Vector)'}</span>
+            <span>Face ID: {biometricSim === 'match' ? 'Aiden Match (0.1)' : 'Fake Proxy Scan (0.9)'}</span>
           </button>
         </div>
       </div>
@@ -483,4 +481,3 @@ export const StudentQRScanner: React.FC = () => {
     </div>
   );
 };
-

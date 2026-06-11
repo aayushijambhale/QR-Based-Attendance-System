@@ -180,17 +180,17 @@ export const Teachers: React.FC = () => {
   const departmentsList = ['Computer Science', 'Electronics', 'Mechanical', 'Electrical', 'Information Technology'];
 
   return (
-    <div className="space-y-6 animate-fade-in" id="teachers-view-container">
+    <div className="space-y-6 animate-fade-in text-[#1D1D1F]" id="teachers-view-container">
       {/* Header and Add Teacher Action */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none">
         <div>
-          <h1 className="text-2xl font-bold text-[#134E4A] tracking-tight">Faculty & Faculty Registry</h1>
-          <p className="text-[#64748B] text-xs mt-1">Manage core educational system lectures and professors.</p>
+          <h1 className="text-2xl font-bold text-[#1D1D1F] tracking-tight">Faculty Registry</h1>
+          <p className="text-[#6E6E73] text-xs mt-1">Manage core educational system lecturers and professors.</p>
         </div>
         <button
           onClick={handleOpenAdd}
           id="add-teacher-trigger"
-          className="saas-button-primary inline-flex items-center gap-2"
+          className="saas-button-primary inline-flex items-center gap-2 cursor-pointer"
         >
           <Plus className="h-4 w-4" />
           <span>Register New Faculty</span>
@@ -200,18 +200,18 @@ export const Teachers: React.FC = () => {
       {/* Faculty Tools Controls */}
       <div className="saas-card p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
         <div className="relative w-full sm:w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#64748B]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6E6E73]" />
           <input
             type="text"
-            placeholder="Search faculty by name, employee code..."
+            placeholder="Search faculty by name or employee ID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="saas-input pl-9 py-2.5"
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <span className="text-xs font-medium text-[#64748B] select-none">Branch:</span>
+        <div className="flex items-center gap-2 w-full sm:w-auto text-xs">
+          <span className="text-xs font-semibold text-[#6E6E73] select-none">Department:</span>
           <select
             value={deptFilter}
             onChange={(e) => setDeptFilter(e.target.value)}
@@ -227,7 +227,7 @@ export const Teachers: React.FC = () => {
 
       {/* Selection Control Bar / Bulk Actions */}
       <div className="flex items-center gap-2 select-none text-xs">
-        <label className="inline-flex items-center gap-2 cursor-pointer text-[#64748B] hover:text-[#0F766E] font-medium transition-colors">
+        <label className="inline-flex items-center gap-2 cursor-pointer text-[#6E6E73] hover:text-[#0071E3] font-semibold transition-colors">
           <input
             type="checkbox"
             checked={teachers.length > 0 && teachers.every(t => selectedIds.includes(t.id))}
@@ -239,16 +239,16 @@ export const Teachers: React.FC = () => {
                 setSelectedIds([]);
               }
             }}
-            className="accent-[#0F766E] h-4 w-4 rounded border-[#E2E8F0]"
+            className="accent-[#0071E3] h-4 w-4 rounded border-[#D2D2D7] cursor-pointer"
           />
           <span>Select All Faculty ({teachers.length})</span>
         </label>
       </div>
 
       {selectedIds.length > 0 && (
-        <div className="bg-[#EAF5F5] border border-[#14B8A6] rounded-lg p-4 flex items-center justify-between animate-fade-in" id="teachers-bulk-actions-bar">
-          <div className="flex items-center gap-2 text-[#0F766E] text-xs font-semibold">
-            <CheckSquare className="h-4 w-4 text-[#14B8A6]" />
+        <div className="bg-[#E8F2FF] border border-[#0071E3]/20 rounded-xl p-4 flex items-center justify-between animate-fade-in" id="teachers-bulk-actions-bar">
+          <div className="flex items-center gap-2 text-[#0071E3] text-xs font-bold">
+            <CheckSquare className="h-4 w-4 text-[#0071E3]" />
             <span>Selected {selectedIds.length} faculty members</span>
           </div>
           <div className="flex items-center gap-2.5">
@@ -256,12 +256,12 @@ export const Teachers: React.FC = () => {
               onClick={handleBulkExport}
               className="saas-button-secondary text-xs py-1.5 px-3 inline-flex items-center gap-1.5"
             >
-              <Download className="h-3.5 w-3.5 text-[#64748B]" />
+              <Download className="h-3.5 w-3.5 text-[#6E6E73]" />
               <span>Bulk Export (CSV)</span>
             </button>
             <button
               onClick={handleBulkDelete}
-              className="bg-[#EF4444] hover:bg-[#DC2626] text-white text-[11px] font-bold px-3.5 py-1.5 rounded-md transition-all shadow-sm cursor-pointer inline-flex items-center gap-1.5"
+              className="apple-button-danger text-xs px-3.5 py-1.5 inline-flex items-center gap-1.5 cursor-pointer"
             >
               <Trash2 className="h-3.5 w-3.5" />
               <span>Bulk Delete Selected</span>
@@ -273,14 +273,14 @@ export const Teachers: React.FC = () => {
       {/* Main Grid View */}
       {loading ? (
         <div className="text-center py-20 saas-card">
-          <GraduationCap className="h-10 w-10 text-[#0F766E] animate-pulse mx-auto mb-3" />
-          <p className="text-xs text-[#64748B]">Inspecting records of faculties...</p>
+          <GraduationCap className="h-10 w-10 text-[#0071E3] animate-pulse mx-auto mb-3" />
+          <p className="text-xs text-[#6E6E73] font-mono uppercase tracking-wider">Loading faculty roster...</p>
         </div>
       ) : teachers.length === 0 ? (
         <div className="saas-card p-12 text-center">
-          <GraduationCap className="h-12 w-12 text-[#64748B] mx-auto mb-3" />
-          <h3 className="text-sm font-bold text-[#134E4A]">No Instructor Registered</h3>
-          <p className="text-xs text-[#64748B] max-w-sm mx-auto mt-1 mb-4">
+          <GraduationCap className="h-10 w-10 text-[#6E6E73] mx-auto mb-3" />
+          <h3 className="text-sm font-bold text-[#1D1D1F]">No Instructor Registered</h3>
+          <p className="text-xs text-[#6E6E73] max-w-sm mx-auto mt-1 mb-4">
             No active faculty matches your filtering parameters.
           </p>
         </div>
@@ -289,8 +289,8 @@ export const Teachers: React.FC = () => {
           {teachers.map((teach) => (
             <div 
               key={teach.id}
-              className={`saas-card saas-card-hover relative group p-6 ${
-                selectedIds.includes(teach.id) ? 'border-[#14B8A6] ring-1 ring-[#14B8A6]' : ''
+              className={`saas-card saas-card-hover relative group p-5 ${
+                selectedIds.includes(teach.id) ? 'border-[#0071E3] ring-1 ring-[#0071E3]/20' : ''
               }`}
               id={`teacher-card-${teach.id}`}
             >
@@ -307,47 +307,47 @@ export const Teachers: React.FC = () => {
                       setSelectedIds(prev => prev.filter(id => id !== teach.id));
                     }
                   }}
-                  className="accent-[#0F766E] h-4.5 w-4.5 rounded border-[#E2E8F0] cursor-pointer"
+                  className="accent-[#0071E3] h-4 w-4 rounded border-[#D2D2D7] cursor-pointer"
                 />
               </div>
               {/* Profile Top header section */}
-              <div className="flex items-start gap-4 mb-5 border-b border-[#E2E8F0] pb-4">
+              <div className="flex items-start gap-4 mb-4 border-b border-[#D2D2D7]/55 pb-4">
                 <img
-                  src={teach.profilePhoto}
+                  src={teach.profilePhoto || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100"}
                   alt={teach.fullName}
                   referrerPolicy="no-referrer"
-                  className="h-14 w-14 rounded-md object-cover ring-1 ring-[#E2E8F0] shadow-sm"
+                  className="h-12 w-12 rounded-full object-cover border border-[#D2D2D7] shadow-sm shrink-0"
                 />
                 <div className="overflow-hidden">
-                  <h3 className="font-semibold text-[#134E4A] group-hover:text-[#0F766E] transition-colors truncate">{teach.fullName}</h3>
-                  <span className="text-[10px] font-mono bg-[#FFFBF5] text-[#64748B] font-medium px-2 py-0.5 rounded border border-[#E2E8F0] mt-1.5 inline-block">
+                  <h3 className="font-bold text-[#1D1D1F] group-hover:text-[#0071E3] transition-colors truncate">{teach.fullName}</h3>
+                  <span className="text-[10px] font-mono bg-[#F5F5F7] text-[#6E6E73] font-bold px-2 py-0.5 rounded border border-[#D2D2D7] mt-1.5 inline-block">
                     {teach.employeeId}
                   </span>
                 </div>
               </div>
 
               {/* Specific info rows */}
-              <div className="space-y-2.5 text-sm text-[#64748B] mb-6">
+              <div className="space-y-2.5 text-xs text-[#6E6E73] mb-5">
                 <div className="flex items-center gap-2.5">
-                  <Building className="h-4 w-4 text-[#14B8A6] shrink-0" />
+                  <Building className="h-4 w-4 text-[#0071E3] shrink-0" />
                   <span className="truncate">{teach.department} Department</span>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <Mail className="h-4 w-4 text-[#14B8A6] shrink-0" />
-                  <span className="truncate">{teach.email}</span>
+                  <Mail className="h-4 w-4 text-[#0071E3] shrink-0" />
+                  <span className="truncate select-all">{teach.email}</span>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <Phone className="h-4 w-4 text-[#14B8A6] shrink-0" />
-                  <span className="truncate">{teach.phoneNumber}</span>
+                  <Phone className="h-4 w-4 text-[#0071E3] shrink-0" />
+                  <span className="truncate select-all">{teach.phoneNumber}</span>
                 </div>
               </div>
 
               {/* Action operations row */}
-              <div className="flex items-center justify-between pt-4 border-t border-[#E2E8F0]">
+              <div className="flex items-center justify-between pt-3.5 border-t border-[#D2D2D7]/55">
                 <button
                   onClick={() => handleOpenView(teach)}
                   id={`view-teacher-btn-${teach.id}`}
-                  className="text-xs text-[#0F766E] hover:text-[#134E4A] font-semibold inline-flex items-center gap-1 cursor-pointer"
+                  className="text-xs text-[#0071E3] hover:text-[#0062C4] font-bold inline-flex items-center gap-1 cursor-pointer"
                 >
                   <Eye className="h-3.5 w-3.5" />
                   <span>View Bio</span>
@@ -357,14 +357,14 @@ export const Teachers: React.FC = () => {
                   <button
                     onClick={() => handleOpenEdit(teach)}
                     id={`edit-teacher-btn-${teach.id}`}
-                    className="p-1.5 text-[#64748B] hover:text-[#F59E0B] hover:bg-[#FEF3C7] rounded-md transition-colors cursor-pointer"
+                    className="p-1.5 text-[#6E6E73] hover:text-[#FF9500] hover:bg-[#FFF1E6] rounded-lg transition-colors cursor-pointer"
                   >
                     <Edit className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(teach.id, teach.fullName)}
                     id={`delete-teacher-btn-${teach.id}`}
-                    className="p-1.5 text-[#64748B] hover:text-[#EF4444] hover:bg-[#FEE2E2] rounded-md transition-colors cursor-pointer"
+                    className="p-1.5 text-[#6E6E73] hover:text-[#FF3B30] hover:bg-[#FDF2F2] rounded-lg transition-colors cursor-pointer"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -377,50 +377,50 @@ export const Teachers: React.FC = () => {
 
       {/* Form Dialog Box modals */}
       {showModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg w-full max-w-md shadow-2xl border border-[#E2E8F0] overflow-hidden text-left animate-zoom-in">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl border border-[#D2D2D7] overflow-hidden text-left animate-fade-in">
             {/* Title Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E8F0] bg-[#FFFBF5]">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#D2D2D7]">
               <div className="flex items-center gap-2">
-                <GraduationCap className="h-5 w-5 text-[#0F766E]" />
-                <h3 className="font-semibold text-[#134E4A] text-base tracking-tight">
+                <GraduationCap className="h-5 w-5 text-[#0071E3]" />
+                <h3 className="font-bold text-[#1D1D1F] text-base tracking-tight">
                   {modalMode === 'add' && 'Register New Faculty'}
                   {modalMode === 'edit' && 'Edit Faculty Credentials'}
                   {modalMode === 'view' && 'Faculty Member Profile'}
                 </h3>
               </div>
-              <button onClick={() => setShowModal(false)} className="text-[#64748B] hover:text-[#134E4A] transition-colors">
+              <button onClick={() => setShowModal(false)} className="text-[#6E6E73] hover:text-[#1D1D1F] transition-colors cursor-pointer">
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             {modalMode === 'view' && selectedTeacher ? (
-              <div className="p-6 space-y-5 text-sm text-[#64748B]">
-                <div className="text-center border-b border-[#E2E8F0] pb-5">
+              <div className="p-6 space-y-4 text-xs text-[#6E6E73]">
+                <div className="text-center border-b border-[#D2D2D7] pb-5">
                   <img
-                    src={selectedTeacher.profilePhoto}
+                    src={selectedTeacher.profilePhoto || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100"}
                     alt={selectedTeacher.fullName}
                     referrerPolicy="no-referrer"
-                    className="h-20 w-20 rounded-md object-cover ring-1 ring-[#E2E8F0] shadow-sm mx-auto mb-3"
+                    className="h-20 w-20 rounded-full object-cover border border-[#D2D2D7] shadow-sm mx-auto mb-3"
                   />
-                  <h4 className="text-lg font-bold text-[#134E4A]">{selectedTeacher.fullName}</h4>
-                  <span className="text-[10px] uppercase font-mono bg-[#FFFBF5] text-[#64748B] font-bold px-2.5 py-1 rounded-md mt-1.5 inline-block border border-[#E2E8F0]">
+                  <h4 className="text-lg font-bold text-[#1D1D1F]">{selectedTeacher.fullName}</h4>
+                  <span className="text-[10px] font-mono bg-[#F5F5F7] text-[#6E6E73] font-bold px-2.5 py-1 rounded-md mt-1.5 inline-block border border-[#D2D2D7]">
                     ID: {selectedTeacher.employeeId}
                   </span>
                 </div>
 
                 <div className="space-y-3">
-                  <div className="flex justify-between py-2 border-b border-[#E2E8F0]">
-                    <span className="text-[#64748B] font-medium font-sans uppercase text-[10px]">Academic Department</span>
-                    <span className="font-semibold text-[#134E4A]">{selectedTeacher.department}</span>
+                  <div className="flex justify-between py-2 border-b border-[#D2D2D7]/55">
+                    <span className="text-[#6E6E73] font-bold uppercase text-[9px]">Academic Department</span>
+                    <span className="font-bold text-[#1D1D1F]">{selectedTeacher.department}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[#E2E8F0]">
-                    <span className="text-[#64748B] font-medium font-sans uppercase text-[10px]">Official Email</span>
-                    <span className="font-semibold text-[#134E4A] truncate select-all">{selectedTeacher.email}</span>
+                  <div className="flex justify-between py-2 border-b border-[#D2D2D7]/55">
+                    <span className="text-[#6E6E73] font-bold uppercase text-[9px]">Official Email</span>
+                    <span className="font-bold text-[#1D1D1F] truncate select-all">{selectedTeacher.email}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[#E2E8F0]">
-                    <span className="text-[#64748B] font-medium font-sans uppercase text-[10px]">Phone contact</span>
-                    <span className="font-semibold text-[#134E4A] select-all">{selectedTeacher.phoneNumber}</span>
+                  <div className="flex justify-between py-2 border-b border-[#D2D2D7]/55">
+                    <span className="text-[#6E6E73] font-bold uppercase text-[9px]">Phone Contact</span>
+                    <span className="font-bold text-[#1D1D1F] select-all">{selectedTeacher.phoneNumber}</span>
                   </div>
                 </div>
 
@@ -429,13 +429,13 @@ export const Teachers: React.FC = () => {
                   onClick={() => setShowModal(false)}
                   className="w-full mt-4 saas-button-secondary"
                 >
-                  Close Profile card
+                  Close Profile
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleFormSubmit} className="p-6 space-y-4">
+              <form onSubmit={handleFormSubmit} className="p-6 space-y-4 text-xs">
                 <div>
-                  <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-1.5">Full Instructor Name *</label>
+                  <label className="block text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider mb-1.5">Full Instructor Name *</label>
                   <input
                     type="text"
                     required
@@ -448,7 +448,7 @@ export const Teachers: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-1.5">Employee ID Code *</label>
+                    <label className="block text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider mb-1.5">Employee ID Code *</label>
                     <input
                       type="text"
                       required
@@ -460,7 +460,7 @@ export const Teachers: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-1.5">Division/Dept *</label>
+                    <label className="block text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider mb-1.5">Department *</label>
                     <select
                       value={department}
                       onChange={(e) => setDepartment(e.target.value)}
@@ -474,7 +474,7 @@ export const Teachers: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-1.5">Official Email *</label>
+                  <label className="block text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider mb-1.5">Official Email *</label>
                   <input
                     type="email"
                     required
@@ -486,19 +486,19 @@ export const Teachers: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-1.5">Phone Contact Number *</label>
+                  <label className="block text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider mb-1.5">Phone Contact Number *</label>
                   <input
                     type="tel"
                     required
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
-                    placeholder="+1 (555) 0122_EXT"
+                    placeholder="+1 (555) 0122"
                     className="saas-input"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#134E4A] uppercase tracking-wider mb-1.5">Faculty Avatar Photo URL</label>
+                  <label className="block text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider mb-1.5">Faculty Avatar Photo URL</label>
                   <input
                     type="url"
                     value={profilePhoto}
@@ -508,7 +508,7 @@ export const Teachers: React.FC = () => {
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E2E8F0]">
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#D2D2D7]">
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
@@ -520,7 +520,7 @@ export const Teachers: React.FC = () => {
                     type="submit"
                     className="saas-button-primary"
                   >
-                    {modalMode === 'add' ? 'Confirm Credentials' : 'Commit Particulars'}
+                    {modalMode === 'add' ? 'Confirm Credentials' : 'Save Faculty Info'}
                   </button>
                 </div>
               </form>

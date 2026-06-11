@@ -33,7 +33,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpe
     { id: 'subjects', name: 'Subjects', icon: BookOpen },
     { id: 'attendance', name: 'Attendance Logs', icon: CalendarCheck },
     { id: 'qr-sessions', name: 'QR Sessions', icon: QrCode },
-    { id: 'reports', name: 'Report Exports', icon: FilePieChart },
+    { id: 'reports', name: 'Reports & Analytics', icon: FilePieChart },
     { id: 'settings', name: 'System Settings', icon: Settings }
   ];
 
@@ -53,7 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpe
             exit={{ opacity: 0 }}
             onClick={() => setIsOpen(false)}
             id="sidebar-mobile-overlay"
-            className="lg:hidden fixed inset-0 bg-[#134E4A]/60 backdrop-blur-sm z-40 cursor-pointer"
+            className="lg:hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-40 cursor-pointer"
           />
         )}
       </AnimatePresence>
@@ -61,27 +61,27 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpe
       {/* Main Sidebar Element */}
       <aside 
         id="sidebar-container"
-        className={`fixed top-0 bottom-0 left-0 bg-[#FFFBF5] border-r border-[#E2E8F0] w-64 z-50 flex flex-col justify-between transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed top-0 bottom-0 left-0 bg-[#F8F9FA] border-r border-[#D2D2D7] w-64 z-50 flex flex-col justify-between transition-transform duration-300 ease-in-out lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-[110%]'
         }`}
       >
         {/* Brand Header */}
         <div>
-          <div className="h-20 border-b border-[#E2E8F0] flex items-center justify-between px-6">
+          <div className="h-16 border-b border-[#D2D2D7] flex items-center justify-between px-6">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-[#0F766E] rounded-md flex items-center justify-center">
-                <School className="text-white h-5.5 w-5.5" />
+              <div className="h-9 w-9 bg-[#0071E3] rounded-lg flex items-center justify-center">
+                <School className="text-white h-5 w-5" />
               </div>
               <div>
-                <span className="font-bold text-[#134E4A] text-md tracking-tight font-sans block">Apex Attend</span>
-                <span className="text-[9px] text-[#64748B] block font-mono font-medium uppercase tracking-wider">ERP System</span>
+                <span className="font-bold text-[#1D1D1F] text-sm tracking-tight font-sans block">Apex Attend</span>
+                <span className="text-[9px] text-[#6E6E73] block font-mono font-semibold uppercase tracking-wider">ERP System</span>
               </div>
             </div>
             {/* Close Toggle for Mobile Box */}
             <button 
               onClick={() => setIsOpen(false)}
               id="sidebar-close-btn"
-              className="lg:hidden text-[#64748B] hover:text-[#134E4A] transition-colors p-1"
+              className="lg:hidden text-[#6E6E73] hover:text-[#1D1D1F] transition-colors p-1"
             >
               <X className="h-5 w-5" />
             </button>
@@ -89,12 +89,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpe
 
           {/* Quick Active session highlight badge */}
           <div className="px-5 pt-4">
-            <div className="bg-[#FFFBF5] rounded-md p-3 border border-[#E2E8F0] flex items-center justify-between">
+            <div className="bg-white rounded-lg p-2.5 border border-[#D2D2D7] flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Sparkles className="h-3 w-3 text-[#14B8A6]" />
-                <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-[#134E4A]">ADMINISTRATIVE CORE</span>
+                <Sparkles className="h-3.5 w-3.5 text-[#0071E3]" />
+                <span className="text-[9px] uppercase font-mono tracking-wider font-bold text-[#1D1D1F]">ADMINISTRATIVE CORE</span>
               </div>
-              <span className="h-1.5 w-1.5 rounded-full bg-[#14B8A6]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-[#0071E3]" />
             </div>
           </div>
 
@@ -108,15 +108,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpe
                   key={item.id}
                   onClick={() => handleNavClick(item.id)}
                   id={`sidebar-link-${item.id}`}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-[13px] font-semibold tracking-wide transition-all duration-200 group cursor-pointer ${
+                  className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-xs font-semibold transition-all duration-150 group cursor-pointer ${
                     isActive 
-                      ? 'bg-[#EAF5F5] text-[#0F766E]'
-                      : 'hover:bg-white text-[#64748B] hover:text-[#134E4A]'
+                      ? 'bg-[#E8F2FF] text-[#0071E3]'
+                      : 'hover:bg-white text-[#6E6E73] hover:text-[#1D1D1F] border border-transparent hover:border-[#D2D2D7]/45'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className={`h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110 ${
-                      isActive ? 'text-[#0F766E]' : 'text-[#64748B] group-hover:text-[#134E4A]'
+                    <Icon className={`h-4 w-4 shrink-0 transition-transform duration-150 ${
+                      isActive ? 'text-[#0071E3]' : 'text-[#6E6E73] group-hover:text-[#1D1D1F]'
                     }`} />
                     <span>{item.name}</span>
                   </div>
@@ -127,15 +127,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpe
         </div>
 
         {/* Profile details & Logout footer */}
-        <div className="p-4" id="sidebar-footer">
+        <div className="p-4 border-t border-[#D2D2D7]" id="sidebar-footer">
           {admin && (
-            <div className="flex items-center gap-3 px-3 py-3 mb-3 bg-white rounded-xl border border-[#F1F5F9] shadow-[0_2px_10px_-4px_rgba(0,0,0,0.03)]">
-              <div className="h-9 w-9 rounded-lg bg-[#0F766E] flex items-center justify-center text-xs font-bold text-white shrink-0">
+            <div className="flex items-center gap-3 px-3 py-2.5 mb-3 bg-white rounded-xl border border-[#D2D2D7] shadow-[0_1px_4px_rgba(0,0,0,0.02)]">
+              <div className="h-8 w-8 rounded-full bg-[#0071E3] flex items-center justify-center text-xs font-bold text-white shrink-0">
                 {admin.fullName.slice(0, 2).toUpperCase()}
               </div>
               <div className="overflow-hidden">
-                <p className="text-xs font-bold text-[#134E4A] truncate leading-none">{admin.fullName}</p>
-                <p className="text-[10px] text-[#64748B] truncate mt-1">Administrator</p>
+                <p className="text-xs font-bold text-[#1D1D1F] truncate leading-none">{admin.fullName}</p>
+                <p className="text-[10px] text-[#6E6E73] truncate mt-1">Administrator</p>
               </div>
             </div>
           )}
@@ -143,9 +143,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpe
           <button
             onClick={logout}
             id="sidebar-logout-btn"
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-md text-[13px] font-medium text-[#EF4444] hover:bg-[#FEF2F2] transition-all cursor-pointer group"
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold text-[#FF3B30] hover:bg-[#FFF1F1] transition-all cursor-pointer group"
           >
-            <LogOut className="h-4 w-4 shrink-0 transition-transform group-hover:-translate-x-1 duration-200" />
+            <LogOut className="h-4 w-4 shrink-0 transition-transform group-hover:-translate-x-0.5 duration-150" />
             <span>Terminate Session</span>
           </button>
         </div>

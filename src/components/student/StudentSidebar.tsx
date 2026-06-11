@@ -54,7 +54,7 @@ export const StudentSidebar: React.FC<SidebarProps> = ({
             exit={{ opacity: 0 }}
             onClick={() => setIsOpen(false)}
             id="student-sidebar-backdrop"
-            className="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-45 lg:hidden cursor-pointer"
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-45 lg:hidden cursor-pointer"
           />
         )}
       </AnimatePresence>
@@ -62,19 +62,19 @@ export const StudentSidebar: React.FC<SidebarProps> = ({
       {/* Sidebar shell */}
       <aside 
         id="student-sidebar-root"
-        className={`fixed top-4 bottom-4 left-4 w-64 bg-slate-900 rounded-[28px] border border-white/10 z-45 flex flex-col justify-between transition-transform duration-300 select-none shadow-2xl shadow-slate-950/50
+        className={`fixed top-0 bottom-0 left-0 w-64 bg-[#F8F9FA] border-r border-[#D2D2D7] z-50 flex flex-col justify-between transition-transform duration-300 select-none
           lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-[110%]'}`}
       >
         <div className="flex flex-col flex-1">
           {/* Brand Header Section */}
-          <div className="h-20 border-b border-white/5 flex items-center justify-between px-6 shrink-0 relative">
+          <div className="h-16 border-b border-[#D2D2D7] flex items-center justify-between px-6 shrink-0 relative">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-gradient-to-tr from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                <School className="text-white h-5.5 w-5.5" />
+              <div className="h-9 w-9 bg-[#0071E3] rounded-lg flex items-center justify-center">
+                <School className="text-white h-5 w-5" />
               </div>
               <div>
-                <span className="text-sm font-bold text-white block tracking-tight">Apex Scholar</span>
-                <span className="text-[9px] text-emerald-450 block font-semibold uppercase tracking-wider mt-0.5">Scholar Terminal</span>
+                <span className="text-sm font-bold text-[#1D1D1F] block tracking-tight">Apex Scholar</span>
+                <span className="text-[9px] text-[#6E6E73] block font-semibold uppercase tracking-wider mt-0.5">Scholar Terminal</span>
               </div>
             </div>
 
@@ -82,7 +82,7 @@ export const StudentSidebar: React.FC<SidebarProps> = ({
             <button
               onClick={() => setIsOpen(false)}
               id="sidebar-close-btn"
-              className="lg:hidden p-1.5 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors"
+              className="lg:hidden p-1.5 hover:bg-[#F8F9FA] rounded-lg text-[#6E6E73] hover:text-[#1D1D1F] transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
@@ -90,17 +90,17 @@ export const StudentSidebar: React.FC<SidebarProps> = ({
 
           {/* Quick Active session highlight badge */}
           <div className="px-5 pt-4">
-            <div className="bg-slate-950/50 rounded-2xl p-3 border border-white/5 flex items-center justify-between">
+            <div className="bg-white rounded-lg p-2.5 border border-[#D2D2D7] flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Sparkles className="h-3 w-3 text-emerald-400" />
-                <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-slate-300">SCHOLAR PORTAL</span>
+                <Sparkles className="h-3.5 w-3.5 text-[#0071E3]" />
+                <span className="text-[9px] uppercase font-mono tracking-wider font-bold text-[#1D1D1F]">SCHOLAR PORTAL</span>
               </div>
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="h-1.5 w-1.5 rounded-full bg-[#0071E3]" />
             </div>
           </div>
 
           {/* Navigation Links */}
-          <nav className="flex-1 px-4 py-6 space-y-1">
+          <nav className="flex-1 px-4 py-4 space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -109,20 +109,20 @@ export const StudentSidebar: React.FC<SidebarProps> = ({
                   key={item.id}
                   onClick={() => handleNav(item.id)}
                   id={`student-nav-${item.id}`}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-[13px] font-semibold tracking-wide transition-all duration-300 uppercase select-none cursor-pointer ${
+                  className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide transition-all duration-150 select-none cursor-pointer ${
                     isActive 
-                      ? 'bg-gradient-to-r from-emerald-500 to-teal-650 text-white shadow-xl shadow-emerald-500/10 border border-white/10' 
-                      : 'text-slate-400 hover:text-white hover:bg-white/5'
+                      ? 'bg-[#E8F2FF] text-[#0071E3]' 
+                      : 'text-[#6E6E73] hover:text-[#1D1D1F] hover:bg-white border border-transparent hover:border-[#D2D2D7]/45'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className={`h-4.5 w-4.5 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'}`} />
+                    <Icon className={`h-4 w-4 ${isActive ? 'text-[#0071E3]' : 'text-[#6E6E73] group-hover:text-[#1D1D1F]'}`} />
                     <span>{item.label}</span>
                   </div>
                   {isActive && (
                     <motion.div 
                       layoutId="active-indicator-student"
-                      className="h-1.5 w-1.5 rounded-full bg-white"
+                      className="h-1.5 w-1.5 rounded-full bg-[#0071E3]"
                       transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
                   )}
@@ -134,16 +134,16 @@ export const StudentSidebar: React.FC<SidebarProps> = ({
 
         {/* Footer Identity Box */}
         {student && (
-          <div className="p-4 border-t border-white/5 shrink-0">
-            <div className="flex items-center gap-3 bg-slate-950/40 p-3 rounded-2xl border border-white/5">
+          <div className="p-4 border-t border-[#D2D2D7] shrink-0">
+            <div className="flex items-center gap-3 bg-white p-2.5 rounded-xl border border-[#D2D2D7] shadow-[0_1px_4px_rgba(0,0,0,0.02)]">
               <img 
                 src={student.profilePhoto || "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100"} 
                 alt="Student Av" 
-                className="h-9 w-9 rounded-xl object-cover shrink-0 border border-white/5 bg-slate-850"
+                className="h-8 w-8 rounded-full object-cover shrink-0 border border-[#D2D2D7]"
               />
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-white truncate leading-none">{student.fullName}</p>
-                <p className="text-[10px] text-slate-500 font-mono mt-1.5 truncate">{student.rollNumber}</p>
+                <p className="text-xs font-bold text-[#1D1D1F] truncate leading-none">{student.fullName}</p>
+                <p className="text-[9px] text-[#6E6E73] font-mono mt-1 truncate">{student.rollNumber}</p>
               </div>
             </div>
 
@@ -151,7 +151,7 @@ export const StudentSidebar: React.FC<SidebarProps> = ({
             <button
               onClick={logout}
               id="student-logout-btn"
-              className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 rounded-2xl border border-red-500/10 hover:border-red-500/30 bg-red-500/5 hover:bg-red-500/10 text-xs font-semibold text-rose-400 transition-all select-none cursor-pointer"
+              className="w-full mt-3 flex items-center justify-center gap-2 py-2 rounded-lg border border-[#FF3B30]/10 hover:border-[#FF3B30]/30 bg-[#FF3B30]/5 hover:bg-[#FF3B30]/10 text-xs font-semibold text-[#FF3B30] transition-all select-none cursor-pointer"
             >
               <LogOut className="h-3.5 w-3.5" />
               <span>Exit Console</span>
