@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext.js';
 import { 
   User, 
-  Mail, 
-  Phone, 
-  Building, 
   ShieldAlert, 
   CheckCircle, 
   KeyRound, 
@@ -66,8 +63,8 @@ export const TeacherProfile: React.FC = () => {
   return (
     <div className="space-y-6 animate-fade-in" id="teacher-profile-view">
       <div>
-        <h1 className="text-2xl font-bold font-sans text-slate-900 tracking-tight">Faculty Profile</h1>
-        <p className="text-xs text-slate-500 mt-1">
+        <h1 className="text-2xl font-bold font-sans text-[#1D1D1F] tracking-tight">Faculty Profile</h1>
+        <p className="text-xs text-[#6E6E73] mt-1">
           Review your university employee record, update contact details, or secure your passcode credentials.
         </p>
       </div>
@@ -75,107 +72,107 @@ export const TeacherProfile: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Left Card: Beautiful static avatar and system meta info */}
-        <div className="lg:col-span-1 bg-white rounded-3xl border border-slate-100 p-6 flex flex-col items-center justify-between text-center shadow-xs h-fit space-y-6">
+        <div className="lg:col-span-1 saas-card p-6 flex flex-col items-center justify-between text-center h-fit space-y-6">
           <div className="space-y-4 flex flex-col items-center">
             {/* profile photo */}
             <div className="relative">
               <img
                 src={teacher?.profilePhoto || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop&crop=faces"}
                 alt="Teacher Av"
-                className="h-28 w-28 rounded-3xl object-cover ring-4 ring-slate-100/60 border border-slate-200/50"
+                className="h-28 w-28 rounded-3xl object-cover ring-4 ring-[#F8F9FA] border border-[#D2D2D7]"
               />
-              <span className="absolute bottom-1 right-1 h-4.5 w-4.5 rounded-full bg-emerald-500 border-2 border-white animate-pulse" />
+              <span className="absolute bottom-1 right-1 h-4.5 w-4.5 rounded-full bg-[#34C759] border-2 border-white animate-pulse" />
             </div>
 
             <div>
-              <h3 className="text-base font-extrabold text-slate-900">{teacher?.fullName}</h3>
-              <p className="text-[11px] font-mono text-slate-400 mt-1 uppercase font-semibold">{teacher?.employeeId || 'FAC-CS-202'}</p>
+              <h3 className="text-base font-bold text-[#1D1D1F]">{teacher?.fullName}</h3>
+              <p className="text-[11px] font-mono text-[#6E6E73] mt-1 uppercase font-semibold">{teacher?.employeeId || 'FAC-CS-202'}</p>
             </div>
           </div>
 
-          <div className="w-full divide-y divide-slate-50 text-xs font-semibold text-slate-700 select-none">
+          <div className="w-full divide-y divide-[#D2D2D7] text-xs font-semibold text-[#1D1D1F] select-none">
             <div className="py-2.5 flex justify-between">
-              <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Role</span>
-              <span className="text-indigo-650">Lecturer Faculty</span>
+              <span className="text-[#6E6E73] font-semibold uppercase tracking-wider text-[9px]">Role</span>
+              <span className="text-[#0071E3]">Lecturer Faculty</span>
             </div>
             <div className="py-2.5 flex justify-between">
-              <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Department</span>
+              <span className="text-[#6E6E73] font-semibold uppercase tracking-wider text-[9px]">Department</span>
               <span>{teacher?.department}</span>
             </div>
             <div className="py-3 flex justify-between">
-              <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Account Node</span>
-              <span className="font-mono bg-slate-50 py-0.5 px-2 rounded-md font-bold text-slate-600 border border-slate-100 text-[10px]">Verified Ledger</span>
+              <span className="text-[#6E6E73] font-semibold uppercase tracking-wider text-[9px]">Account Node</span>
+              <span className="apple-badge">Verified Ledger</span>
             </div>
           </div>
         </div>
 
         {/* Right Form: interactive update */}
-        <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-100 p-6 shadow-xs">
-          <div className="flex items-center gap-2 pb-3.5 border-b border-slate-50 font-bold mb-6 select-none">
-            <User className="h-4.5 w-4.5 text-indigo-550" />
-            <span className="text-xs text-slate-800 uppercase tracking-wider">Update Details Console</span>
+        <div className="lg:col-span-2 saas-card p-6">
+          <div className="flex items-center gap-2 pb-3.5 border-b border-[#D2D2D7] font-bold mb-6 select-none">
+            <User className="h-4.5 w-4.5 text-[#0071E3]" />
+            <span className="text-xs text-[#1D1D1F] uppercase tracking-wider">Update Details Console</span>
           </div>
 
           {errorMsg && (
-            <div className="mb-5 p-3.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-xs text-red-751 flex items-center gap-2 animate-shake" id="profile-error">
-              <ShieldAlert className="h-4 w-4 text-red-500 shrink-0" />
+            <div className="mb-5 p-3.5 rounded-xl bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-xs text-[#FF3B30] flex items-center gap-2 animate-shake" id="profile-error">
+              <ShieldAlert className="h-4 w-4 text-[#FF3B30] shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
 
           {successMsg && (
-            <div className="mb-5 p-3.5 rounded-2xl bg-emerald-50 border border-emerald-100 text-xs text-emerald-800 flex items-center gap-2 animate-fade-in select-none" id="profile-success">
-              <CheckCircle className="h-4 w-4 text-emerald-550 shrink-0" />
+            <div className="mb-5 p-3.5 rounded-xl bg-[#34C759]/10 border border-[#34C759]/20 text-xs text-[#34C759] flex items-center gap-2 animate-fade-in select-none" id="profile-success">
+              <CheckCircle className="h-4 w-4 text-[#34C759] shrink-0" />
               <span>{successMsg}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmitProfile} className="space-y-6 text-xs font-semibold text-slate-700">
+          <form onSubmit={handleSubmitProfile} className="space-y-6 text-xs font-semibold text-[#1D1D1F]">
             {/* General Fields */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-[10px] text-slate-1000 uppercase font-bold tracking-wide mb-1.5">
-                  Full Name Label
+                <label className="block text-[10px] text-[#6E6E73] uppercase font-bold tracking-wide mb-1.5">
+                  Full Name
                 </label>
                 <input
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-205 rounded-xl p-3 outline-none focus:border-indigo-505"
+                  className="saas-input"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] text-slate-1000 uppercase font-bold tracking-wide mb-1.5">
-                  Department Node
+                <label className="block text-[10px] text-[#6E6E73] uppercase font-bold tracking-wide mb-1.5">
+                  Department
                 </label>
                 <input
                   type="text"
                   value={teacher?.department}
                   disabled
                   title="Department can only be edited by administrative accounts"
-                  className="w-full bg-slate-50/60 border border-slate-205 text-slate-404 rounded-xl p-3 outline-none cursor-not-allowed"
+                  className="saas-input bg-[#F8F9FA] text-[#6E6E73] cursor-not-allowed border-[#D2D2D7]"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-[10px] text-slate-1000 uppercase font-bold tracking-wide mb-1.5">
+                <label className="block text-[10px] text-[#6E6E73] uppercase font-bold tracking-wide mb-1.5">
                   University Email
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-205 rounded-xl p-3 outline-none focus:border-indigo-505"
+                  className="saas-input"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] text-slate-1000 uppercase font-bold tracking-wide mb-1.5">
+                <label className="block text-[10px] text-[#6E6E73] uppercase font-bold tracking-wide mb-1.5">
                   Phone Number
                 </label>
                 <input
@@ -183,35 +180,35 @@ export const TeacherProfile: React.FC = () => {
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   placeholder="+1 (555) 0000"
-                  className="w-full bg-slate-50 border border-slate-205 rounded-xl p-3 outline-none focus:border-indigo-505"
+                  className="saas-input"
                 />
               </div>
             </div>
 
             {/* Sec Credentials */}
-            <div className="border-t border-slate-50 pt-5 space-y-4">
-              <div className="flex items-center gap-1.5 text-slate-800 font-bold uppercase select-none mb-1 text-[11.5px]">
-                <KeyRound className="h-4 w-4 text-indigo-550 shrink-0" />
+            <div className="border-t border-[#D2D2D7] pt-5 space-y-4">
+              <div className="flex items-center gap-1.5 text-[#1D1D1F] font-bold uppercase select-none mb-1 text-[11.5px]">
+                <KeyRound className="h-4 w-4 text-[#0071E3] shrink-0" />
                 <span>Security Credentials Update</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-[10px] text-slate-1000 uppercase font-bold tracking-wide mb-1.5">
-                    Current Secure Password
+                  <label className="block text-[10px] text-[#6E6E73] uppercase font-bold tracking-wide mb-1.5">
+                    Current Password
                   </label>
                   <input
                     type={showPw ? 'text' : 'password'}
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full bg-slate-50 border border-slate-205 rounded-xl p-3 outline-none focus:border-indigo-505 placeholder:text-slate-400 font-mono"
+                    className="saas-input font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] text-slate-1000 uppercase font-bold tracking-wide mb-1.5">
-                    New Secure Password
+                  <label className="block text-[10px] text-[#6E6E73] uppercase font-bold tracking-wide mb-1.5">
+                    New Password
                   </label>
                   <div className="relative">
                     <input
@@ -219,7 +216,7 @@ export const TeacherProfile: React.FC = () => {
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="••••••••••••"
-                      className="w-full bg-slate-50 border border-slate-205 rounded-xl p-3 outline-none focus:border-indigo-505 placeholder:text-slate-400 font-mono pr-10"
+                      className="saas-input font-mono pr-10"
                     />
                     <button
                       type="button"
@@ -237,7 +234,7 @@ export const TeacherProfile: React.FC = () => {
             <button
               type="submit"
               disabled={saving}
-              className="mt-2 bg-indigo-650 hover:bg-indigo-710 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-md shadow-indigo-600/10 cursor-pointer disabled:opacity-50 flex items-center gap-2"
+              className="saas-button-primary py-3 px-6 disabled:opacity-50 flex items-center gap-2 cursor-pointer"
             >
               <Save className="h-4 w-4" />
               <span>{saving ? 'Saving Details...' : 'Save Settings'}</span>

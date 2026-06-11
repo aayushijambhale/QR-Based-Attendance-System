@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../utils/api.js';
 import { 
-  BarChart3, 
+  FilePieChart, 
   Download, 
   FileText, 
-  HelpCircle, 
   Loader2, 
   TrendingUp, 
   Award,
@@ -91,16 +90,16 @@ export const StudentReports: React.FC = () => {
       setTimeout(() => {
         setExporting(null);
         setExportMessage('');
-      }, 4005);
+      }, 4000);
     }
   };
 
   if (loading) {
     return (
-      <div id="reports-loading" className="flex items-center justify-center min-h-[40vh]">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 text-emerald-505 animate-spin mx-auto mb-3" />
-          <p className="text-sm text-slate-400">Compiling statistics matrix...</p>
+      <div id="reports-loading" className="flex items-center justify-center min-h-[40vh] bg-[#F8F9FA]">
+        <div className="text-center select-none">
+          <Loader2 className="h-8 w-8 text-[#0071E3] animate-spin mx-auto mb-3" />
+          <p className="text-xs text-[#6E6E73] font-mono uppercase tracking-wider">Compiling statistics directory...</p>
         </div>
       </div>
     );
@@ -113,16 +112,16 @@ export const StudentReports: React.FC = () => {
 
   const presentPercentage = totalSlots > 0 ? Math.round((presents / totalSlots) * 100) : 0;
   const latePercentage = totalSlots > 0 ? Math.round((lates / totalSlots) * 100) : 0;
-  const absentPercentage = totalSlots > 0 ? Math.round((absents / totalSlots) * 150) : 0; // standard simulated absent weight index
+  const absentPercentage = totalSlots > 0 ? Math.round((absents / totalSlots) * 100) : 0;
 
   return (
-    <div id="student-reports-logs-root" className="space-y-6">
+    <div id="student-reports-logs-root" className="space-y-6 text-[#1D1D1F]">
       
       {/* Title segment */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-slate-100">Analytics Reports</h2>
-          <p className="text-xs text-slate-400 mt-1">Compile and print official check-in audit trails, performance indices, and admit approval letters.</p>
+        <div className="select-none">
+          <h2 className="text-2xl font-bold text-[#1D1D1F]">Analytics Reports</h2>
+          <p className="text-xs text-[#6E6E73] mt-1">Compile and print check-in audit trails, performance indices, and admit approval letters.</p>
         </div>
 
         {/* Download Buttons Simulators */}
@@ -131,12 +130,12 @@ export const StudentReports: React.FC = () => {
             onClick={() => handleExport('pdf')}
             disabled={exporting !== null}
             id="export-pdf-report-btn"
-            className="flex items-center gap-2 px-3.5 py-2.5 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-xl text-slate-350 text-xs font-bold uppercase tracking-wider select-none cursor-pointer"
+            className="saas-button-secondary flex items-center gap-2 text-xs py-2 px-3.5"
           >
             {exporting === 'pdf' ? (
-              <Loader2 className="h-4 w-4 animate-spin text-red-400" />
+              <Loader2 className="h-4 w-4 animate-spin text-[#FF3B30]" />
             ) : (
-              <FileText className="h-4 w-4 text-red-500" />
+              <FileText className="h-4 w-4 text-[#FF3B30]" />
             )}
             <span>PDF Print</span>
           </button>
@@ -145,12 +144,12 @@ export const StudentReports: React.FC = () => {
             onClick={() => handleExport('excel')}
             id="export-excel-report-btn"
             disabled={exporting !== null}
-            className="flex items-center gap-2 px-3.5 py-2.5 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-xl text-slate-350 text-xs font-bold uppercase tracking-wider select-none cursor-pointer"
+            className="saas-button-secondary flex items-center gap-2 text-xs py-2 px-3.5"
           >
             {exporting === 'excel' ? (
-              <Loader2 className="h-4 w-4 animate-spin text-emerald-450" />
+              <Loader2 className="h-4 w-4 animate-spin text-[#34C759]" />
             ) : (
-              <FileSpreadsheet className="h-4 w-4 text-emerald-500" />
+              <FileSpreadsheet className="h-4 w-4 text-[#34C759]" />
             )}
             <span>Excel Export</span>
           </button>
@@ -159,10 +158,10 @@ export const StudentReports: React.FC = () => {
 
       {/* Export state messaging */}
       {exportMessage && (
-        <div id="export-message-alert" className={`p-3.5 rounded-xl text-xs uppercase font-extrabold tracking-wider border ${
+        <div id="export-message-alert" className={`p-3.5 rounded-xl text-xs font-bold border select-none ${
           exportMessage.startsWith('Success') 
-            ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
-            : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+            ? 'bg-[#EAFBEF] border-[#34C759]/20 text-[#34C759]' 
+            : 'bg-[#FDF2F2] border-[#FF3B30]/20 text-[#FF3B30]'
         }`}>
           {exportMessage}
         </div>
@@ -172,21 +171,21 @@ export const StudentReports: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         
         {/* Left: Check-in statistics ratio diagram */}
-        <div className="md:col-span-7 p-6 bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-2xl space-y-6">
-          <h3 className="text-xs font-extrabold uppercase tracking-widest text-slate-350">Status distribution index</h3>
+        <div className="md:col-span-7 saas-card p-6 space-y-6">
+          <h3 className="text-[10px] font-bold uppercase tracking-wider text-[#6E6E73] select-none">Status distribution index</h3>
 
           {/* Simple Animated CSS ratio bar */}
           <div className="space-y-4">
             
             {/* Present stats bar */}
             <div className="space-y-2">
-              <div className="flex justify-between text-xs font-semibold uppercase font-mono text-slate-400">
+              <div className="flex justify-between text-[10px] font-bold uppercase text-[#6E6E73] select-none">
                 <span>Present</span>
-                <span className="text-emerald-400 font-bold">{presents} logs ({presentPercentage}%)</span>
+                <span className="text-[#34C759]">{presents} logs ({presentPercentage}%)</span>
               </div>
-              <div className="h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-900">
+              <div className="h-2 bg-[#EAEAEA] rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                  className="h-full bg-[#34C759] rounded-full transition-all duration-550"
                   style={{ width: `${presentPercentage}%` }}
                 />
               </div>
@@ -194,13 +193,13 @@ export const StudentReports: React.FC = () => {
 
             {/* Late stats bar */}
             <div className="space-y-2">
-              <div className="flex justify-between text-xs font-semibold uppercase font-mono text-slate-400">
+              <div className="flex justify-between text-[10px] font-bold uppercase text-[#6E6E73] select-none">
                 <span>Late Arrivals</span>
-                <span className="text-amber-400 font-bold">{lates} logs ({latePercentage}%)</span>
+                <span className="text-[#FF9500]">{lates} logs ({latePercentage}%)</span>
               </div>
-              <div className="h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-900">
+              <div className="h-2 bg-[#EAEAEA] rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-amber-500 rounded-full transition-all duration-500"
+                  className="h-full bg-[#FF9500] rounded-full transition-all duration-550"
                   style={{ width: `${latePercentage}%` }}
                 />
               </div>
@@ -208,54 +207,54 @@ export const StudentReports: React.FC = () => {
 
             {/* Absent weight index bar */}
             <div className="space-y-2">
-              <div className="flex justify-between text-xs font-semibold uppercase font-mono text-slate-400">
+              <div className="flex justify-between text-[10px] font-bold uppercase text-[#6E6E73] select-none">
                 <span>Absents & Missing</span>
-                <span className="text-rose-450 font-bold">{absents} logs ({absentPercentage}%)</span>
+                <span className="text-[#FF3B30]">{absents} logs ({absentPercentage}%)</span>
               </div>
-              <div className="h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-900">
+              <div className="h-2 bg-[#EAEAEA] rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-rose-500 rounded-full transition-all duration-500"
-                  style={{ width: `${Math.min(absentPercentage, 100)}%` }}
+                  className="h-full bg-[#FF3B30] rounded-full transition-all duration-550"
+                  style={{ width: `${absentPercentage}%` }}
                 />
               </div>
             </div>
 
           </div>
 
-          <div className="p-4 bg-slate-950 border border-slate-900 rounded-2xl flex items-center gap-3.5">
-            <TrendingUp className="h-5 w-5 text-emerald-400 shrink-0" />
-            <p className="text-[11px] text-slate-500 leading-normal uppercase font-bold tracking-wide">
-              Your class participation index has improved by <span className="text-emerald-400">&bull; 4.2%</span> over the course of the preceding two weeks of instruction.
+          <div className="p-4 bg-[#F8F9FA] border border-[#D2D2D7]/55 rounded-2xl flex items-center gap-3.5 select-none">
+            <TrendingUp className="h-4.5 w-4.5 text-[#34C759] shrink-0" />
+            <p className="text-[10px] text-[#6E6E73] leading-normal uppercase font-bold tracking-wider">
+              Your class participation index has improved by <span className="text-[#34C759] font-extrabold">&bull; 4.2%</span> over the course of the preceding two weeks of instruction.
             </p>
           </div>
         </div>
 
         {/* Right: Academic Admit stance status card */}
-        <div className="md:col-span-5 p-6 bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-2xl flex flex-col justify-between">
+        <div className="md:col-span-5 saas-card p-6 flex flex-col justify-between h-fit space-y-4">
           <div>
-            <div className="flex items-center gap-2 text-indigo-400 mb-4">
-              <Award className="h-4 w-4" />
-              <h3 className="text-xs font-extrabold uppercase tracking-widest text-indigo-450">Admit Approval Stance</h3>
+            <div className="flex items-center gap-2 text-[#0071E3] mb-4 select-none">
+              <Award className="h-4.5 w-4.5" />
+              <h3 className="text-[10px] font-bold uppercase tracking-wider">Admit Approval Stance</h3>
             </div>
 
-            <p className="text-xs text-slate-400 leading-relaxed font-medium">
-              Apex University mandates that students secure a minimum check-in average ratio of <span className="text-slate-200 font-bold">75%</span> to qualify for standard academic admit permissions. Below this boundary, exam halls remain locked until manually cleared.
+            <p className="text-xs text-[#6E6E73] leading-relaxed font-medium">
+              Apex University mandates that students secure a minimum check-in average ratio of <span className="text-[#1D1D1F] font-bold">75%</span> to qualify for standard academic admit permissions. Below this boundary, exam halls remain locked until manually cleared.
             </p>
 
             {/* Overall clearance status display */}
             {(() => {
               const eligible = (data?.overallPercentage ?? 0) >= 75;
               return (
-                <div className={`mt-6 p-5 rounded-2xl border text-center ${
+                <div className={`mt-6 p-5 rounded-2xl border text-center select-none ${
                   eligible 
-                    ? 'bg-emerald-500/5 border-emerald-500/15 text-emerald-400' 
-                    : 'bg-rose-500/5 border-rose-500/15 text-rose-450'
+                    ? 'bg-[#EAFBEF] border-[#34C759]/20 text-[#34C759]' 
+                    : 'bg-[#FDF2F2] border-[#FF3B30]/20 text-[#FF3B30]'
                 }`}>
-                  <span className="text-[10px] uppercase font-mono block font-bold tracking-widest text-slate-500">Qualify Status</span>
-                  <span className="text-2xl font-black block mt-1 tracking-tight">
+                  <span className="text-[9px] uppercase font-mono block font-bold tracking-widest text-[#6E6E73]">Qualify Status</span>
+                  <span className="text-xl font-extrabold block mt-1 tracking-tight">
                     {eligible ? 'EXAM ADMIT GRANTED' : 'EXAM CHANNELS MOUNTED'}
                   </span>
-                  <span className="text-[11px] block mt-2 font-mono uppercase tracking-wide text-slate-400">
+                  <span className="text-[10px] block mt-2 font-mono font-bold uppercase tracking-wide text-[#6E6E73]">
                     Current Rating: {data?.overallPercentage ?? 0}%
                   </span>
                 </div>
@@ -263,7 +262,7 @@ export const StudentReports: React.FC = () => {
             })()}
           </div>
 
-          <p className="text-[10px] text-slate-505 leading-relaxed uppercase mt-4 font-bold tracking-wide text-center">
+          <p className="text-[10px] text-[#6E6E73] leading-relaxed uppercase mt-4 font-bold tracking-wider text-center select-none">
             Print this receipt and bring it to any administrator to finalize physical qualification slips.
           </p>
         </div>

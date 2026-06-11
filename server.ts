@@ -1495,7 +1495,7 @@ async function startViteServer() {
 
   // Bind Combined httpServer supporting Express Routes and WebSockets to Port 3000
   httpServer.listen(PORT, '0.0.0.0', () => {
-    console.log(`[ERP ATTENDANCE SERVER WITH SOCKETS] Full-stack hub listening on port ${PORT}`);
+    console.log(`[ERP ATTENDANCE SERVER WITH SOCKETS] Full-stack hub listening on port http://localhost:${PORT}`);
   });
 }
 
