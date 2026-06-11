@@ -14,9 +14,11 @@ const getHeaders = (): HeadersInit => {
   return headers;
 };
 
+const BASE_URL = import.meta.env.VITE_API_URL || '';
+
 export const api = {
   get: async <T>(endpoint: string, params?: Record<string, string>): Promise<T> => {
-    let url = endpoint;
+    let url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;
     if (params) {
       const query = new URLSearchParams();
       Object.entries(params).forEach(([key, val]) => {
@@ -53,7 +55,8 @@ export const api = {
   },
 
   post: async <T>(endpoint: string, body: any): Promise<T> => {
-    const res = await fetch(endpoint, {
+    const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;
+    const res = await fetch(url, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(body),
@@ -67,7 +70,8 @@ export const api = {
   },
 
   put: async <T>(endpoint: string, body: any): Promise<T> => {
-    const res = await fetch(endpoint, {
+    const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;
+    const res = await fetch(url, {
       method: 'PUT',
       headers: getHeaders(),
       body: JSON.stringify(body),
@@ -81,7 +85,8 @@ export const api = {
   },
 
   delete: async <T>(endpoint: string): Promise<T> => {
-    const res = await fetch(endpoint, {
+    const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;
+    const res = await fetch(url, {
       method: 'DELETE',
       headers: getHeaders(),
     });

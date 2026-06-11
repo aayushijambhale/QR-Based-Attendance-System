@@ -27,11 +27,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Scan simulation states
-  const [selectedStudentId, setSelectedStudentId] = useState('');
-  const [selectedSessionCode, setSelectedSessionCode] = useState('');
-  const [simulationStatus, setSimulationStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
-  const [simulating, setSimulating] = useState(false);
+
 
   const fetchDashboardData = async () => {
     try {
@@ -51,7 +47,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
         const datetimeB = new Date(`${b.date}T${b.time || '00:00:00'}Z`);
         return datetimeB.getTime() - datetimeA.getTime();
       });
-      setRecentAttendance(sortedLogs.slice(0, 5));
+      setRecentAttendance(sortedLogs.slice(0, 6));
 
       // Separate active QR sessions
       const activeRows = sessionsData.filter(s => s.status === 'Active');
@@ -59,15 +55,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
 
       setStudentsArray(studentsData);
       
-      // Set defaults for simulation dropdowns if available
-      if (studentsData.length && !selectedStudentId) {
-        setSelectedStudentId(studentsData[0].id);
-      }
-      if (activeRows.length && !selectedSessionCode) {
-        setSelectedSessionCode(activeRows[0].sessionCode);
-      } else if (!activeRows.length) {
-        setSelectedSessionCode('');
-      }
+
 
     } catch (err) {
       console.error("Failed to load dashboard statistics:", err);
@@ -79,39 +67,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
 
   useEffect(() => {
     fetchDashboardData();
-    // Auto-refresh every 10 seconds to make the real-time simulation feel truly dynamic
+    // Auto-refresh every 10 seconds to make the real-time activity log feel truly dynamic
     const timer = setInterval(fetchDashboardData, 10000);
     return () => clearInterval(timer);
   }, []);
 
-  const handleSimulateScan = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedStudentId || !selectedSessionCode) {
-      setSimulationStatus({ type: 'error', message: 'Please launch an active session and select a student first.' });
-      return;
-    }
 
-    setSimulating(true);
-    setSimulationStatus(null);
-
-    try {
-      const res = await api.post<{ success: boolean; message: string; record: Attendance }>('/api/qr-sessions/scan', {
-        sessionCode: selectedSessionCode,
-        studentId: selectedStudentId
-      });
-
-      setSimulationStatus({ type: 'success', message: res.message });
-      // Refresh statistics and modern listings
-      await fetchDashboardData();
-    } catch (err: any) {
-      setSimulationStatus({ 
-        type: 'error', 
-        message: err.message || 'Scan failed. Maybe student already logged attendance?' 
-      });
-    } finally {
-      setSimulating(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -133,7 +94,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
             ERP Control Console
           </h1>
           <p className="text-[#6E6E73] text-[10px] mt-1 uppercase tracking-wider font-bold">
-            Realtime Gateway &bull; Multi-User Simulation Dashboard
+            Realtime Gateway &bull; Attendance Console
           </p>
         </div>
 
@@ -240,113 +201,77 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Active Simulator Feed Panel */}
+        {/* Live Activity log feed (spans 2 columns) */}
         <div 
-          className="lg:col-span-2 saas-card p-6 flex flex-col justify-between relative overflow-hidden"
-          id="bento-card-simulation-panel"
+          className="lg:col-span-2 saas-card p-6 flex flex-col justify-between"
+          id="bento-card-activity-log"
         >
           <div>
             <div className="flex items-center justify-between border-b border-[#D2D2D7] pb-3.5 mb-5 select-none">
               <div className="flex items-center gap-2">
                 <span className="text-[#0071E3] text-[11px] font-bold uppercase tracking-wider">
-                  Active Simulator Feed
+                  Live Attendance Activity
                 </span>
                 <span className="h-1.5 w-1.5 rounded-full bg-[#34C759] animate-pulse" />
               </div>
-              <span className="text-[9px] text-[#6E6E73] font-mono font-bold tracking-wider">
-                SERVER-AUTHORITATIVE
-              </span>
+              <button 
+                onClick={() => setActiveTab('attendance')}
+                className="text-[#0071E3] text-[11px] font-bold hover:underline cursor-pointer"
+              >
+                View Roster
+              </button>
             </div>
 
-            <p className="text-xs text-[#6E6E73] mb-6">
-              Validate and load test attendance checking records without physical device scanner hardware. Emulate checking in instantly using any live, active QR gate code.
-            </p>
-
-            {simulationStatus && (
-              <div 
-                id="simulation-alert-box"
-                className={`p-3.5 rounded-xl text-xs mb-6 border flex items-start gap-2.5 font-medium transition-all ${
-                  simulationStatus.type === 'success' 
-                    ? 'bg-[#EAFBEF] border-[#34C759]/20 text-[#34C759]' 
-                    : 'bg-[#FDF2F2] border-[#FF3B30]/20 text-[#FF3B30]'
-                }`}
-              >
-                <Sparkles className="h-4 w-4 shrink-0 mt-0.5" />
-                <span className="break-words w-full">{simulationStatus.message}</span>
-              </div>
-            )}
-
-            {activeSessions.length === 0 ? (
-              <div className="py-10 px-5 border border-dashed border-[#D2D2D7] rounded-2xl text-center bg-[#F8F9FA]">
-                <QrCode className="h-8 w-8 text-[#6E6E73] mx-auto mb-3" />
-                <h4 className="text-sm font-bold text-[#1D1D1F]">No Active Attendance QR Sessions</h4>
-                <p className="text-xs text-[#6E6E73] max-w-sm mx-auto mt-1 mb-5">
-                  Dynamic gates are currently closed. Broadcast a QR session from a Lecturer profile to simulate scans.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('qr-sessions')}
-                  className="saas-button-primary inline-flex items-center gap-2"
-                >
-                  <span>Go to QR Sessions</span>
-                  <ArrowRight className="h-4 w-4" />
-                </button>
+            {recentAttendance.length === 0 ? (
+              <div className="py-12 text-center text-[#6E6E73] bg-[#F8F9FA] rounded-xl border border-dashed border-[#D2D2D7]">
+                <Users className="h-6 w-6 mx-auto mb-2 text-[#6E6E73]" />
+                <span className="text-xs font-semibold">No attendance check-ins recorded today yet.</span>
               </div>
             ) : (
-              <form onSubmit={handleSimulateScan} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Select Student */}
-                  <div className="space-y-1">
-                    <label className="block text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
-                      1. Check-In Student Profile
-                    </label>
-                    <select
-                      value={selectedStudentId}
-                      onChange={(e) => setSelectedStudentId(e.target.value)}
-                      className="saas-input"
+              <div className="space-y-3" id="dashboard-recent-feed">
+                {recentAttendance.map((log) => {
+                  const statusColors: any = {
+                    Present: 'saas-pill-success',
+                    Late: 'saas-pill-warning',
+                    Absent: 'saas-pill-error',
+                  };
+                  const initials = log.studentName
+                    ? log.studentName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+                    : 'ST';
+                  return (
+                    <div 
+                      key={log.id} 
+                      className="p-3 bg-[#F8F9FA] border border-[#D2D2D7]/50 flex items-center justify-between gap-3 rounded-xl hover:bg-[#F5F5F7] transition-all"
                     >
-                      {studentsArray.map(std => (
-                        <option key={std.id} value={std.id}>
-                          {std.fullName} ({std.rollNumber})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Select active QR */}
-                  <div className="space-y-1">
-                    <label className="block text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
-                      2. Active QR Code Session
-                    </label>
-                    <select
-                      value={selectedSessionCode}
-                      onChange={(e) => setSelectedSessionCode(e.target.value)}
-                      className="saas-input"
-                    >
-                      {activeSessions.map(sess => (
-                        <option key={sess.id} value={sess.sessionCode}>
-                          {sess.subjectName} ({sess.teacherName})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={simulating}
-                  className="w-full saas-button-primary flex items-center justify-center gap-2 py-2.5 mt-2 cursor-pointer"
-                >
-                  <Play className="h-4 w-4 shrink-0" />
-                  <span>{simulating ? 'Checking in...' : 'Simulate Scanning Active QR Code'}</span>
-                </button>
-              </form>
+                      <div className="flex items-center gap-3 overflow-hidden min-w-0">
+                        <div className="w-8 h-8 rounded-full bg-[#E8F2FF] flex items-center justify-center text-[#0071E3] font-bold text-xs shrink-0 select-none">
+                          {initials}
+                        </div>
+                        <div className="overflow-hidden min-w-0">
+                          <p className="text-xs font-bold text-[#1D1D1F] truncate">{log.studentName}</p>
+                          <p className="text-[10px] text-[#6E6E73] truncate mt-0.5">
+                            {log.subjectName} &bull; <span className="font-mono">{log.rollNumber}</span>
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 shrink-0">
+                        <span className="text-[10px] text-[#6E6E73] font-mono font-semibold">
+                          {log.time} &bull; {log.date}
+                        </span>
+                        <span className={`${statusColors[log.status] || 'saas-pill-warning'} shrink-0`}>
+                          {log.status}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </div>
 
           <div className="mt-8 pt-4 border-t border-[#D2D2D7] flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] text-[#6E6E73] select-none">
-            <span>Simulated geo-location coordinates match campus guidelines</span>
-            <span className="font-mono bg-[#F5F5F7] border border-[#D2D2D7] rounded px-2 py-0.5">Sync: Realtime</span>
+            <span>Automated real-time check-in syncing active</span>
+            <span className="font-mono bg-[#F5F5F7] border border-[#D2D2D7] rounded px-2 py-0.5">Sync: Sockets Active</span>
           </div>
         </div>
 
@@ -354,7 +279,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
           {/* Realtime Active Sessions */}
           <div
             onClick={() => setActiveTab('qr-sessions')}
-            className="saas-card p-5 flex flex-col justify-between saas-card-hover cursor-pointer"
+            className="saas-card p-5 flex flex-col justify-between saas-card-hover cursor-pointer h-full"
             id="bento-card-qr-sessions"
           >
             <div className="flex items-center justify-between w-full">
@@ -376,57 +301,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
                   {activeSessions.length > 0 ? 'Active Broadcasts Live' : 'Syllabus Standby'}
                 </span>
               </div>
-            </div>
-          </div>
-
-          {/* Live Activity log feed */}
-          <div 
-            className="saas-card p-5 flex flex-col justify-between"
-            id="bento-card-activity-log"
-          >
-            <div>
-              <div className="flex items-center justify-between border-b border-[#D2D2D7] pb-3 mb-3 select-none">
-                <h3 className="text-[11px] font-bold text-[#1D1D1F] uppercase tracking-wider font-sans">Live Activity</h3>
-                <button 
-                  onClick={() => setActiveTab('attendance')}
-                  className="text-[#0071E3] text-[11px] font-bold hover:underline cursor-pointer"
-                >
-                  View Roster
-                </button>
-              </div>
-
-              {recentAttendance.length === 0 ? (
-                <div className="py-8 text-center text-[#6E6E73] bg-[#F8F9FA] rounded-xl border border-dashed border-[#D2D2D7]">
-                  <Users className="h-5 w-5 mx-auto mb-2 text-[#6E6E73]" />
-                  <span className="text-xs">No logs today yet</span>
-                </div>
-              ) : (
-                <div className="space-y-2.5" id="dashboard-recent-feed">
-                  {recentAttendance.slice(0, 3).map((log) => {
-                    const statusColors: any = {
-                      Present: 'saas-pill-success',
-                      Late: 'saas-pill-warning',
-                      Absent: 'saas-pill-error',
-                    };
-                    return (
-                      <div 
-                        key={log.id} 
-                        className="p-2.5 bg-[#F8F9FA] border border-[#D2D2D7]/50 flex items-center justify-between gap-3 rounded-xl hover:bg-[#F5F5F7] transition-all"
-                      >
-                        <div className="overflow-hidden min-w-0">
-                          <p className="text-xs font-bold text-[#1D1D1F] truncate">{log.studentName}</p>
-                          <p className="text-[10px] text-[#6E6E73] truncate mt-0.5">
-                            {log.subjectName} &bull; <span className="font-mono">{log.rollNumber}</span>
-                          </p>
-                        </div>
-                        <span className={`${statusColors[log.status] || 'saas-pill-warning'} shrink-0`}>
-                          {log.status}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
             </div>
           </div>
         </div>

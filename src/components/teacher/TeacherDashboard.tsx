@@ -99,7 +99,7 @@ export const TeacherDashboard: React.FC<Props> = ({ setActiveTab }) => {
     if (!token || !teacher) return;
 
     // Connect to Backend Socket Gateway
-    const socket = io(window.location.origin, {
+    const socket = io(import.meta.env.VITE_API_URL || window.location.origin, {
       auth: { token }
     });
 

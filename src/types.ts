@@ -70,6 +70,8 @@ export interface QRSession {
   sessionCode: string; // Unique URL or code base
   qrToken: string; // Rotating 30s secure token
   lastRegeneratedAt: string; // Timestamp of token rotation
+  latitude?: number;
+  longitude?: number;
   createdAt: string;
 }
 

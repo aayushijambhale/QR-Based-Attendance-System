@@ -31,7 +31,7 @@ mongoose.connect(MONGODB_URI)
     console.error('[DATABASE] Critical: MongoDB connection failed!', err);
   });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'university-attendance-secret-2026';
 
 // Create a combined HTTP server for REST and Socket.io operations
@@ -87,6 +87,22 @@ const debugLog = (msg: string) => {
   }
 };
 
+// Credentials validation utilities
+function validateRollNumber(rollNumber: string): boolean {
+  const regex = /^[a-zA-Z0-9\-/]{5,15}$/;
+  return regex.test(rollNumber);
+}
+
+function validatePasswordStrength(password: string): boolean {
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+  return regex.test(password);
+}
+
+function validateEmail(email: string): boolean {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+}
+
 // Log incoming API requests for debugging
 app.use((req, res, next) => {
   console.log(`[API REQUEST] ${req.method} ${req.url}`);
@@ -130,6 +146,14 @@ app.post('/api/auth/login', async (req, res) => {
 
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
+  }
+
+  if (!validateEmail(email)) {
+    return res.status(400).json({ error: 'Invalid email address format' });
+  }
+
+  if (!validatePasswordStrength(password)) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters long and contain uppercase, lowercase, and numeric characters' });
   }
 
   const admin = await db.getAdminByEmail(email);
@@ -242,6 +266,14 @@ app.post('/api/students', authenticateJWT,  async (req, res) => {
     return res.status(400).json({ error: 'Missing required student fields' });
   }
 
+  if (!validateRollNumber(rollNumber)) {
+    return res.status(400).json({ error: 'Invalid Roll Number format. Use 5-15 alphanumeric characters (dashes or slashes allowed).' });
+  }
+
+  if (!validateEmail(email)) {
+    return res.status(400).json({ error: 'Invalid email address format' });
+  }
+
   try {
     const defaultPhoto = profilePhoto || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fullName)}`;
     const newStudent = await db.createStudent({
@@ -260,6 +292,14 @@ app.post('/api/students', authenticateJWT,  async (req, res) => {
 });
 
 app.put('/api/students/:id', authenticateJWT,  async (req, res) => {
+  const { rollNumber, email } = req.body;
+  if (rollNumber && !validateRollNumber(rollNumber)) {
+    return res.status(400).json({ error: 'Invalid Roll Number format. Use 5-15 alphanumeric characters (dashes or slashes allowed).' });
+  }
+  if (email && !validateEmail(email)) {
+    return res.status(400).json({ error: 'Invalid email address format' });
+  }
+
   try {
     const updated = await db.updateStudent(req.params.id, req.body);
     res.json(updated);
@@ -579,73 +619,6 @@ app.put('/api/qr-sessions/:id/expire', authenticateJWT,  async (req, res) => {
 });
 
 
-// ==========================================
-// 7.5 SCAN SIMULATOR: ADD ENTRY BY QR CODE
-// ==========================================
-app.post('/api/qr-sessions/scan', authenticateJWT,  async (req, res) => {
-  const { sessionCode, studentId } = req.body;
-
-  if (!sessionCode || !studentId) {
-    return res.status(400).json({ error: 'sessionCode and studentId are required' });
-  }
-
-  // Find active session
-  const session = (await db.getQRSessions()).find(s => s.sessionCode === sessionCode);
-  if (!session) {
-    return res.status(404).json({ error: 'Invalid attendance session code' });
-  }
-
-  if (session.status === 'Expired' || new Date(session.expiryTime) < new Date()) {
-    return res.status(400).json({ error: 'This QR Code Session has expired' });
-  }
-
-  // Find student
-  const student = (await db.getStudents()).find(s => s.id === studentId);
-  if (!student) {
-    return res.status(404).json({ error: 'Student registration not found' });
-  }
-
-  // Check if student already has attendance log for this session today
-  const todayStr = new Date().toISOString().split('T')[0];
-  const alreadyLogged = (await db.getAttendance()).some(
-    a => a.studentId === studentId && 
-         a.subjectId === session.subjectId && 
-         a.date === todayStr
-  );
-
-  if (alreadyLogged) {
-    return res.status(400).json({ error: 'Attendance already recorded for this subject today.' });
-  }
-
-  // Calculate status (Present or Late)
-  const generatedTimeObj = new Date(session.generatedTime);
-  const minsDiff = (new Date().getTime() - generatedTimeObj.getTime()) / (1000 * 60);
-  
-  // Late if exceeds 5 minutes of creation
-  const status = (minsDiff > 5) ? 'Late' : 'Present';
-  const now = new Date();
-  const timeStr = now.toTimeString().split(' ')[0]; // HH:MM:SS
-
-  const record = await db.addAttendance({
-    studentId,
-    studentName: student.fullName,
-    rollNumber: student.rollNumber,
-    subjectId: session.subjectId,
-    subjectName: session.subjectName,
-    date: todayStr,
-    time: timeStr,
-    status,
-    teacherId: session.teacherId,
-    teacherName: session.teacherName
-  });
-
-  res.status(201).json({
-    success: true,
-    message: `Successfully marked ${student.fullName} as ${status}!`,
-    record
-  });
-});
-
 
 // ==========================================
 // 8. SETTINGS & PROFILE MANAGEMENT
@@ -664,6 +637,14 @@ app.put('/api/auth/profile', authenticateJWT,  async (req: any, res) => {
   const { fullName, email, currentPassword, newPassword } = req.body;
   if (!fullName || !email) {
     return res.status(400).json({ error: 'Full Name and Email are required' });
+  }
+
+  if (!validateEmail(email)) {
+    return res.status(400).json({ error: 'Invalid email address format' });
+  }
+
+  if (newPassword && !validatePasswordStrength(newPassword)) {
+    return res.status(400).json({ error: 'New password must be at least 8 characters long and contain uppercase, lowercase, and numeric characters' });
   }
 
   const oldEmail = req.user.email;
@@ -707,6 +688,14 @@ app.post('/api/teacher/login', async (req, res) => {
 
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
+  }
+
+  if (!validateEmail(email)) {
+    return res.status(400).json({ error: 'Invalid email address format' });
+  }
+
+  if (!validatePasswordStrength(password)) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters long and contain uppercase, lowercase, and numeric characters' });
   }
 
   const teacher = await db.getTeacherByEmail(email);
@@ -770,6 +759,14 @@ app.put('/api/teacher/profile', authenticateJWT,  async (req: any, res) => {
   const { fullName, email, phoneNumber, currentPassword, newPassword } = req.body;
   if (!fullName || !email) {
     return res.status(400).json({ error: 'Full Name and Email are required' });
+  }
+
+  if (!validateEmail(email)) {
+    return res.status(400).json({ error: 'Invalid email address format' });
+  }
+
+  if (newPassword && !validatePasswordStrength(newPassword)) {
+    return res.status(400).json({ error: 'New password must be at least 8 characters long and contain uppercase, lowercase, and numeric characters' });
   }
 
   const oldEmail = req.user.email;
@@ -836,7 +833,7 @@ app.post('/api/teacher/attendance/session', authenticateJWT,  async (req: any, r
     return res.status(403).json({ error: 'Access denied' });
   }
   
-  const { subjectId, durationMinutes } = req.body;
+  const { subjectId, durationMinutes, latitude, longitude } = req.body;
   if (!subjectId || !durationMinutes) {
     return res.status(400).json({ error: 'subjectId and durationMinutes are required' });
   }
@@ -859,7 +856,9 @@ app.post('/api/teacher/attendance/session', authenticateJWT,  async (req: any, r
     generatedTime: generatedTime.toISOString(),
     expiryTime: expiryTime.toISOString(),
     status: 'Active',
-    sessionCode
+    sessionCode,
+    latitude: latitude !== undefined ? Number(latitude) : 0,
+    longitude: longitude !== undefined ? Number(longitude) : 0
   });
 
   // Post systemic broadcast notification to notify all students
@@ -964,6 +963,14 @@ app.post('/api/student/login', async (req, res) => {
     return res.status(400).json({ error: 'Roll number and password are required' });
   }
 
+  if (!validateRollNumber(rollNumber)) {
+    return res.status(400).json({ error: 'Invalid Roll Number format. Use 5-15 alphanumeric characters (dashes or slashes allowed).' });
+  }
+
+  if (!validatePasswordStrength(password)) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters long and contain uppercase, lowercase, and numeric characters' });
+  }
+
   const student = await db.getStudentByRollNumber(rollNumber);
   if (!student) {
     return res.status(401).json({ error: 'Invalid roll number or password' });
@@ -1046,6 +1053,10 @@ app.put('/api/student/change-password', authenticateJWT,  async (req: any, res) 
   const { currentPassword, newPassword } = req.body;
   if (!currentPassword || !newPassword) {
     return res.status(400).json({ error: 'Current password and new password are required' });
+  }
+
+  if (!validatePasswordStrength(newPassword)) {
+    return res.status(400).json({ error: 'New password must be at least 8 characters long and contain uppercase, lowercase, and numeric characters' });
   }
 
   const student = (await db.getStudents()).find(s => s.id === req.user.id);
@@ -1170,15 +1181,37 @@ const CAMPUS_LAT = 18.5204;
 const CAMPUS_LNG = 73.8567;
 const MAX_RADIUS_METERS = 200; // 200 meters geo boundary fence
 
-// Geofencing Middleware: Verify student is on campus using Haversine formula
-const verifyCampusLocation = (req: any, res: any, next: any) => {
-  const { latitude, longitude } = req.body;
+// Geofencing Middleware: Verify student is on campus or near the teacher using Haversine formula
+const verifyCampusLocation = async (req: any, res: any, next: any) => {
+  const { latitude, longitude, sessionCode } = req.body;
   
   if (latitude === undefined || longitude === undefined) {
     return res.status(400).json({ error: 'GPS verification required. Please enable Geolocation on your device.' });
   }
 
-  // Calculate geodesic distance from benchmark campus coordinates
+  // If a session code is provided, check proximity to the teacher (within 40m) if the session has coordinates
+  if (sessionCode) {
+    const scanParts = sessionCode.split('|');
+    const targetSessionId = scanParts[0];
+    const session = (await db.getQRSessions()).find(s => s.id === targetSessionId || s.sessionCode === targetSessionId);
+    if (session && session.latitude && session.longitude) {
+      const distanceToTeacher = calculateDistanceInMeters(
+        Number(latitude),
+        Number(longitude),
+        session.latitude,
+        session.longitude
+      );
+      if (distanceToTeacher > 40) {
+        return res.status(400).json({
+          error: `Proximity verification failed. You are too far from the teacher. Current distance: ${Math.round(distanceToTeacher)}m. Must be within 40m of the teacher.`
+        });
+      }
+      req.campusDistance = distanceToTeacher;
+      return next();
+    }
+  }
+
+  // Fallback to campus center geofence if session location is not configured
   const distance = calculateDistanceInMeters(
     Number(latitude), 
     Number(longitude), 
@@ -1236,7 +1269,20 @@ app.post('/api/student/scan-attendance', authenticateJWT, scanLimiter, verifyCam
     return res.status(404).json({ error: 'Student registration not found' });
   }
 
-  // 1. GEOLOCATION GPS VERIFICATION (ALREADY VERIFIED VIA MIDDLEWARE)
+  // 1. GEOLOCATION GPS VERIFICATION (PROXIMITY TO TEACHER: 40m)
+  if (session.latitude && session.longitude) {
+    const distanceToTeacher = calculateDistanceInMeters(
+      Number(latitude),
+      Number(longitude),
+      session.latitude,
+      session.longitude
+    );
+    if (distanceToTeacher > 40) {
+      return res.status(400).json({
+        error: `Proximity verification failed. You are too far from the teacher. Current distance: ${Math.round(distanceToTeacher)}m. Must be within 40m of the teacher.`
+      });
+    }
+  }
 
   // 2. FACE BIOMETRICS VERIFICATION
   if (student.faceDescriptor && student.faceDescriptor.length > 0) {

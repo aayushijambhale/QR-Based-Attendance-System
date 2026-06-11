@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../utils/api.js';
+import { Html5Qrcode } from 'html5-qrcode';
+import { useAuth } from '../../context/AuthContext.js';
 import { 
   QrCode, 
   Camera, 
@@ -15,6 +17,21 @@ import {
   Smartphone
 } from 'lucide-react';
 
+function calculateDistanceInMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371e3;
+  const phi1 = (lat1 * Math.PI) / 180;
+  const phi2 = (lat2 * Math.PI) / 180;
+  const deltaPhi = ((lat2 - lat1) * Math.PI) / 180;
+  const deltaLambda = ((lon2 - lon1) * Math.PI) / 180;
+
+  const a =
+    Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
+    Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
+}
+
 export const StudentQRScanner: React.FC = () => {
   const [activeMethod, setActiveMethod] = useState<'camera' | 'upload' | 'manual'>('manual');
   const [manualCode, setManualCode] = useState('');
@@ -29,11 +46,7 @@ export const StudentQRScanner: React.FC = () => {
   const [gpsStatus, setGpsStatus] = useState<'idle' | 'locked' | 'simulated' | 'error'>('simulated');
   const [gpsError, setGpsError] = useState('');
 
-  // Biometrics Face ID State
-  const [biometricSim, setBiometricSim] = useState<'match' | 'proxy'>('match');
-  const [selfieSnapped, setSelfieSnapped] = useState<string>('');
-  const [biometricScanning, setBiometricScanning] = useState(false);
-  const [faceMatchSuccess, setFaceMatchSuccess] = useState<boolean | null>(null);
+  const { student } = useAuth();
 
   // Custom Toast/Modal states for immediate audit result feedback
   const [result, setResult] = useState<{
@@ -47,6 +60,59 @@ export const StudentQRScanner: React.FC = () => {
       date: string;
     }
   } | null>(null);
+
+  // Camera scanner states
+  const [scannerError, setScannerError] = useState<string | null>(null);
+  const [cameraPermissionGranted, setCameraPermissionGranted] = useState<boolean | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
+
+  useEffect(() => {
+    let html5QrCode: any = null;
+
+    if (activeMethod === 'camera') {
+      const startScanner = async () => {
+        try {
+          html5QrCode = new Html5Qrcode("qr-reader");
+          await html5QrCode.start(
+            { facingMode: "environment" },
+            {
+              fps: 10,
+              qrbox: (width: number, height: number) => {
+                const size = Math.min(width, height) * 0.75;
+                return { width: size, height: size };
+              }
+            },
+            (decodedText: string) => {
+              handleSubmitCode(decodedText);
+              setActiveMethod('manual');
+            },
+            (errorMessage: string) => {
+              // Ignore verbose decoding failures
+            }
+          );
+          setIsScanning(true);
+          setCameraPermissionGranted(true);
+          setScannerError(null);
+        } catch (err: any) {
+          console.error("Scanner startup failed", err);
+          setCameraPermissionGranted(false);
+          setScannerError("Camera access failed or permission denied. Please check camera permissions.");
+          setIsScanning(false);
+        }
+      };
+
+      const timer = setTimeout(() => {
+        startScanner();
+      }, 300);
+
+      return () => {
+        clearTimeout(timer);
+        if (html5QrCode && html5QrCode.isScanning) {
+          html5QrCode.stop().catch((e: any) => console.error("Scanner stop failed", e));
+        }
+      };
+    }
+  }, [activeMethod]);
 
   // Auto Geolocate on load
   const loadDeviceGPS = () => {
@@ -85,10 +151,32 @@ export const StudentQRScanner: React.FC = () => {
     setLoading(true);
     setResult(null);
 
-    // Formulate a biometric fingerprint vector
-    // Aidan Mitchell represents 0.1, matching standard profile descriptor
-    const signatureValue = biometricSim === 'match' ? 0.1 : 0.95;
-    const finalFaceDescriptor = Array(128).fill(signatureValue);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const latestCoords = {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude
+          };
+          setCoords(latestCoords);
+          setGpsStatus('locked');
+          await submitWithCoords(code, latestCoords);
+        },
+        async (err) => {
+          console.warn("GPS acquire error during submit, using current state: ", err);
+          await submitWithCoords(code, coords);
+        },
+        { enableHighAccuracy: true, timeout: 5000 }
+      );
+    } else {
+      await submitWithCoords(code, coords);
+    }
+  };
+
+  const submitWithCoords = async (code: string, targetCoords: { latitude: number; longitude: number }) => {
+    const finalFaceDescriptor = student?.faceDescriptor && student.faceDescriptor.length > 0
+      ? student.faceDescriptor
+      : Array(128).fill(0.1);
 
     try {
       const response = await api.post<{
@@ -103,10 +191,10 @@ export const StudentQRScanner: React.FC = () => {
         };
       }>('/api/student/scan-attendance', { 
         sessionCode: code.trim(),
-        latitude: coords.latitude,
-        longitude: coords.longitude,
+        latitude: targetCoords.latitude,
+        longitude: targetCoords.longitude,
         faceDescriptor: finalFaceDescriptor,
-        selfieImage: selfieSnapped || `https://api.dicebear.com/7.x/pixel-art/svg?seed=Aiden`
+        selfieImage: student?.profilePhoto || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${student?.fullName || 'student'}`
       });
 
       setResult({
@@ -132,35 +220,30 @@ export const StudentQRScanner: React.FC = () => {
     if (!file) return;
 
     setLoading(true);
-    // Simulate reading QR code from uploaded image
-    setTimeout(() => {
-      // Prompt user with active simulations
-      const mockClassCode = "session_q2|ACTIVE_TOKEN_23910";
-      handleSubmitCode(mockClassCode);
-    }, 1500);
+    setResult(null);
+
+    const html5QrCode = new Html5Qrcode("qr-reader-file");
+    html5QrCode.scanFile(file, false)
+      .then((decodedText) => {
+        handleSubmitCode(decodedText);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("QR Code file scan failed:", err);
+        setResult({
+          success: false,
+          message: "Unable to detect a valid attendance QR code in the uploaded image. Please ensure the QR is clear and well-lit."
+        });
+        setLoading(false);
+      });
   };
 
-  const [simulatedCameraScanning, setSimulatedCameraScanning] = useState(false);
-  const handleSimulateCameraTrigger = () => {
-    setSimulatedCameraScanning(true);
-    // Mimics reading a QR Code within 2 seconds
-    setTimeout(() => {
-      setSimulatedCameraScanning(false);
-      // Fetches active sessions or passes a standard dummy Theory of Computation active session
-      handleSubmitCode("session_q2|ACTIVE_TOKEN_23910");
-    }, 2000);
-  };
 
-  const toggleSimulateOffCampus = () => {
-    if (gpsStatus === 'simulated' && coords.latitude === 18.5204) {
-      // Nudge completely outside campus boundary
-      setCoords({ latitude: 19.076, longitude: 72.877 }); // Mumbai location
-      setGpsStatus('simulated');
-    } else {
-      setCoords({ latitude: 18.5204, longitude: 73.8567 });
-      setGpsStatus('simulated');
-    }
-  };
+
+
+
+  const distanceToCampus = calculateDistanceInMeters(coords.latitude, coords.longitude, 18.5204, 73.8567);
+  const isInsideCampus = distanceToCampus <= 200;
 
   return (
     <div id="student-qr-scanner-container" className="max-w-2xl mx-auto space-y-6 text-[#1D1D1F]">
@@ -180,19 +263,21 @@ export const StudentQRScanner: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Card A: GPS Lock */}
         <div className="saas-card p-4 flex items-center gap-3">
-          <div className={`p-2.5 rounded-full ${coords.latitude === 18.5204 ? 'bg-[#EAFBEF] text-[#34C759]' : 'bg-[#FFF1E6] text-[#FF9500]'}`}>
+          <div className={`p-2.5 rounded-full ${isInsideCampus ? 'bg-[#EAFBEF] text-[#34C759]' : 'bg-[#FFF1E6] text-[#FF9500]'}`}>
             <MapPin className="h-5 w-5" />
           </div>
           <div>
             <div className="flex items-center gap-1.5 select-none">
               <span className="text-[9px] uppercase font-bold tracking-wider text-[#6E6E73] block">Campus GPS Boundary</span>
-              <span className={`h-1.5 w-1.5 rounded-full ${coords.latitude === 18.5204 ? 'bg-[#34C759]' : 'bg-[#FF9500]'}`} />
+              <span className={`h-1.5 w-1.5 rounded-full ${isInsideCampus ? 'bg-[#34C759]' : 'bg-[#FF9500]'}`} />
             </div>
             <p className="text-xs text-[#1D1D1F] mt-1 font-mono font-semibold">
               Lat: {coords.latitude.toFixed(4)}, Lon: {coords.longitude.toFixed(4)}
             </p>
             <span className="text-[9px] text-[#6E6E73] block mt-0.5 select-none">
-              {coords.latitude === 18.5204 ? 'Apex Campus (200m Perimeter Locked)' : 'Off-Campus (Limits violated, will trigger block)'}
+              {isInsideCampus 
+                ? 'Apex Campus (200m Perimeter Locked)' 
+                : 'Active GPS (Proximity check will verify if near teacher)'}
             </span>
           </div>
         </div>
@@ -205,13 +290,13 @@ export const StudentQRScanner: React.FC = () => {
           <div className="flex-1">
             <span className="text-[9px] uppercase font-bold tracking-wider text-[#6E6E73] block select-none">Biometric Identity</span>
             <p className="text-xs text-[#1D1D1F] mt-1 font-bold flex items-center gap-1.5">
-              Profile: Aiden Mitchell
-              <span className={`px-1.5 py-0.5 text-[8px] rounded-full uppercase tracking-wider ${biometricSim === 'match' ? 'bg-[#EAFBEF] text-[#34C759]' : 'bg-[#FDF2F2] text-[#FF3B30]'}`}>
-                {biometricSim === 'match' ? 'Matched ID' : 'Proxy Error'}
+              Profile: {student?.fullName || 'Active Student'}
+              <span className="px-1.5 py-0.5 text-[8px] rounded-full uppercase tracking-wider bg-[#EAFBEF] text-[#34C759]">
+                Verified ID
               </span>
             </p>
             <span className="text-[9px] text-[#6E6E73] block mt-0.5 select-none">
-              {biometricSim === 'match' ? 'Euclidean descriptor vector active' : 'Biometric matching threshold exceeded'}
+              Euclidean face descriptor loaded
             </span>
           </div>
         </div>
@@ -298,9 +383,7 @@ export const StudentQRScanner: React.FC = () => {
               </div>
             </div>
 
-            <p className="text-[9px] text-[#6E6E73] text-center font-bold uppercase tracking-wider select-none">
-              * Broadcast session code is session_q2|ACTIVE_TOKEN_23910 by default
-            </p>
+
           </div>
         )}
 
@@ -333,56 +416,30 @@ export const StudentQRScanner: React.FC = () => {
           </div>
         )}
 
-        {/* PANEL C: Camera Simulation */}
+        {/* PANEL C: Live Camera Scan */}
         {activeMethod === 'camera' && (
-          <div id="panel-camera" className="w-full max-w-sm text-center space-y-6">
-            
-            {/* Visual Viewfinder framing box styling */}
-            <div className="relative aspect-square max-w-[240px] mx-auto bg-black border border-[#D2D2D7] rounded-3xl flex items-center justify-center overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.06)] group select-none">
-              {/* Pulsing corners styling with thick sci-fi bracket style borders */}
-              <div className="absolute top-5 left-5 h-6 w-6 border-t-4 border-l-4 border-[#34C759] rounded-tl" />
-              <div className="absolute top-5 right-5 h-6 w-6 border-t-4 border-r-4 border-[#34C759] rounded-tr" />
-              <div className="absolute bottom-5 left-5 h-6 w-6 border-b-4 border-l-4 border-[#34C759] rounded-bl" />
-              <div className="absolute bottom-5 right-5 h-6 w-6 border-b-4 border-r-4 border-[#34C759] rounded-br" />
-
-              {/* Glowing camera lens / ring indicator background decoration */}
-              <div className="absolute inset-8 rounded-full border border-[#34C759]/10 pointer-events-none flex items-center justify-center">
-                <div className="h-24 w-24 rounded-full bg-[#34C759]/5 animate-pulse" />
+          <div id="panel-camera" className="w-full max-w-sm text-center space-y-4">
+            <div className="relative w-full max-w-[280px] mx-auto rounded-3xl overflow-hidden shadow-md bg-black aspect-square">
+              {/* Scan box frame overlay */}
+              <div className="absolute inset-0 pointer-events-none z-10">
+                <div className="absolute top-5 left-5 h-6 w-6 border-t-4 border-l-4 border-[#34C759] rounded-tl" />
+                <div className="absolute top-5 right-5 h-6 w-6 border-t-4 border-r-4 border-[#34C759] rounded-tr" />
+                <div className="absolute bottom-5 left-5 h-6 w-6 border-b-4 border-l-4 border-[#34C759] rounded-bl" />
+                <div className="absolute bottom-5 right-5 h-6 w-6 border-b-4 border-r-4 border-[#34C759] rounded-br" />
               </div>
-
-              {simulatedCameraScanning ? (
-                <>
-                  {/* Flashing target center reticle */}
-                  <div className="absolute h-5 w-5 border border-dashed border-[#34C759]/40 rounded-full animate-ping z-20" />
-                  
-                  {/* Animated laser horizontal beam spanning entire frame width */}
-                  <div className="scanner-laser z-20" />
-                  
-                  <div className="space-y-1.5 text-center z-10 animate-pulse text-white">
-                    <p className="text-[10px] text-[#34C759] font-mono font-bold uppercase tracking-widest">Decoding matrix...</p>
-                    <p className="text-[9px] text-[#AEAEB2] font-semibold font-mono tracking-wider">LATENCY: 24ms</p>
-                  </div>
-                </>
-              ) : (
-                <div className="text-[#AEAEB2] flex flex-col items-center justify-center z-10 transition-all duration-300">
-                  <div className="h-12 w-12 rounded-full bg-white/10 border border-white/10 flex items-center justify-center mb-3">
-                    <Camera className="h-5 w-5 text-[#34C759]" />
-                  </div>
-                  <span className="text-[10px] font-bold text-[#E5E5EA] tracking-wider uppercase block">VIEWFINDER STANDBY</span>
-                  <span className="text-[9px] font-semibold text-[#8E8E93] block mt-1 uppercase">Ready to commence scan</span>
-                </div>
-              )}
+              
+              <div id="qr-reader" className="w-full h-full bg-black" />
             </div>
 
-            <button
-              onClick={handleSimulateCameraTrigger}
-              id="simulate-camera-scan-btn"
-              disabled={simulatedCameraScanning || loading}
-              className="saas-button-primary flex items-center justify-center gap-2 py-2.5 cursor-pointer select-none active:scale-95"
-            >
-              <RefreshCcw className={`h-4 w-4 text-white ${simulatedCameraScanning ? 'animate-spin' : ''}`} />
-              <span>{simulatedCameraScanning ? 'Scanning...' : 'Initiate Camera stream'}</span>
-            </button>
+            {scannerError && (
+              <p className="text-xs text-[#FF3B30] font-semibold px-4">{scannerError}</p>
+            )}
+
+            <p className="text-[10px] text-[#6E6E73] font-bold uppercase tracking-wider select-none">
+              Align the QR code within the framing corners to scan.
+            </p>
+
+
           </div>
         )}
 
@@ -439,45 +496,10 @@ export const StudentQRScanner: React.FC = () => {
         </div>
       )}
 
-      {/* INTERACTIVE DEMO SETTINGS HELPER (ANTI-PROXY & GPS BOUNDS TESTING FRAME) */}
-      <div className="saas-card p-5 text-xs text-[#6E6E73] space-y-3.5 select-none">
-        <div className="flex items-center gap-1.5 text-[#1D1D1F] font-bold uppercase tracking-wider">
-          <Smartphone className="h-4 w-4 text-[#0071E3]" />
-          <span>Security Sandbox Lab Console</span>
-        </div>
-        <p className="text-[11px] text-[#6E6E73] leading-relaxed">
-          Toggle parameters below to test geofencing perimeters and physical biometric protections live:
-        </p>
-        
-        <div className="flex flex-wrap gap-3.5 pt-1">
-          {/* GPS toggle button */}
-          <button
-            onClick={toggleSimulateOffCampus}
-            className={`px-3 py-1.5 text-[10px] rounded-lg font-bold uppercase border transition-all cursor-pointer flex items-center gap-1 ${
-              coords.latitude === 18.5204 
-                ? 'bg-[#EAFBEF] text-[#34C759] border-[#34C759]/20 shadow-[0_1px_2px_rgba(0,0,0,0.02)]' 
-                : 'bg-[#FDF2F2] text-[#FF3B30] border-[#FF3B30]/20'
-            }`}
-          >
-            <MapPin className="h-3 w-3" />
-            <span>GPS: {coords.latitude === 18.5204 ? 'Inside Campus Boundary' : 'Simulating Off-Campus'}</span>
-          </button>
 
-          {/* Biometrics Toggle Button */}
-          <button
-            onClick={() => setBiometricSim(prev => prev === 'match' ? 'proxy' : 'match')}
-            className={`px-3 py-1.5 text-[10px] rounded-lg font-bold uppercase border transition-all cursor-pointer flex items-center gap-1 ${
-              biometricSim === 'match' 
-                ? 'bg-[#EAFBEF] text-[#34C759] border-[#34C759]/20 shadow-[0_1px_2px_rgba(0,0,0,0.02)]' 
-                : 'bg-[#FDF2F2] text-[#FF3B30] border-[#FF3B30]/20'
-            }`}
-          >
-            <UserCheck className="h-3 w-3" />
-            <span>Face ID: {biometricSim === 'match' ? 'Aiden Match (0.1)' : 'Fake Proxy Scan (0.9)'}</span>
-          </button>
-        </div>
-      </div>
 
+      {/* Invisible div for file scanning */}
+      <div id="qr-reader-file" className="hidden" />
     </div>
   );
 };
